@@ -1,0 +1,43 @@
+.user-type-container {
+    border: 2PX solid rgb(221, 214, 214);
+    margin-top: 50px;
+    padding-top: 10px;
+    border-radius: 5px;
+    font-family: Arial;
+    font-weight: bold;
+    color: rgb(151, 148, 148);
+    margin-left: 1PX;
+    margin-right: 1px;
+    height: 180px;
+    width: 950px;
+    margin-left: 30px;
+
+}
+
+.user-type {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 20PX;
+    border-top: 2px solid rgb(221, 214, 214);
+    height: 158px;
+}
+
+.user-container {
+    border: 2PX solid rgb(221, 214, 214);
+
+    padding-top: 20px;
+    border-radius: 6PX;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 200px;
+
+}
+
+.info {
+    display: flex;
+    flex-direction: row;
+}
