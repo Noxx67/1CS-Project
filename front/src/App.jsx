@@ -1,7 +1,7 @@
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { LoginPage } from './pages/LoginPage';
-import { AdminCreateUser } from './pages/AdminCreateUser';
+// import { AdminCreateUser } from './pages/AdminCreateUser';
 import './App.css';
 function App() {
 
@@ -9,7 +9,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route path="/AdminCreateUser" element={<AdminCreateUser />} />
+        {/* <Route path="/AdminCreateUser" element={<AdminCreateUser />} /> */}
       </Routes>
     </BrowserRouter>
   )
