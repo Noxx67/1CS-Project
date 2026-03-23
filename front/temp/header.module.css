@@ -1,0 +1,55 @@
+.header-container {
+    display: flex;
+    flex-direction: row;
+    gap: 3PX;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid rgb(221, 214, 214);
+    padding: 17px;
+    margin-top: 1PX;
+    height: 15px;
+    border-radius: 5px;
+
+
+
+}
+
+.fleche-icon {
+    color: black;
+    font-size: 30px;
+
+}
+
+.fleche-icon:hover {
+    color: black;
+}
+
+.text {
+    color: rgb(151, 148, 148);
+
+}
+
+.header-title {
+    font-size: 20px;
+    margin-bottom: -20px;
+    margin-top: 10PX;
+    margin-left: 14px;
+
+}
+
+.header-leftside {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-info {
+    border: none;
+    color: black;
+    width: 35PX;
+    border-radius: 20px;
+    height: 35px;
+    padding: 0;
+    background-color: rgb(224, 226, 226);
+    margin-left: 15px;
+}

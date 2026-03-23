@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import StatCard from './components/StatCard';
@@ -6,6 +7,8 @@ import AbsenceTable from './components/AbsenceTable';
 import UserManagementPage from './components/UserManagementPage';
 import { useStudents } from './context/StudentsContext';
 import { useAbsenceRecords } from './context/AbsenceRecordsContext';
+import { LoginPage } from './pages/LoginPage';
+import { Wow } from './pages/Wow.jsx';
 import './App.css';
 
 const pageMeta = {
@@ -92,14 +95,28 @@ function PlaceholderPage({ title, description }) {
   );
 }
 
-export default function App() {
+function WrongInfoPage() {
+  return (
+    <div className="wrong-info-page">
+      <img
+        src="https://i.pinimg.com/736x/ae/64/35/ae64357b13dce575845921bcbc8d1482.jpg"
+        alt="Wrong info"
+      />
+      <h1>WRONG INFO</h1>
+    </div>
+  );
+}
+
+function DashboardShell() {
   const [activePage, setActivePage] = useState('dashboard');
   const [dashboardSearchQuery, setDashboardSearchQuery] = useState('');
   const [pendingUserSearchQuery, setPendingUserSearchQuery] = useState('');
+
   const handleOpenUserManagementSearch = useCallback((searchQuery) => {
     setPendingUserSearchQuery(searchQuery || '');
     setActivePage('users');
   }, []);
+
   const handleInitialUserSearchApplied = useCallback(() => {
     setPendingUserSearchQuery('');
   }, []);
@@ -137,5 +154,17 @@ export default function App() {
         {pageContent}
       </main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      <Route path="/dashboard" element={<DashboardShell />} />
+      <Route path="/wow" element={<Wow />} />
+      <Route path="/dumbahh" element={<WrongInfoPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }

@@ -1,0 +1,48 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.buttons {
+    background-color: #00194F;
+    margin-left: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.cancel-button {
+    background-color: white;
+    margin-left: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    color: #64748B;
+    font-weight: bold;
+}
+
+.buttons-container {
+    margin-left: 650PX;
+}
+
+.app-container {
+
+    display: flex;
+    flex-direction: row;
+
+    min-height: 110vh;
+    min-width: 215vh;
+
+
+
+
+}
+
+
+
+.content {
+    background-color: white;
+    flex: 1;
+    color: black;
+
+}

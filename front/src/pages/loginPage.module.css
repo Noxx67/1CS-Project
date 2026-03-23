@@ -1,0 +1,307 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background: #001B4D;
+    background: linear-gradient(rgba(0, 27, 77, 1) 0%, rgba(0, 6, 16, 1) 100%);
+    
+    width: 100vw;
+    min-height: 100vh;
+}
+
+.loginPage {
+    min-height: 600px;
+
+    max-width: 400px;
+    width: 400px;
+    
+    margin: 70px auto 0;
+
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+
+    filter: drop-shadow(0px 20px 50px rgba(0, 0, 0, 0.15));
+}
+
+.titleContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 40px 40px 24px 40px;
+}
+
+.logo {
+    width: 80px; 
+    height: auto; 
+    
+    padding: 8px;
+
+    margin-bottom: 16px;
+}
+
+
+.esiTitle {
+    color: #001B4D;
+    text-align: center;
+    font: 'Lexend' Bold;
+    font-size: 24px;
+    letter-spacing: -0.6px;
+    margin: 0px;
+}
+
+.appTitle {
+    color: #475569;
+    text-align: center;
+    font: 'Lexend' medium;
+    font-size: 14px;
+    margin: 0px;
+}
+
+.bodyContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%; /* Ensure it fills the login box */
+    padding: 0 40px;
+    box-sizing: border-box;
+}
+
+.inputFieldTitle {
+    align-self: flex-start;
+    text-align: left;
+    display: block;
+    margin: 0px 4px 6px 4px;
+    color:#001B4D;
+    opacity: 0.7;
+    font-weight: bold; /* Note: 'font: Lexend bold' is invalid CSS syntax */
+    font-family: 'Lexend', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+}
+
+.inputWrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+
+.inputWrapperText {
+    width: 100%;
+    height: 45px; /* Taller inputs look more modern */
+    background-color: rgba(255, 255, 255, 0.6); /* Light gray background like the image */
+    border: 1px solid transparent; /* No harsh border */
+    border-radius: 12px; /* Very rounded corners */
+    padding-left: 45px; /* Room for the icon */
+    padding-right: 45px; /* Room for the eye icon */
+    font-size: 14px;
+    font-family: 'Lexend', sans-serif;
+    color: #1e293b;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.inputWrapperText:focus {
+    outline: none;
+    background-color: #ffffff;
+    border-color: #94a3b8;
+    border-width: 1px;
+}
+
+
+.inputIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px; /* Slightly bigger icons */
+    pointer-events: none;
+}
+
+.eyeButton {
+    position: absolute;
+    right: 12px;   
+    top: 50%;
+    transform: translateY(-50%);
+    
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+
+    width: 30px;        
+    height: 30px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+}
+
+.eyeButton:hover {
+    opacity: 1;
+}
+
+.eyeButton:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.eyeIcon {
+    width: 18px;
+}
+
+
+.rememberContainer {
+    color: #475569;
+    text-align: left;
+    display: flex;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 24px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rememberGroup {
+    display: flex;
+    align-items: center;
+    gap: 8px; 
+}
+
+.rememberText {
+    font-size: 14px;
+    font-weight: bold;
+    align-self: flex-start;
+}
+
+.checkbox {
+    appearance: none;
+    -webkit-appearance: none; /* For Safari */
+    margin: 0px;
+    padding: 0px;
+    width: 16px;
+    height: 16px;
+    background-color: #f1f5f9; /* Match your input background */
+    border: 2px solid transparent; 
+    border-radius: 4px;
+    box-sizing: border-box; /* The magic property */
+    display: inline-block;
+    position: relative;
+    transition: background-color 0.1s all 0.1s;
+}
+
+.checkbox:hover {
+    border: rgb(79, 187, 255) solid 2px;
+    background-color: #f5f5f5;
+}
+
+.checkbox:active {
+    background-color: rgb(79, 187, 255);
+    transition: background-color 0s ease-in;
+}
+
+.checkbox::after {
+    content: '';
+    position: absolute;
+    
+    /* Create an 'L' shape */
+    width: 4px;
+    height: 8px;
+    border: solid #001B4D; /* Your dark blue color */
+    border-width: 0 2px 2px 0; /* Only show bottom and right borders */
+    
+    /* Rotate the 'L' to look like a checkmark */
+    transform: rotate(45deg) scale(0); 
+    
+    /* Position it in the center */
+    left: 3px;
+    top: 0px;
+    
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.checkbox:checked::after {
+    opacity: 1;
+    transform: rotate(45deg) scale(1); /* "Pops" into view */
+}
+
+.checkbox:active::after {
+    border-color: rgb(79, 187, 255); 
+}
+
+.forgetLink {
+    color: rgb(225, 49, 49);
+
+    font-size: 14px;
+    font-weight: bold;
+    align-self: flex-end;
+    text-align: left;
+
+}
+
+.forgetLink:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.forgetLink:hover {
+    text-decoration: underline;
+}
+
+.loginButton {
+    background-color: #001B4D;
+    width: 100%;
+    height: 60px;
+    
+    filter: drop-shadow(0px 10px 15px #001b4d33);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap:8px
+}
+
+.supportContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap:8px;
+
+    padding-top: 40px;
+    padding-left: -15px;
+
+    width: 100%;
+    margin-bottom: 40px;
+
+    color: #64748B;
+    font: 'Lexend' regular;
+    font-size: 14px;
+}
+
+.supportLink {
+    color: rgb(225, 49, 49);
+    font: 'Lexend';
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.footer {
+    position: fixed;
+    margin: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 24px;
+    text-align: center;
+    font-family: 'Lexend';
+    font-size: clamp(10px, 1.5vw, 14px);
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.8);
+}
