@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import DashboardPage from './DashboardPage';
 import UserManagementPage from '../components/UserManagementPage';
 import styles from './DashboardShell.module.css';
+import {useAuth} from '../context/AuthContext';
 
 const pageMeta = {
   schedules: {
@@ -36,7 +37,7 @@ export default function DashboardShell() {
     const [activePage, setActivePage] = useState('dashboard');
     const [dashboardSearchQuery, setDashboardSearchQuery] = useState('');
     const [pendingUserSearchQuery, setPendingUserSearchQuery] = useState('');
-  
+
     const handleOpenUserManagementSearch = useCallback((searchQuery) => {
       setPendingUserSearchQuery(searchQuery || '');
       setActivePage('users');
