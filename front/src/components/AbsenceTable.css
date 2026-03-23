@@ -1,0 +1,165 @@
+.absence-table-card {
+  background: #fff;
+  border: 1px solid #eef0f6;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+}
+
+.table-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.table-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a2340;
+  margin: 0 0 4px 0;
+}
+
+.table-subtitle {
+  font-size: 12.5px;
+  color: #9aa0b4;
+  margin: 0;
+}
+
+.export-btn {
+  background: #1a2340;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  font-family: inherit;
+}
+
+.export-btn:hover {
+  background: #253461;
+  transform: translateY(-1px);
+}
+
+.absence-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.absence-table thead th {
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #9aa0b4;
+  padding: 0 16px 14px 0;
+  border-bottom: 1.5px solid #f0f2f8;
+}
+
+.absence-table tbody tr {
+  border-bottom: 1px solid #f5f7fc;
+  transition: background 0.15s;
+}
+
+.absence-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.absence-table tbody tr:hover {
+  background: #fafbff;
+}
+
+.absence-table tbody td {
+  padding: 16px 16px 16px 0;
+  vertical-align: middle;
+}
+
+.student-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.student-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.student-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1a2340;
+}
+
+.cell-muted {
+  font-size: 13.5px;
+  color: #5a637a;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.status-badge--pending {
+  background: #fff4e0;
+  color: #c97d00;
+  border: 1px solid #ffd87a;
+}
+
+.status-badge--justified {
+  background: #e8f7ee;
+  color: #1a7a46;
+  border: 1px solid #a3dbbe;
+}
+
+.status-badge--rejected {
+  background: #fce8ea;
+  color: #c0394a;
+  border: 1px solid #f4b0b8;
+}
+
+.view-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  opacity: 0.55;
+  transition: opacity 0.2s, transform 0.15s;
+  padding: 4px;
+}
+
+.view-btn:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.view-btn--active {
+  opacity: 1;
+}
+
+/* Hidden row */
+.row--hidden td {
+  color: #bfc6d6 !important;
+  user-select: none;
+}
+
+.row--hidden .student-avatar {
+  background: #e8eaf0 !important;
+  color: #bfc6d6 !important;
+}

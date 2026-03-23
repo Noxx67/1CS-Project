@@ -1,0 +1,90 @@
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgba(216, 229, 255, 0.7), transparent 28%),
+    #f4f6fb;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 240px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page-body {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+}
+
+.stats-row {
+  display: flex;
+  gap: 20px;
+}
+
+.placeholder-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 32px;
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid #e4ebf5;
+  box-shadow: 0 20px 44px rgba(28, 48, 84, 0.06);
+}
+
+.placeholder-label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #8b98b4;
+}
+
+.placeholder-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #132b63;
+}
+
+.placeholder-description {
+  max-width: 44rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #60718f;
+}
+
+@media (max-width: 960px) {
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .main-content {
+    margin-left: 0;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .stats-row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 720px) {
+  .page-body {
+    padding: 18px;
+  }
+
+  .placeholder-card {
+    padding: 24px;
+  }
+
+  .placeholder-title {
+    font-size: 1.7rem;
+  }
+}
