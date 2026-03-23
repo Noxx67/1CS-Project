@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import styles from './loginPage.module.css';
-import api from '../api/axios';
 import { useAuth } from '../context/AuthContext'; // Import the hook
 
 
@@ -21,15 +20,11 @@ export function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault(); 
         try {
-            const response = await api.post('accounts/login/', {
-                email, 
-                password
-            });
-            
             // Use the Context login instead of manual localStorage
-            login(response.data);
+            const data = await login(email, password);
 
-            if (response.status === 200) {
+            console.log("Login successful:", data);
+            if (data) {
                 navigate('/dashboard');
             }
         } catch (error) {

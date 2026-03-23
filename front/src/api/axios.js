@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { authService } from '../services/authService.js';
 
 const api = axios.create({
     baseURL: 'http://127.0.0.1:8000/api/', // Your Django URL
@@ -10,7 +11,7 @@ const api = axios.create({
 
 // 🛠️ The Interceptor: Automatically adds the token to every request
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('access_token');
+    const token = authService.getToken();
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }

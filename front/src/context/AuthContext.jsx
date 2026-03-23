@@ -16,14 +16,34 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const login = (data) => {
-    authService.setSession(data);
-    setUser(data.user);
+  const login = async (email, password) => {
+    try { 
+      // 1. Corrected typo: console.log
+      console.log("Attempting login for:", email);
+  
+      // 2. Await the service call directly
+      const data = await authService.login(email, password);
+  
+      // 3. Update the state using the result
+      setUser(data.user);
+  
+      // 4. Return the data so the LoginPage knows it was successful
+      return data; 
+  
+    } catch (error) {
+      // 5. Log the error and pass it up to the LoginPage UI
+      console.error("Login Error:", error.response?.data || error.message);
+      throw error; 
+    }
   };
 
   const logout = () => {
-    authService.clearSession();
-    setUser(null);
+    try {authService.logout()}
+    catch (error) {
+      console.error("Logout Error:", error.response);
+    } finally {
+      setUser(null);
+    }
   };
 
   return (

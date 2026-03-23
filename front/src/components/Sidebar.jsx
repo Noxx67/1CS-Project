@@ -1,4 +1,5 @@
 import './Sidebar.css';
+import { useAuth } from '../context/AuthContext';
 
 const navItems = [
   { id: 'dashboard', icon: '\u25A6', label: 'Dashboard' },
@@ -9,6 +10,14 @@ const navItems = [
 ];
 
 export default function Sidebar({ activePage, onNavigate }) {
+
+  const { user, logout } = useAuth();
+
+
+  const handleLogout = () => {
+    logout();
+  }
+
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
@@ -46,7 +55,7 @@ export default function Sidebar({ activePage, onNavigate }) {
           <span className="user-name">Dr. Patrick B.</span>
           <span className="user-role">System Administrator</span>
         </div>
-        <button type="button" className="logout-btn" title="Logout" aria-label="Logout">
+        <button type="button" className="logout-btn" title="Logout" aria-label="Logout" onClick={handleLogout}>
           {'\u21E5'}
         </button>
       </div>
