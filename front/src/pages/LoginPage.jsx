@@ -16,10 +16,10 @@ export function LoginPage() {
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevents page reload
+        e.preventDefault(); 
         try {
             const response = await api.post('accounts/login/', {
-                email: email, // Django usually expects 'username'
+                email: email, 
                 password: password
             });
             
@@ -27,11 +27,11 @@ export function LoginPage() {
             localStorage.setItem('refresh_token', response.data.refresh);
 
             if (response.status === 200) {
-                navigate('/wow'); // Redirect to dashboard after successful login
+                navigate('/dashboard');
             }
         } catch (error) {
             console.error("Login Error:", error.response?.data);
-            navigate('dumbass');
+            navigate('/dumbahh');
         }
     };
 

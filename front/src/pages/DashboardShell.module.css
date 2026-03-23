@@ -1,0 +1,21 @@
+.appLayout {
+    display: flex;
+  }
+  
+.mainContent {
+  flex: 1;
+  margin-left: 240px; /* Space for the sidebar */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+  
+@media (max-width: 960px) {
+  .appLayout {
+    flex-direction: column;
+  }
+  .mainContent {
+    margin-left: 0;
+    min-height: auto;
+  }
+}

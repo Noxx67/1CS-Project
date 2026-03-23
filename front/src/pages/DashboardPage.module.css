@@ -1,0 +1,24 @@
+.pageBody {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+}
+
+.statsRow {
+  display: flex;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .statsRow {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 720px) {
+  .pageBody {
+    padding: 18px;
+  }
+}

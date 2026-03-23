@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api/axios'; // This is the axios instance we created earlier
+import api from '../api/axios'; 
 
-export function Wow() {
+export default function Wowzers() {
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -10,14 +10,10 @@ export function Wow() {
         const fetchUserData = async () => {
             try {
                 setLoading(true);
-                // 🚀 Axios sends the request. 
-                // Your interceptor automatically adds the 'Bearer <token>' header.
                 const response = await api.get('accounts/me/');
                 
-                // 💾 Set the JSON response to state
                 setData(response.data);
             } catch (err) {
-                // ❌ Catch any 401 (Unauthorized) or 404 errors
                 setError(err.response?.data || "Failed to fetch data from server.");
                 console.error("API Error:", err);
             } finally {
@@ -53,7 +49,6 @@ export function Wow() {
                         borderRadius: '5px',
                         overflowX: 'auto' 
                     }}>
-                        {/* ⚡ The '2' at the end adds the nice indentation */}
                         <pre>{JSON.stringify(data, null, 2)}</pre>
                     </div>
                 </div>

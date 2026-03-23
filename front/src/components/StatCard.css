@@ -1,0 +1,65 @@
+.stat-card {
+  background: #fff;
+  border: 1px solid #eef0f6;
+  border-radius: 16px;
+  padding: 24px;
+  flex: 1;
+  position: relative;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 18px rgba(0,0,0,0.09);
+  transform: translateY(-2px);
+}
+
+.stat-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #fff4e5;
+  color: #e07c00;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  border: 1px solid #ffd9a0;
+}
+
+.stat-icon {
+  font-size: 24px;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #8892a6;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.stat-value {
+  font-size: 38px;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.stat-sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #9aa0b4;
+  margin: 0;
+}
+
+.sub-icon {
+  font-size: 12px;
+}
