@@ -11,27 +11,6 @@ body {
   width: 100%;
 }
 
-.main-content {
-  flex: 1;
-  margin-left: 240px;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.page-body {
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  flex: 1;
-}
-
-.stats-row {
-  display: flex;
-  gap: 20px;
-}
-
 .placeholder-card {
   display: flex;
   flex-direction: column;
@@ -61,23 +40,6 @@ body {
   font-size: 1rem;
   line-height: 1.7;
   color: #60718f;
-}
-
-@media (max-width: 960px) {
-  .app-layout {
-    flex-direction: column;
-  }
-
-  .main-content {
-    margin-left: 0;
-    min-height: auto;
-  }
-}
-
-@media (max-width: 900px) {
-  .stats-row {
-    flex-direction: column;
-  }
 }
 
 @media (max-width: 720px) {
