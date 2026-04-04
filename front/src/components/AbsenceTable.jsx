@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAbsenceRecords } from '../context/AbsenceRecordsContext';
+import { useAppPreferences } from '../context/AppPreferencesContext';
 import './AbsenceTable.css';
 
 const avatarColors = {
@@ -10,8 +11,7 @@ const avatarColors = {
 
 const MASK = '\u2022 \u2022 \u2022 \u2022 \u2022';
 
-function exportToCSV(rows) {
-  const headers = ['Student Name', 'Specialization', 'Module', 'Timestamp', 'Validation'];
+function exportToCSV(rows, headers) {
   const csvRows = rows.map((row) => [
     row.name,
     row.specialization,
@@ -34,6 +34,7 @@ function exportToCSV(rows) {
 }
 
 export default function AbsenceTable({ searchQuery = '' }) {
+  const { t } = useAppPreferences();
   const [hidden, setHidden] = useState({});
   const { absenceRecords } = useAbsenceRecords();
 
@@ -48,30 +49,37 @@ export default function AbsenceTable({ searchQuery = '' }) {
       String(record.module || '').toLowerCase().includes(q)
   );
   const emptyMessage = q
-    ? 'No absence records match your search.'
-    : 'No recent absence records yet.';
+    ? t('absenceTable.noSearchResults')
+    : t('absenceTable.noRecords');
+  const csvHeaders = [
+    t('absenceTable.studentIdentity'),
+    t('absenceTable.specialization'),
+    t('absenceTable.module'),
+    t('absenceTable.timestamp'),
+    t('absenceTable.validation'),
+  ];
 
   return (
     <div className="absence-table-card">
       <div className="table-header">
         <div>
-          <h3 className="table-title">Recent Absence Records</h3>
-          <p className="table-subtitle">Monitoring real-time student attendance</p>
+          <h3 className="table-title">{t('absenceTable.title')}</h3>
+          <p className="table-subtitle">{t('absenceTable.subtitle')}</p>
         </div>
-        <button type="button" className="export-btn" onClick={() => exportToCSV(filtered)}>
-          Export Records
+        <button type="button" className="export-btn" onClick={() => exportToCSV(filtered, csvHeaders)}>
+          {t('absenceTable.exportRecords')}
         </button>
       </div>
 
       <table className="absence-table">
         <thead>
           <tr>
-            <th>STUDENT IDENTITY</th>
-            <th>SPECIALIZATION</th>
-            <th>MODULE</th>
-            <th>TIMESTAMP</th>
-            <th>VALIDATION</th>
-            <th>ACTIONS</th>
+            <th>{t('absenceTable.studentIdentity')}</th>
+            <th>{t('absenceTable.specialization')}</th>
+            <th>{t('absenceTable.module')}</th>
+            <th>{t('absenceTable.timestamp')}</th>
+            <th>{t('absenceTable.validation')}</th>
+            <th>{t('absenceTable.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -113,7 +121,7 @@ export default function AbsenceTable({ searchQuery = '' }) {
                     <button
                       type="button"
                       className={`view-btn ${isHidden ? 'view-btn--active' : ''}`}
-                      title={isHidden ? 'Reveal info' : 'Hide info'}
+                      title={isHidden ? t('absenceTable.revealInfo') : t('absenceTable.hideInfo')}
                       onClick={() => toggleHide(row.id)}
                     >
                       {isHidden ? '\u{1F648}' : '\u{1F441}'}

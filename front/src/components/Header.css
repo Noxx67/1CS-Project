@@ -127,7 +127,7 @@
 .notif-badge {
   position: absolute;
   top: -4px;
-  right: -4px;
+  inset-inline-end: -4px;
   background: #e63946;
   color: #fff;
   font-size: 9px;
@@ -146,7 +146,7 @@
 .notif-panel {
   position: absolute;
   top: calc(100% + 10px);
-  right: 0;
+  inset-inline-end: 0;
   width: 340px;
   background: #fff;
   border: 1px solid #eef0f6;
@@ -239,11 +239,11 @@
 .notif-item:hover { background: #fafbff; }
 
 .alert-item {
-  border-left: 3px solid #e63946;
+  border-inline-start: 3px solid #e63946;
 }
 
 .notif-item--urgent {
-  border-left: 3px solid #e63946;
+  border-inline-start: 3px solid #e63946;
 }
 
 .notif-item--read {
@@ -272,7 +272,7 @@
   border: none;
   background: none;
   padding: 0;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   font: inherit;
   color: inherit;
@@ -361,4 +361,12 @@
   color: #9aa0b4;
   letter-spacing: 0.8px;
   font-weight: 500;
+}
+
+html[dir='rtl'] .header-search {
+  flex-direction: row-reverse;
+}
+
+html[dir='rtl'] .header-title {
+  align-items: flex-start;
 }

@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNotifications } from '../context/NotificationsContext';
 import { useUsers } from '../context/UsersContext';
-import { useDirectoryUsers } from '../context/DirectoryUsersContext';
+import { useAppPreferences } from '../context/AppPreferencesContext';
+import UserEditPage from '../pages/UserEditPage';
+import { getStudentDepartmentFromPromotion } from '../utils/studentDepartment';
+import { exportUsersToCsv } from '../utils/exportUsersToCsv';
 import './UserManagementPage.css';
 
 const SEARCH_ICON = '\u{1F50D}';
@@ -16,15 +19,21 @@ const CHECK_ICON = '\u2713';
 const EYE_ICON = '\u{1F441}';
 
 const roleOptions = [
-  { id: 'student', label: 'Student', icon: '\u{1F464}' },
-  { id: 'teacher', label: 'Teacher', icon: '\u{1F393}' },
-  { id: 'scolarite', label: 'Scolarite', icon: '\u{1F4DA}' },
-  { id: 'admin', label: 'Admin', icon: '\u2699' },
+  { id: 'student', icon: '\u{1F464}' },
+  { id: 'teacher', icon: '\u{1F393}' },
+  { id: 'scolarite', icon: '\u{1F4DA}' },
+  { id: 'admin', icon: '\u2699' },
 ];
 
 const studentSpecialties = ['ISI', 'SIW', 'IASD', 'CyberSecurity'];
 const promotionOptions = ['1CPI', '2CPI', '1CS', '2CS', '3CS'];
-const ESI_SBA_EMAIL_REGEX = /^[^@\s]+@esi-sba\.dz$/i;
+const PROMOTION_TO_YEAR = {
+  '1CPI': 1,
+  '2CPI': 2,
+  '1CS': 3,
+  '2CS': 4,
+  '3CS': 5,
+};
 const ALGERIAN_PHONE_REGEX = /^(0\d{9}|\+213\d{9})$/;
 
 const initialFormState = {
@@ -36,43 +45,21 @@ const initialFormState = {
   promotion: '',
   specialty: '',
   department: '',
+  profilePicture: '',
 };
 
-function exportUsersToCsv(users) {
-  const headers = ['Name', 'Email', 'ID Number', 'Role', 'Department', 'Status'];
-  const rows = users.map((user) => [
-    user.name,
-    user.email,
-    user.idNumber,
-    formatLabel(user.role),
-    user.department,
-    formatLabel(user.accountStatus),
-  ]);
-
-  const csvContent = [headers, ...rows]
-    .map((row) => row.map((cell) => `"${cell}"`).join(','))
-    .join('\n');
-
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'user_directory.csv';
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function formatLabel(value) {
+function formatLabel(value, t) {
+  const normalizedValue = String(value || '').toLowerCase();
   const labels = {
-    student: 'Student',
-    teacher: 'Teacher',
-    scolarite: 'Scolarite',
-    admin: 'Admin',
-    active: 'Active',
-    suspended: 'Suspended',
+    student: t('roles.STUDENT'),
+    teacher: t('roles.TEACHER'),
+    scolarite: t('roles.SCOLARITE'),
+    admin: t('roles.ADMIN'),
+    active: t('common.active'),
+    suspended: t('common.suspended'),
   };
 
-  return labels[value] || value || '';
+  return labels[normalizedValue] || value || '';
 }
 
 function roleIs(user, roleName) {
@@ -103,63 +90,49 @@ function getAvatarTone(user) {
   return 'blue';
 }
 
-function buildInitials(name) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-
-  return (parts[0] || 'NU').slice(0, 2).toUpperCase();
+function getYearValueFromPromotion(promotion) {
+  return PROMOTION_TO_YEAR[String(promotion || '').toUpperCase()] || null;
 }
 
-function buildGeneratedEmail(name) {
-  return `${name
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '.')
-    .replace(/^\.+|\.+$/g, '')}@esi-sba.dz`;
-}
-
-function getRoleSectionMeta(role) {
+function getRoleSectionMeta(role, t) {
   const normalizedRole = String(role || '').toLowerCase();
 
   if (!normalizedRole) {
     return {
-      title: 'Account Details',
-      subtitle: 'Choose a role to unlock the fields below',
-      badge: 'Role Required',
+      title: t('userManagement.accountDetailsTitle'),
+      subtitle: t('userManagement.accountDetailsSubtitle'),
+      badge: t('userManagement.roleRequired'),
     };
   }
 
   if (normalizedRole === 'teacher') {
     return {
-      title: 'Teaching Details',
-      subtitle: 'Specific fields for the Teacher role',
-      badge: 'Teacher Active',
+      title: t('userManagement.teachingDetails'),
+      subtitle: t('userManagement.teachingSubtitle'),
+      badge: t('userManagement.teacherActive'),
     };
   }
 
   if (normalizedRole === 'scolarite') {
     return {
-      title: 'School Office Details',
-      subtitle: 'Specific fields for the Scolarite role',
-      badge: 'Scolarite Active',
+      title: t('userManagement.schoolOfficeDetails'),
+      subtitle: t('userManagement.schoolOfficeSubtitle'),
+      badge: t('userManagement.scolariteActive'),
     };
   }
 
   if (normalizedRole === 'admin') {
     return {
-      title: 'Administrative Details',
-      subtitle: 'Specific fields for the Admin role',
-      badge: 'Admin Active',
+      title: t('userManagement.administrativeDetails'),
+      subtitle: t('userManagement.administrativeSubtitle'),
+      badge: t('userManagement.adminActive'),
     };
   }
 
   return {
-    title: 'Academic Details',
-    subtitle: 'Specific fields for the Student role',
-    badge: 'Student Active',
+    title: t('userManagement.academicDetails'),
+    subtitle: t('userManagement.studentSubtitle'),
+    badge: t('userManagement.studentActive'),
   };
 }
 
@@ -182,15 +155,7 @@ function getStudentPromotion(user) {
     return user.promotion;
   }
 
-  if (promotionOptions.includes(user.module)) {
-    return user.module;
-  }
-
-  if (normalizeSpecialty(user.specialization || user.department)) {
-    return '2CS';
-  }
-
-  return '1CPI';
+  return '';
 }
 
 function isCompletedValue(value) {
@@ -245,7 +210,7 @@ function getSetupProgress(role, values) {
   return Math.min(100, 30 + completedCommonFields * 10);
 }
 
-function getPhoneError(value) {
+function getPhoneError(value, t) {
   const trimmedValue = String(value || '').trim();
 
   if (!trimmedValue) {
@@ -253,21 +218,21 @@ function getPhoneError(value) {
   }
 
   if (!ALGERIAN_PHONE_REGEX.test(trimmedValue)) {
-    return 'Phone number must use 0XXXXXXXXX or +213XXXXXXXXX.';
+    return t('userManagement.phoneError');
   }
 
   return '';
 }
 
-function getPasswordError(value, isEditing) {
+function getPasswordError(value, isEditing, t) {
   const trimmedValue = String(value || '').trim();
 
   if (!trimmedValue && !isEditing) {
-    return 'Temporary password is required for new users.';
+    return t('userManagement.passwordRequired');
   }
 
   if (trimmedValue && trimmedValue.length < 6) {
-    return 'Temporary password must be at least 6 characters.';
+    return t('userManagement.passwordTooShort');
   }
 
   return '';
@@ -277,60 +242,17 @@ function normalizeIdValue(value) {
   return String(value || '').trim().toUpperCase();
 }
 
-function buildUserManagementSearchAction(userName) {
+function getRequiredFieldLabels(t) {
   return {
-    type: 'open-user-management-search',
-    userName,
+    firstName: t('userManagement.fieldLabels.firstName'),
+    lastName: t('userManagement.fieldLabels.lastName'),
+    password: t('userManagement.fieldLabels.password'),
+    phone: t('userManagement.fieldLabels.phone'),
+    registrationNumber: t('userManagement.fieldLabels.registrationNumber'),
+    promotion: t('userManagement.fieldLabels.promotion'),
+    specialty: t('userManagement.fieldLabels.specialty'),
+    department: t('userManagement.fieldLabels.department'),
   };
-}
-
-function getRequiredFieldLabels() {
-  return {
-    firstName: 'First name',
-    lastName: 'Last name',
-    password: 'Temporary password',
-    phone: 'Phone number',
-    registrationNumber: 'Registration number',
-    promotion: 'Promotion / year',
-    specialty: 'Specialty',
-    department: 'Department',
-  };
-}
-
-function getIdFieldName(role) {
-  const normalizedRole = String(role || '').toLowerCase();
-
-  if (normalizedRole === 'student') {
-    return 'registrationNumber';
-  }
-
-  if (normalizedRole === 'scolarite') {
-    return 'serviceUnit';
-  }
-
-  if (normalizedRole === 'teacher' || normalizedRole === 'admin') {
-    return 'employeeId';
-  }
-
-  return '';
-}
-
-function getFormIdValue(role, values) {
-  const normalizedRole = String(role || '').toLowerCase();
-
-  if (normalizedRole === 'student') {
-    return values.registrationNumber;
-  }
-
-  if (normalizedRole === 'scolarite') {
-    return values.serviceUnit;
-  }
-
-  if (normalizedRole === 'teacher' || normalizedRole === 'admin') {
-    return values.employeeId;
-  }
-
-  return '';
 }
 
 function getRequiredFieldNames(role, values, isEditing) {
@@ -363,9 +285,9 @@ function getRequiredFieldNames(role, values, isEditing) {
   return commonFields;
 }
 
-function validateFormFields(role, values, isEditing, users = [], editingUser = null) {
+function validateFormFields(role, values, isEditing, users = [], editingUser = null, t) {
   const errors = {};
-  const requiredFieldLabels = getRequiredFieldLabels();
+  const requiredFieldLabels = getRequiredFieldLabels(t);
   const requiredFieldNames = getRequiredFieldNames(role, values, isEditing);
 
   console.log('Validation starting for role:', role);
@@ -378,13 +300,13 @@ function validateFormFields(role, values, isEditing, users = [], editingUser = n
     console.log(`Checking field "${fieldName}": value="${fieldValue}", isCompleted=${isCompleted}`);
     
     if (!isCompleted) {
-      errors[fieldName] = `${requiredFieldLabels[fieldName]} is required.`;
-      console.error(`VALIDATION ERROR - ${fieldName}: ${requiredFieldLabels[fieldName]} is required.`);
+      errors[fieldName] = `${requiredFieldLabels[fieldName]} ${t('userManagement.requiredSuffix')}`;
+      console.error(`VALIDATION ERROR - ${fieldName}: ${requiredFieldLabels[fieldName]} ${t('userManagement.requiredSuffix')}`);
     }
   });
 
-  const passwordError = getPasswordError(values.password, isEditing);
-  const phoneError = getPhoneError(values.phone);
+  const passwordError = getPasswordError(values.password, isEditing, t);
+  const phoneError = getPhoneError(values.phone, t);
 
   if (passwordError) {
     errors.password = passwordError;
@@ -406,7 +328,7 @@ function validateFormFields(role, values, isEditing, users = [], editingUser = n
     );
 
     if (duplicateUser) {
-      errors.registrationNumber = 'Registration number is already used by another student.';
+      errors.registrationNumber = t('userManagement.registrationDuplicate');
     }
   }
 
@@ -426,8 +348,9 @@ function buildFormValuesFromUser(user) {
       registrationNumber: user.idNumber || '',
       promotion,
       specialty: studentHasSpecialty(promotion)
-        ? normalizeSpecialty(user.specialization || user.department)
+        ? normalizeSpecialty(user.specialty || user.specialization)
         : '',
+      profilePicture: user.profilePicture || user.profile_picture || '',
     };
   }
 
@@ -437,10 +360,17 @@ function buildFormValuesFromUser(user) {
     lastName: user.lastName || '',
     phone: user.phone || '',
     department: user.department || '',
+    profilePicture: user.profilePicture || user.profile_picture || '',
   };
 }
 
-export default function UserManagementPage({ initialSearchQuery = '', onInitialSearchApplied }) {
+export default function UserManagementPage({
+  initialSearchQuery = '',
+  onInitialSearchApplied,
+  initialViewMode = '',
+  onInitialViewModeApplied,
+}) {
+  const { t } = useAppPreferences();
   const { users, isLoading, error, addUser, updateUser, deleteUser, fetchAllUsers } = useUsers();
   const { addNotification } = useNotifications();
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
@@ -472,6 +402,8 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
       user.name,
       user.email,
       user.role,
+      user.idNumber,
+      user.department,
     ].some((value) => String(value || '').toLowerCase().includes(normalizedQuery));
   });
 
@@ -480,25 +412,25 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
   const paginatedUsers = filteredUsers.slice(startIndex, startIndex + rowsPerPage);
   const rangeStart = filteredUsers.length === 0 ? 0 : startIndex + 1;
   const rangeEnd = filteredUsers.length === 0 ? 0 : startIndex + paginatedUsers.length;
-  const roleSectionMeta = getRoleSectionMeta(selectedRole);
-  const formTitle = isEditing ? 'Edit User' : 'Add New User';
+  const roleSectionMeta = getRoleSectionMeta(selectedRole, t);
+  const formTitle = isEditing ? t('userManagement.formEditUser') : t('userManagement.formAddNewUser');
   const formBreadcrumb = isEditing
-    ? 'Users Management > Modify User'
-    : 'Users Management > Create User';
+    ? t('userManagement.breadcrumbModify')
+    : t('userManagement.breadcrumbCreate');
   const progressStep = isEditing
-    ? 'Step 1: Update Account Information'
+    ? t('userManagement.stepUpdate')
     : selectedRole
-      ? 'Step 2: Complete Account Information'
-      : 'Step 1: Account Role Selection';
+      ? t('userManagement.stepComplete')
+      : t('userManagement.stepRole');
   const roleSubtitle = isEditing
-    ? 'You can update the account type if this user needs a different role.'
-    : 'Select the type of account you want to create';
-  const submitLabel = isEditing ? 'Save Changes' : 'Create Account';
+    ? t('userManagement.roleSubtitleEdit')
+    : t('userManagement.roleSubtitleCreate');
+  const submitLabel = isEditing ? t('common.saveChanges') : t('userManagement.createAccount');
   const setupProgress = getSetupProgress(selectedRole, formValues);
   const canSubmitForm = Boolean(selectedRole) && !isSubmitting && !isLoading;
   const emptyUsersMessage = normalizedQuery
-    ? 'No users match your search.'
-    : 'No users added yet.';
+    ? t('userManagement.noSearchResults')
+    : t('userManagement.noUsers');
 
   function getFieldClass(name, baseClass = 'create-input') {
     return formErrors[name] ? `${baseClass} create-input--invalid` : baseClass;
@@ -526,26 +458,52 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     onInitialSearchApplied?.();
   }, [initialSearchQuery, onInitialSearchApplied]);
 
+  useEffect(() => {
+    if (!initialViewMode) {
+      return;
+    }
+
+    if (initialViewMode === 'create') {
+      setEditingUser(null);
+      setSelectedRole('');
+      setFormValues(initialFormState);
+      setFormErrors({});
+      setShowPassword(false);
+      setViewMode('create');
+    }
+
+    if (initialViewMode === 'directory') {
+      setViewMode('directory');
+      setEditingUser(null);
+      setSelectedRole('');
+      setFormValues(initialFormState);
+      setFormErrors({});
+      setShowPassword(false);
+    }
+
+    onInitialViewModeApplied?.();
+  }, [initialViewMode, onInitialViewModeApplied]);
+
   function handleSearchChange(event) {
     setSearchQuery(event.target.value);
     setCurrentPage(1);
   }
 
   function handleDeleteUser(user) {
-    if (window.confirm(`Are you sure you want to delete ${user.name}?`)) {
+    if (window.confirm(`${t('userManagement.confirmDeletePrefix')} ${user.name}?`)) {
       deleteUser(user.id)
         .then(() => {
           addNotification({
             icon: '\u{1F5D1}',
-            title: 'User removed',
-            sub: `${user.name} - ${formatLabel(user.role)}`,
+            title: t('userManagement.userRemoved'),
+            sub: `${user.name} - ${formatLabel(user.role, t)}`,
           });
         })
         .catch((err) => {
           addNotification({
-            icon: '⚠️',
-            title: 'Failed to delete user',
-            sub: error || 'An error occurred',
+            icon: '\u26A0',
+            title: t('userManagement.failedDelete'),
+            sub: err?.response?.data?.error || error || t('userManagement.errorOccurred'),
           });
         });
     }
@@ -566,7 +524,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     setFormValues(buildFormValuesFromUser(user));
     setFormErrors({});
     setShowPassword(false);
-    setViewMode('create');
+    setViewMode('edit');
   }
 
   function handleCloseFormView() {
@@ -591,7 +549,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     setFormValues(nextFormValues);
 
     if (Object.keys(formErrors).length > 0) {
-      setFormErrors(validateFormFields(selectedRole, nextFormValues, isEditing, users, editingUser));
+      setFormErrors(validateFormFields(selectedRole, nextFormValues, isEditing, users, editingUser, t));
     }
   }
 
@@ -600,6 +558,34 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     setSelectedRole(role);
     setFormValues(nextFormValues);
     setFormErrors({});
+  }
+
+  function handleProfilePictureChange(file) {
+    if (!file) {
+      return;
+    }
+
+    if (!String(file.type || '').startsWith('image/')) {
+      setFormErrors((currentErrors) => ({
+        ...currentErrors,
+        profilePicture: t('userManagement.invalidImageFile'),
+      }));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormValues((currentValues) => ({
+        ...currentValues,
+        profilePicture: typeof reader.result === 'string' ? reader.result : '',
+      }));
+      setFormErrors((currentErrors) => {
+        const nextErrors = { ...currentErrors };
+        delete nextErrors.profilePicture;
+        return nextErrors;
+      });
+    };
+    reader.readAsDataURL(file);
   }
 
   async function handleSubmitForm() {
@@ -611,7 +597,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     console.log('Form submission started for role:', selectedRole);
     console.log('Current form values at submission:', formValues);
     
-    const accountErrors = validateFormFields(selectedRole, formValues, isEditing, users, editingUser);
+    const accountErrors = validateFormFields(selectedRole, formValues, isEditing, users, editingUser, t);
 
     if (Object.keys(accountErrors).length > 0) {
       console.warn('FORM VALIDATION FAILED - Errors:', accountErrors);
@@ -629,11 +615,14 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
         lastName: formValues.lastName.trim(),
         phone: formValues.phone.trim(),
         role: selectedRole.toUpperCase(),
+        avatarUrl: formValues.profilePicture || editingUser?.profilePicture || editingUser?.profile_picture || '',
       };
 
       // Add password only for new users
       if (!isEditing) {
         userData.password = formValues.password.trim();
+      } else {
+        userData.email = editingUser?.email || '';
       }
 
       const normalizedRole = String(selectedRole || '').toLowerCase();
@@ -642,7 +631,9 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
       if (normalizedRole === 'student') {
         // Backend expects: registration_number, year, speciality
         userData.registration_number = formValues.registrationNumber.trim();
-        userData.year = 1; // TODO: Map from promotion to year (1CPI/2CPI=1, 1CS/2CS/3CS=2-4)
+        userData.promotion = formValues.promotion;
+        userData.year = getYearValueFromPromotion(formValues.promotion);
+        userData.department = getStudentDepartmentFromPromotion(formValues.promotion);
         
         // Speciality is required by backend for all students
         if (studentHasSpecialty(formValues.promotion)) {
@@ -654,6 +645,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
         console.log('Student fields:', {
           registration_number: userData.registration_number,
           year: userData.year,
+          department: userData.department,
           speciality: userData.speciality || 'Not required for this promotion'
         });
       }
@@ -671,17 +663,20 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
         await updateUser(editingUser.id, userData);
         addNotification({
           icon: '\u270E',
-          title: 'User updated successfully',
+          title: t('userManagement.userUpdated'),
           sub: `${userData.firstName} ${userData.lastName}`,
         });
       } else {
         console.log('Creating new user');
-        await addUser(userData);
+        const createdUser = await addUser(userData);
         addNotification({
           icon: '\u{1F465}',
-          title: 'New user created successfully',
+          title: t('userManagement.newUserCreated'),
           sub: `${userData.firstName} ${userData.lastName}`,
         });
+
+        setSearchQuery(createdUser?.name || '');
+        setCurrentPage(1);
       }
 
       handleCloseFormView();
@@ -690,7 +685,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
       console.error('Form submission error - Response data:', err.response?.data);
       
       // Handle different error response formats
-      let errorMsg = 'Failed to save user';
+      let errorMsg = t('userManagement.failedSave');
       let fieldErrors = {};
       
       if (err.response?.data) {
@@ -709,17 +704,17 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
             if (errorText.includes('Duplicate entry') && errorText.includes('registration_number')) {
               const regNumberMatch = errorText.match(/Duplicate entry '([^']+)' for key 'accounts_studentprofile\.registration_number'/);
               if (regNumberMatch) {
-                errorMsg = `Registration number '${regNumberMatch[1]}' is already in use.`;
-                fieldErrors.registrationNumber = 'This registration number is already taken.';
+                errorMsg = t('userManagement.registrationDuplicate');
+                fieldErrors.registrationNumber = t('userManagement.registrationDuplicate');
               } else {
-                errorMsg = 'Registration number is already in use.';
-                fieldErrors.registrationNumber = 'This registration number is already taken.';
+                errorMsg = t('userManagement.registrationDuplicate');
+                fieldErrors.registrationNumber = t('userManagement.registrationDuplicate');
               }
             } else {
-              errorMsg = 'Database integrity error occurred.';
+              errorMsg = t('userManagement.failedSave');
             }
           } else {
-            errorMsg = 'Database error occurred while saving.';
+            errorMsg = t('userManagement.failedSave');
           }
         }
         // Check for error message at top level
@@ -767,8 +762,8 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
       console.error('All field errors:', fieldErrors);
       
       addNotification({
-        icon: '⚠️',
-        title: 'Error saving user',
+        icon: '\u26A0',
+        title: t('userManagement.errorSavingUser'),
         sub: errorMsg,
       });
       
@@ -782,7 +777,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     if (!selectedRole) {
       return (
         <div className="create-role-placeholder">
-          Choose a user role first, then the matching fields will appear here.
+          {t('userManagement.chooseRoleFirst')}
         </div>
       );
     }
@@ -793,12 +788,12 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
       return (
         <>
           <label className="create-field">
-            <span className="create-field-label">Department</span>
+            <span className="create-field-label">{t('userManagement.department')}</span>
             <input
               type="text"
               name="department"
               className={getFieldClass('department')}
-              placeholder="Mathematics, English, etc."
+              placeholder={t('userManagement.departmentPlaceholder')}
               value={formValues.department}
               onChange={handleFieldChange}
               aria-invalid={Boolean(formErrors.department)}
@@ -812,7 +807,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     if (normalizedRole === 'scolarite') {
       return (
         <div className="create-role-placeholder">
-          No additional fields required for Scolarite role.
+          {t('userManagement.noAdditionalScolarite')}
         </div>
       );
     }
@@ -820,7 +815,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     if (normalizedRole === 'admin') {
       return (
         <div className="create-role-placeholder">
-          No additional fields required for Admin role.
+          {t('userManagement.noAdditionalAdmin')}
         </div>
       );
     }
@@ -829,12 +824,12 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     return (
       <>
         <label className="create-field">
-          <span className="create-field-label">Registration Number</span>
+          <span className="create-field-label">{t('userManagement.registrationNumber')}</span>
           <input
             type="text"
             name="registrationNumber"
             className={getFieldClass('registrationNumber')}
-            placeholder="2024/0001"
+            placeholder={t('userManagement.registrationPlaceholder')}
             value={formValues.registrationNumber}
             onChange={handleFieldChange}
             aria-invalid={Boolean(formErrors.registrationNumber)}
@@ -842,7 +837,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
           {renderFieldError('registrationNumber')}
         </label>
         <label className="create-field">
-          <span className="create-field-label">Promotion / Year</span>
+          <span className="create-field-label">{t('userManagement.promotionYear')}</span>
           <select
             name="promotion"
             className={getFieldClass('promotion', 'create-input create-select')}
@@ -850,7 +845,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
             onChange={handleFieldChange}
             aria-invalid={Boolean(formErrors.promotion)}
           >
-            <option value="">Select promotion / year</option>
+            <option value="">{t('userManagement.selectPromotionYear')}</option>
             {promotionOptions.map((promotion) => (
               <option key={promotion} value={promotion}>
                 {promotion}
@@ -860,7 +855,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
           {renderFieldError('promotion')}
         </label>
         <label className="create-field">
-          <span className="create-field-label">Specialty</span>
+          <span className="create-field-label">{t('userManagement.specialty')}</span>
           <select
             name="specialty"
             className={getFieldClass('specialty', 'create-input create-select')}
@@ -871,8 +866,8 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
           >
             <option value="">
               {studentHasSpecialty(formValues.promotion)
-                ? 'Select a specialty'
-                : 'No specialty before 2CS'}
+                ? t('userManagement.selectSpecialty')
+                : t('userManagement.noSpecialtyBefore2cs')}
             </option>
             {studentSpecialties.map((specialty) => (
               <option key={specialty} value={specialty}>
@@ -886,6 +881,27 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     );
   }
 
+  if (viewMode === 'edit' && editingUser) {
+    return (
+      <UserEditPage
+        user={editingUser}
+        roleOptions={roleOptions}
+        promotionOptions={promotionOptions}
+        studentSpecialties={studentSpecialties}
+        selectedRole={selectedRole}
+        formValues={formValues}
+        formErrors={formErrors}
+        isSubmitting={isSubmitting}
+        onBack={handleCloseFormView}
+        onRoleChange={handleRoleChange}
+        onFieldChange={handleFieldChange}
+        onSubmit={handleSubmitForm}
+        onProfilePictureChange={handleProfilePictureChange}
+        studentHasSpecialty={studentHasSpecialty}
+      />
+    );
+  }
+
   if (viewMode === 'create') {
     return (
       <>
@@ -895,7 +911,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
               type="button"
               className="create-back-btn"
               onClick={handleCloseFormView}
-              aria-label="Back to Users Management"
+              aria-label={t('userManagement.backToUsersManagement')}
             >
               {BACK_ICON}
             </button>
@@ -906,7 +922,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
           </div>
 
           <div className="create-topbar-tools">
-            <button type="button" className="create-tool-btn" aria-label="Notifications">
+            <button type="button" className="create-tool-btn" aria-label={t('userManagement.notifications')}>
               {BELL_ICON}
             </button>
             <span className="create-admin-pill">AD</span>
@@ -916,7 +932,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
         <div className="page-body create-page-body">
           <section className="create-progress">
             <div className="create-progress-copy">
-              <p className="create-progress-label">Setup Progress</p>
+              <p className="create-progress-label">{t('userManagement.setupProgress')}</p>
               <p className="create-progress-step">{progressStep}</p>
             </div>
             <span className="create-progress-value">{setupProgress}%</span>
@@ -930,7 +946,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
 
           <section className="create-card">
             <div className="create-card-header">
-              <h2 className="create-card-title">User Role</h2>
+              <h2 className="create-card-title">{t('userManagement.userRole')}</h2>
               <p className="create-card-subtitle">{roleSubtitle}</p>
             </div>
 
@@ -944,7 +960,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
                   aria-pressed={selectedRole === role.id}
                 >
                   <span className="create-role-icon">{role.icon}</span>
-                  <span className="create-role-label">{role.label}</span>
+                  <span className="create-role-label">{t(`roles.${role.id.toUpperCase()}`)}</span>
                   {selectedRole === role.id && (
                     <span className="create-role-check">{CHECK_ICON}</span>
                   )}
@@ -955,18 +971,18 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
 
           <section className="create-card">
             <div className="create-card-header">
-              <h2 className="create-card-title">Personal &amp; Account Information</h2>
-              <p className="create-card-subtitle">General contact details and authentication</p>
+              <h2 className="create-card-title">{t('userManagement.personalAccountTitle')}</h2>
+              <p className="create-card-subtitle">{t('userManagement.personalAccountSubtitle')}</p>
             </div>
 
             <div className="create-form-grid">
               <label className="create-field">
-                <span className="create-field-label">First Name</span>
+                <span className="create-field-label">{t('userManagement.firstName')}</span>
                 <input
                   type="text"
                   name="firstName"
                   className={getFieldClass('firstName')}
-                  placeholder="e.g. Jean"
+                  placeholder={t('userManagement.firstName')}
                   value={formValues.firstName}
                   onChange={handleFieldChange}
                   aria-invalid={Boolean(formErrors.firstName)}
@@ -975,12 +991,12 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
               </label>
 
               <label className="create-field">
-                <span className="create-field-label">Last Name</span>
+                <span className="create-field-label">{t('userManagement.lastName')}</span>
                 <input
                   type="text"
                   name="lastName"
                   className={getFieldClass('lastName')}
-                  placeholder="e.g. Dupont"
+                  placeholder={t('userManagement.lastName')}
                   value={formValues.lastName}
                   onChange={handleFieldChange}
                   aria-invalid={Boolean(formErrors.lastName)}
@@ -990,13 +1006,13 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
 
               {!isEditing && (
                 <label className="create-field">
-                  <span className="create-field-label">Temporary Password</span>
+                  <span className="create-field-label">{t('userManagement.temporaryPassword')}</span>
                   <span className="create-input-shell">
                     <input
                       type={showPassword ? 'text' : 'password'}
                       name="password"
                       className={getFieldClass('password')}
-                      placeholder="temporaryPass123"
+                      placeholder="********"
                       value={formValues.password}
                       onChange={handleFieldChange}
                       aria-invalid={Boolean(formErrors.password)}
@@ -1005,7 +1021,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
                       type="button"
                       className="create-input-toggle"
                       onClick={() => setShowPassword((current) => !current)}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showPassword ? t('userManagement.hidePassword') : t('userManagement.showPassword')}
                     >
                       {EYE_ICON}
                     </button>
@@ -1015,7 +1031,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
               )}
 
               <label className="create-field">
-                <span className="create-field-label">Phone Number</span>
+                <span className="create-field-label">{t('userManagement.phoneNumber')}</span>
                 <input
                   type="text"
                   name="phone"
@@ -1051,7 +1067,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
               onClick={handleCloseFormView}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="button"
@@ -1059,8 +1075,8 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
               onClick={handleSubmitForm}
               disabled={!canSubmitForm}
             >
-              {isSubmitting ? 'Saving...' : submitLabel}
-              <span className="users-btn-icon">{isSubmitting ? '⏳' : (isEditing ? CHECK_ICON : '+')}</span>
+              {isSubmitting ? t('common.saving') : submitLabel}
+              <span className="users-btn-icon">{isSubmitting ? '\u23F3' : (isEditing ? CHECK_ICON : '+')}</span>
             </button>
           </div>
         </div>
@@ -1072,8 +1088,8 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     <>
       <section className="users-topbar">
         <div className="users-topbar-copy">
-          <h1 className="users-title">User Management</h1>
-          <p className="users-subtitle">DIRECTORY CONTROL PANEL</p>
+          <h1 className="users-title">{t('userManagement.pageTitle')}</h1>
+          <p className="users-subtitle">{t('userManagement.pageSubtitle')}</p>
         </div>
         <div className="users-topbar-actions">
           <button
@@ -1082,7 +1098,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
             onClick={() => exportUsersToCsv(filteredUsers)}
           >
             <span className="users-btn-icon">{EXPORT_ICON}</span>
-            Export List
+            {t('userManagement.exportList')}
           </button>
           <button
             type="button"
@@ -1090,7 +1106,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
             onClick={handleOpenCreateView}
           >
             <span className="users-btn-icon">+</span>
-            Add New User
+            {t('userManagement.addNewUser')}
           </button>
         </div>
       </section>
@@ -1103,7 +1119,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
               id="user-directory-search"
               type="text"
               className="users-search-input"
-              placeholder="Search by name, email, department or ID number..."
+              placeholder={t('userManagement.searchPlaceholder')}
               value={searchQuery}
               onChange={handleSearchChange}
             />
@@ -1116,12 +1132,12 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
             <table className="users-table">
               <thead>
                 <tr>
-                  <th>User Info</th>
-                  <th>ID Number</th>
-                  <th>Role</th>
-                  <th>Department</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>{t('userManagement.userInfo')}</th>
+                  <th>{t('userManagement.idNumber')}</th>
+                  <th>{t('userManagement.role')}</th>
+                  <th>{t('userManagement.department')}</th>
+                  <th>{t('userManagement.status')}</th>
+                  <th>{t('userManagement.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1137,7 +1153,15 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
                       <td>
                         <div className="users-identity">
                           <span className={`users-avatar users-avatar--${getAvatarTone(user)}`}>
-                            {user.initials}
+                            {user.profilePicture ? (
+                              <img
+                                src={user.profilePicture}
+                                alt={user.name}
+                                className="users-avatar-image"
+                              />
+                            ) : (
+                              user.initials
+                            )}
                           </span>
                           <div className="users-identity-copy">
                             <span className="users-name">{user.name}</span>
@@ -1148,14 +1172,14 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
                       <td className="users-id-number">{user.idNumber}</td>
                       <td>
                         <span className={`users-role users-role--${user.role}`}>
-                          {formatLabel(user.role)}
+                          {formatLabel(user.role, t)}
                         </span>
                       </td>
                       <td className="users-department">{user.department || '-'}</td>
                       <td>
                         <span className={`users-status users-status--${user.accountStatus}`}>
                           <span className="users-status-dot" />
-                          {formatLabel(user.accountStatus)}
+                          {formatLabel(user.accountStatus, t)}
                         </span>
                       </td>
                       <td>
@@ -1163,7 +1187,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
                           <button
                             type="button"
                             className="users-icon-btn"
-                            aria-label={`Edit ${user.name}`}
+                            aria-label={`${t('userManagement.editUser')} ${user.name}`}
                             onClick={() => handleOpenEditView(user)}
                           >
                             {EDIT_ICON}
@@ -1171,7 +1195,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
                           <button
                             type="button"
                             className="users-icon-btn users-icon-btn--danger"
-                            aria-label={`Delete ${user.name}`}
+                            aria-label={`${t('userManagement.deleteUser')} ${user.name}`}
                             onClick={() => handleDeleteUser(user)}
                           >
                             {DELETE_ICON}
@@ -1187,7 +1211,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
 
           <div className="users-card-footer">
             <p className="users-results">
-              Showing <strong>{rangeStart}-{rangeEnd}</strong> of <strong>{filteredUsers.length}</strong> users
+              {t('userManagement.showing')} <strong>{rangeStart}-{rangeEnd}</strong> {t('userManagement.of')} <strong>{filteredUsers.length}</strong> {t('userManagement.users')}
             </p>
 
             <div className="users-pagination">
@@ -1196,7 +1220,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
                 className="users-page-btn"
                 onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                 disabled={currentPage === 1}
-                aria-label="Previous page"
+                aria-label={t('common.previousPage')}
               >
                 {PREV_ICON}
               </button>
@@ -1217,7 +1241,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
                 className="users-page-btn"
                 onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                 disabled={currentPage === totalPages}
-                aria-label="Next page"
+                aria-label={t('common.nextPage')}
               >
                 {NEXT_ICON}
               </button>
@@ -1228,3 +1252,5 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     </>
   );
 }
+
+

@@ -3,10 +3,12 @@ import StatCard from '../components/StatCard';
 import AbsenceTable from '../components/AbsenceTable';
 import { useUsers } from '../context/UsersContext';
 import { useAbsenceRecords } from '../context/AbsenceRecordsContext';
+import { useAppPreferences } from '../context/AppPreferencesContext';
 import styles from './DashboardPage.module.css';
 import { useEffect } from 'react';
 
 export default function DashboardPage({ searchQuery, onSearch, onOpenUserManagementSearch }) {
+    const { locale, t } = useAppPreferences();
     const { users, fetchAllUsers, isLoading } = useUsers();
     const { absenceRecords } = useAbsenceRecords();
     
@@ -31,32 +33,32 @@ export default function DashboardPage({ searchQuery, onSearch, onOpenUserManagem
     const stats = [
       {
         icon: '\u{1F465}',
-        label: 'Total Students',
-        value: totalStudents.toLocaleString('en-US'),
-        sub: totalStudents === 0 ? 'No student records yet' : 'Managed through shared user records',
+        label: t('dashboard.totalStudents'),
+        value: totalStudents.toLocaleString(locale),
+        sub: totalStudents === 0 ? t('dashboard.noStudentRecords') : t('dashboard.managedStudents'),
         subIcon: '\u2713',
         color: '#1a2340',
       },
       {
         icon: '\u{1F6AB}',
-        label: 'Total Absences',
-        value: totalAbsences.toLocaleString('en-US'),
+        label: t('dashboard.totalAbsences'),
+        value: totalAbsences.toLocaleString(locale),
         sub: totalAbsences === 0
-          ? 'Waiting for Scolarite absence records'
-          : 'Loaded from the Scolarite absence flow',
+          ? t('dashboard.waitingAbsenceRecords')
+          : t('dashboard.loadedFromAbsenceFlow'),
         subIcon: '\u26A0',
         color: '#e63946',
       },
       {
         icon: '\u{1F4CB}',
-        label: 'Pending Justifications',
-        value: pendingJustifications.toLocaleString('en-US'),
+        label: t('dashboard.pendingJustifications'),
+        value: pendingJustifications.toLocaleString(locale),
         sub: pendingJustifications === 0
-          ? 'No pending justifications from Scolarite'
-          : 'Awaiting administrative verification',
+          ? t('dashboard.noPendingJustifications')
+          : t('dashboard.awaitingVerification'),
         subIcon: '\u{1F512}',
         color: '#1a2340',
-        badge: pendingJustifications > 0 ? 'ACTION NEEDED' : undefined,
+        badge: pendingJustifications > 0 ? t('dashboard.actionNeeded') : undefined,
       },
     ];
   
