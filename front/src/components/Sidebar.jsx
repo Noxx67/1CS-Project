@@ -12,7 +12,7 @@ const navItems = [
 
 export default function Sidebar({ activePage, onNavigate }) {
   const { user, logout } = useAuth();
-  const { adminPhotoUrl, t } = useAppPreferences();
+  const { adminDisplayName, adminPhotoUrl, t } = useAppPreferences();
 
   const handleLogout = () => {
     logout();
@@ -29,6 +29,11 @@ export default function Sidebar({ activePage, onNavigate }) {
   const allowedNavItems = user?.role === 'ADMIN'
     ? navItems
     : navItems.filter((item) => item.id !== 'users' && item.id !== 'activity' && item.id !== 'settings');
+  const fallbackUserName = user
+    ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
+    : '';
+  const displayUserName = adminDisplayName || fallbackUserName || t('sidebar.guest');
+  const displayUserAlt = displayUserName || t('sidebar.guest');
 
   return (
     <aside className="sidebar">
@@ -59,7 +64,7 @@ export default function Sidebar({ activePage, onNavigate }) {
           {adminPhotoUrl ? (
             <img
               src={adminPhotoUrl}
-              alt={user ? `${user.first_name} ${user.last_name}` : t('sidebar.guest')}
+              alt={displayUserAlt}
             />
           ) : (
             <span className="user-avatar-fallback" aria-hidden="true">
@@ -68,7 +73,7 @@ export default function Sidebar({ activePage, onNavigate }) {
           )}
         </div>
         <div className="user-info">
-          <span className="user-name">{user ? `${user.first_name} ${user.last_name}` : t('sidebar.guest')}</span>
+          <span className="user-name">{displayUserName}</span>
           <span className="user-role">{getRoleLabel(user?.role)}</span>
         </div>
         <button type="button" className="logout-btn" title={t('sidebar.logout')} aria-label={t('sidebar.logout')} onClick={handleLogout}>

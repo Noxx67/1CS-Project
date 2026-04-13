@@ -4,6 +4,7 @@ import DashboardPage from './DashboardPage';
 import UserManagementPage from '../components/UserManagementPage';
 import ActivityLogsPage from './ActivityLogsPage';
 import SystemSettingsPage from './SystemSettingsPage';
+import SchedulesPage from './SchedulesPage';
 import styles from './DashboardShell.module.css';
 import { useAppPreferences } from '../context/AppPreferencesContext';
 
@@ -73,6 +74,8 @@ export default function DashboardShell() {
           onInitialViewModeApplied={handleInitialUserViewModeApplied}
         />
       );
+    } else if (activePage === 'schedules') {
+      pageContent = <SchedulesPage />;
     } else if (activePage === 'activity') {
       pageContent = (
         <ActivityLogsPage

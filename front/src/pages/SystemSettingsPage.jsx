@@ -46,9 +46,11 @@ export default function SystemSettingsPage() {
   const sectionRefs = useRef({});
   const fileInputRef = useRef(null);
   const {
+    adminDisplayName,
     adminPhotoUrl,
     language,
     languageOptions,
+    setAdminDisplayName,
     setAdminPhotoUrl,
     setLanguage,
     t,
@@ -73,6 +75,7 @@ export default function SystemSettingsPage() {
         }
 
         const normalizedSettings = normalizeSystemSettingsPayload(response);
+        const nextAdminDisplayName = normalizedSettings.adminAccount.fullName || adminDisplayName;
         const nextLanguage = normalizedSettings.adminAccount.preferredLanguage || language;
         const nextPhoto = normalizedSettings.adminAccount.profilePhotoUrl || adminPhotoUrl;
 
@@ -80,11 +83,16 @@ export default function SystemSettingsPage() {
           ...normalizedSettings,
           adminAccount: {
             ...normalizedSettings.adminAccount,
+            fullName: nextAdminDisplayName,
             preferredLanguage: nextLanguage,
             profilePhotoUrl: nextPhoto,
           },
         });
         setSelectedTemplateKey(normalizedSettings.notificationTemplates.selectedKey || NOTIFICATION_TAB_IDS[0]);
+
+        if (nextAdminDisplayName) {
+          setAdminDisplayName(nextAdminDisplayName);
+        }
 
         if (normalizedSettings.adminAccount.preferredLanguage) {
           setLanguage(normalizedSettings.adminAccount.preferredLanguage);
@@ -99,6 +107,7 @@ export default function SystemSettingsPage() {
             ...createEmptySystemSettings(),
             adminAccount: {
               ...currentState.adminAccount,
+              fullName: adminDisplayName,
               preferredLanguage: language,
               profilePhotoUrl: adminPhotoUrl,
             },
@@ -160,6 +169,10 @@ export default function SystemSettingsPage() {
         [fieldName]: nextValue,
       },
     }));
+
+    if (fieldName === 'fullName') {
+      setAdminDisplayName(nextValue);
+    }
   }
 
   function updateGeneralConfigurationField(fieldName, nextValue) {

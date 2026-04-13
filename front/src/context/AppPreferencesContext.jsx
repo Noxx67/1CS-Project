@@ -29,15 +29,17 @@ export function AppPreferencesProvider({ children }) {
   const storedPreferences = readStoredPreferences();
   const [language, setLanguageState] = useState(storedPreferences.language || DEFAULT_LANGUAGE);
   const [adminPhotoUrl, setAdminPhotoUrlState] = useState(storedPreferences.adminPhotoUrl || '');
+  const [adminDisplayName, setAdminDisplayNameState] = useState(storedPreferences.adminDisplayName || '');
 
   useEffect(() => {
     const nextPreferences = {
       language,
       adminPhotoUrl,
+      adminDisplayName,
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextPreferences));
-  }, [language, adminPhotoUrl]);
+  }, [adminDisplayName, adminPhotoUrl, language]);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -60,15 +62,17 @@ export function AppPreferencesProvider({ children }) {
       locale,
       isRTL: language === 'ar',
       adminPhotoUrl,
+      adminDisplayName,
       setLanguage: setLanguageState,
       setAdminPhotoUrl: setAdminPhotoUrlState,
+      setAdminDisplayName: setAdminDisplayNameState,
       t,
       languageOptions: ['en', 'fr', 'ar'].map((code) => ({
         value: code,
         label: t(`languageNames.${code}`),
       })),
     };
-  }, [adminPhotoUrl, language]);
+  }, [adminDisplayName, adminPhotoUrl, language]);
 
   return (
     <AppPreferencesContext.Provider value={value}>
