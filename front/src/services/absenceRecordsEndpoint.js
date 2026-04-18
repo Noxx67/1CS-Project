@@ -1,7 +1,14 @@
-export const RECENT_ABSENCE_RECORDS_ENDPOINT = '/scolarite/recent-absence-records';
+import api from '../api/axios';
+
+export const RECENT_ABSENCE_RECORDS_ENDPOINT = 'absences/recent/';
 
 // Frontend handoff point for the Scolarite absence flow.
-// Another frontend teammate can replace this placeholder with the real source later.
 export async function fetchRecentAbsenceRecords() {
-  return [];
+  try {
+    const response = await api.get(RECENT_ABSENCE_RECORDS_ENDPOINT);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch recent absence records:', error);
+    return [];
+  }
 }
