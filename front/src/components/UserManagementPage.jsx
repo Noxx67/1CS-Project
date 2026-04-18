@@ -28,18 +28,14 @@ const ESI_SBA_EMAIL_REGEX = /^[^@\s]+@esi-sba\.dz$/i;
 const ALGERIAN_PHONE_REGEX = /^(0\d{9}|\+213\d{9})$/;
 
 const initialFormState = {
-  fullName: '',
-  email: '',
+  firstName: '',
+  lastName: '',
   password: '',
   phone: '',
   registrationNumber: '',
   promotion: '',
   specialty: '',
   department: '',
-  employeeId: '',
-  officeName: '',
-  serviceUnit: '',
-  accessLevel: '',
 };
 
 function exportUsersToCsv(users) {
@@ -77,6 +73,10 @@ function formatLabel(value) {
   };
 
   return labels[value] || value || '';
+}
+
+function roleIs(user, roleName) {
+  return String(user.role || '').toLowerCase() === String(roleName || '').toLowerCase();
 }
 
 function getAvatarTone(user) {
@@ -122,7 +122,9 @@ function buildGeneratedEmail(name) {
 }
 
 function getRoleSectionMeta(role) {
-  if (!role) {
+  const normalizedRole = String(role || '').toLowerCase();
+
+  if (!normalizedRole) {
     return {
       title: 'Account Details',
       subtitle: 'Choose a role to unlock the fields below',
@@ -130,7 +132,7 @@ function getRoleSectionMeta(role) {
     };
   }
 
-  if (role === 'teacher') {
+  if (normalizedRole === 'teacher') {
     return {
       title: 'Teaching Details',
       subtitle: 'Specific fields for the Teacher role',
@@ -138,7 +140,7 @@ function getRoleSectionMeta(role) {
     };
   }
 
-  if (role === 'scolarite') {
+  if (normalizedRole === 'scolarite') {
     return {
       title: 'School Office Details',
       subtitle: 'Specific fields for the Scolarite role',
@@ -146,7 +148,7 @@ function getRoleSectionMeta(role) {
     };
   }
 
-  if (role === 'admin') {
+  if (normalizedRole === 'admin') {
     return {
       title: 'Administrative Details',
       subtitle: 'Specific fields for the Admin role',
@@ -200,18 +202,19 @@ function countCompletedValues(values) {
 }
 
 function getSetupProgress(role, values) {
-  if (!role) {
+  const normalizedRole = String(role || '').toLowerCase();
+  if (!normalizedRole) {
     return 0;
   }
 
   const completedCommonFields = countCompletedValues([
-    values.fullName,
-    values.email,
+    values.firstName,
+    values.lastName,
     values.password,
     values.phone,
   ]);
 
-  if (role === 'student') {
+  if (normalizedRole === 'student') {
     const completedStudentFields = countCompletedValues([
       values.registrationNumber,
       values.promotion,
@@ -227,57 +230,19 @@ function getSetupProgress(role, values) {
 
   if (role === 'teacher') {
     return Math.min(100, 30 + (completedCommonFields + countCompletedValues([
-      values.employeeId,
       values.department,
-      values.officeName,
     ])) * 10);
   }
 
   if (role === 'scolarite') {
-    return Math.min(100, 30 + (completedCommonFields + countCompletedValues([
-      values.serviceUnit,
-      values.department,
-      values.accessLevel,
-    ])) * 10);
+    return Math.min(100, 30 + completedCommonFields * 10);
   }
 
   if (role === 'admin') {
-    return Math.min(100, 30 + (completedCommonFields + countCompletedValues([
-      values.employeeId,
-      values.accessLevel,
-      values.department,
-    ])) * 10);
+    return Math.min(100, 30 + completedCommonFields * 10);
   }
 
   return Math.min(100, 30 + completedCommonFields * 10);
-}
-
-function getEmailError(value) {
-  const trimmedValue = String(value || '').trim();
-
-  if (!trimmedValue) {
-    return '';
-  }
-
-  if (!ESI_SBA_EMAIL_REGEX.test(trimmedValue)) {
-    return 'Email address must end with @esi-sba.dz.';
-  }
-
-  return '';
-}
-
-function getPasswordError(value, isEditing) {
-  const trimmedValue = String(value || '').trim();
-
-  if (!trimmedValue) {
-    return '';
-  }
-
-  if (trimmedValue.length < 6) {
-    return 'Temporary password must be at least 6 characters.';
-  }
-
-  return '';
 }
 
 function getPhoneError(value) {
@@ -294,17 +259,15 @@ function getPhoneError(value) {
   return '';
 }
 
-function getFieldError(name, value, isEditing) {
-  if (name === 'email') {
-    return getEmailError(value);
+function getPasswordError(value, isEditing) {
+  const trimmedValue = String(value || '').trim();
+
+  if (!trimmedValue && !isEditing) {
+    return 'Temporary password is required for new users.';
   }
 
-  if (name === 'password') {
-    return getPasswordError(value, isEditing);
-  }
-
-  if (name === 'phone') {
-    return getPhoneError(value);
+  if (trimmedValue && trimmedValue.length < 6) {
+    return 'Temporary password must be at least 6 characters.';
   }
 
   return '';
@@ -323,31 +286,29 @@ function buildUserManagementSearchAction(userName) {
 
 function getRequiredFieldLabels() {
   return {
-    fullName: 'Full name',
-    email: 'Email address',
+    firstName: 'First name',
+    lastName: 'Last name',
     password: 'Temporary password',
     phone: 'Phone number',
     registrationNumber: 'Registration number',
     promotion: 'Promotion / year',
     specialty: 'Specialty',
     department: 'Department',
-    employeeId: 'Employee ID',
-    officeName: 'Office / Grade',
-    serviceUnit: 'Service unit',
-    accessLevel: 'Access level',
   };
 }
 
 function getIdFieldName(role) {
-  if (role === 'student') {
+  const normalizedRole = String(role || '').toLowerCase();
+
+  if (normalizedRole === 'student') {
     return 'registrationNumber';
   }
 
-  if (role === 'scolarite') {
+  if (normalizedRole === 'scolarite') {
     return 'serviceUnit';
   }
 
-  if (role === 'teacher' || role === 'admin') {
+  if (normalizedRole === 'teacher' || normalizedRole === 'admin') {
     return 'employeeId';
   }
 
@@ -355,15 +316,17 @@ function getIdFieldName(role) {
 }
 
 function getFormIdValue(role, values) {
-  if (role === 'student') {
+  const normalizedRole = String(role || '').toLowerCase();
+
+  if (normalizedRole === 'student') {
     return values.registrationNumber;
   }
 
-  if (role === 'scolarite') {
+  if (normalizedRole === 'scolarite') {
     return values.serviceUnit;
   }
 
-  if (role === 'teacher' || role === 'admin') {
+  if (normalizedRole === 'teacher' || normalizedRole === 'admin') {
     return values.employeeId;
   }
 
@@ -371,11 +334,12 @@ function getFormIdValue(role, values) {
 }
 
 function getRequiredFieldNames(role, values, isEditing) {
+  const normalizedRole = String(role || '').toLowerCase();
   const commonFields = isEditing
-    ? ['fullName', 'email', 'phone']
-    : ['fullName', 'email', 'password', 'phone'];
+    ? ['firstName', 'lastName', 'phone']
+    : ['firstName', 'lastName', 'password', 'phone'];
 
-  if (role === 'student') {
+  if (normalizedRole === 'student') {
     return [
       ...commonFields,
       'registrationNumber',
@@ -384,16 +348,16 @@ function getRequiredFieldNames(role, values, isEditing) {
     ];
   }
 
-  if (role === 'teacher') {
-    return [...commonFields, 'employeeId', 'department', 'officeName'];
+  if (normalizedRole === 'teacher') {
+    return [...commonFields, 'department'];
   }
 
-  if (role === 'scolarite') {
-    return [...commonFields, 'serviceUnit', 'department', 'accessLevel'];
+  if (normalizedRole === 'scolarite') {
+    return commonFields;
   }
 
-  if (role === 'admin') {
-    return [...commonFields, 'employeeId', 'accessLevel', 'department'];
+  if (normalizedRole === 'admin') {
+    return commonFields;
   }
 
   return commonFields;
@@ -404,19 +368,23 @@ function validateFormFields(role, values, isEditing, users = [], editingUser = n
   const requiredFieldLabels = getRequiredFieldLabels();
   const requiredFieldNames = getRequiredFieldNames(role, values, isEditing);
 
+  console.log('Validation starting for role:', role);
+  console.log('Required field names:', requiredFieldNames);
+  console.log('Current form values:', values);
+
   requiredFieldNames.forEach((fieldName) => {
-    if (!isCompletedValue(values[fieldName])) {
+    const fieldValue = values[fieldName];
+    const isCompleted = isCompletedValue(fieldValue);
+    console.log(`Checking field "${fieldName}": value="${fieldValue}", isCompleted=${isCompleted}`);
+    
+    if (!isCompleted) {
       errors[fieldName] = `${requiredFieldLabels[fieldName]} is required.`;
+      console.error(`VALIDATION ERROR - ${fieldName}: ${requiredFieldLabels[fieldName]} is required.`);
     }
   });
 
-  const emailError = getEmailError(values.email);
   const passwordError = getPasswordError(values.password, isEditing);
   const phoneError = getPhoneError(values.phone);
-
-  if (emailError) {
-    errors.email = emailError;
-  }
 
   if (passwordError) {
     errors.password = passwordError;
@@ -426,32 +394,34 @@ function validateFormFields(role, values, isEditing, users = [], editingUser = n
     errors.phone = phoneError;
   }
 
-  const idFieldName = getIdFieldName(role);
-  const normalizedIdValue = normalizeIdValue(getFormIdValue(role, values));
+  const normalizedRole = String(role || '').toLowerCase();
 
-  if (idFieldName && normalizedIdValue) {
+  // For students, check for duplicate registration number
+  if (normalizedRole === 'student' && isCompletedValue(values.registrationNumber)) {
     const duplicateUser = users.find(
       (user) =>
         user.id !== editingUser?.id
-        && normalizeIdValue(user.idNumber) === normalizedIdValue
+        && String(user.role || '').toLowerCase() === 'student'
+        && normalizeIdValue(user.idNumber || '') === normalizeIdValue(values.registrationNumber)
     );
 
     if (duplicateUser) {
-      errors[idFieldName] = `${requiredFieldLabels[idFieldName]} is already used by another user.`;
+      errors.registrationNumber = 'Registration number is already used by another student.';
     }
   }
 
+  console.log('Validation complete. Errors found:', Object.keys(errors).length > 0 ? errors : 'NONE');
   return errors;
 }
 
 function buildFormValuesFromUser(user) {
-  if (user.role === 'student') {
+  if (roleIs(user, 'student')) {
     const promotion = getStudentPromotion(user);
 
     return {
       ...initialFormState,
-      fullName: user.name || '',
-      email: user.email || '',
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
       phone: user.phone || '',
       registrationNumber: user.idNumber || '',
       promotion,
@@ -463,20 +433,15 @@ function buildFormValuesFromUser(user) {
 
   return {
     ...initialFormState,
-    fullName: user.name || '',
-    email: user.email || '',
+    firstName: user.firstName || '',
+    lastName: user.lastName || '',
     phone: user.phone || '',
     department: user.department || '',
-    employeeId: user.employeeId || user.idNumber || '',
-    officeName: user.officeName || '',
-    serviceUnit: user.serviceUnit || user.idNumber || '',
-    accessLevel: user.accessLevel || 'Level 1',
   };
 }
 
 export default function UserManagementPage({ initialSearchQuery = '', onInitialSearchApplied }) {
-  const { users, deleteUsers, addUsers, updateUsers } = useUsers();
-  const { directoryUsers, setDirectoryUsers } = useDirectoryUsers();
+  const { users, isLoading, error, addUser, updateUser, deleteUser, fetchAllUsers } = useUsers();
   const { addNotification } = useNotifications();
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [currentPage, setCurrentPage] = useState(1);
@@ -486,25 +451,19 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
   const [showPassword, setShowPassword] = useState(false);
   const [formValues, setFormValues] = useState(initialFormState);
   const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const rowsPerPage = 10;
   const isEditing = editingUser !== null;
 
-  const students = users?.filter(u => u.role === 'student') || [];
-
-  const studentUsers = students.map((student) => ({
-    ...student,
-    source: 'student',
-    role: student.role ?? 'student',
-    department: student.department ?? student.specialization ?? '',
-    accountStatus: student.accountStatus ?? 'active',
-  }));
-
-  const allUsers = studentUsers.length > 0
-    ? [studentUsers[0], ...directoryUsers, ...studentUsers.slice(1)]
-    : [...directoryUsers];
+  // Fetch all users on component mount
+  useEffect(() => {
+    fetchAllUsers().catch((err) => {
+      console.error('Failed to fetch users:', err);
+    });
+  }, []);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const filteredUsers = allUsers.filter((user) => {
+  const filteredUsers = users.filter((user) => {
     if (!normalizedQuery) {
       return true;
     }
@@ -512,10 +471,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     return [
       user.name,
       user.email,
-      user.idNumber,
-      user.department,
       user.role,
-      user.accountStatus,
     ].some((value) => String(value || '').toLowerCase().includes(normalizedQuery));
   });
 
@@ -539,7 +495,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     : 'Select the type of account you want to create';
   const submitLabel = isEditing ? 'Save Changes' : 'Create Account';
   const setupProgress = getSetupProgress(selectedRole, formValues);
-  const canSubmitForm = Boolean(selectedRole);
+  const canSubmitForm = Boolean(selectedRole) && !isSubmitting && !isLoading;
   const emptyUsersMessage = normalizedQuery
     ? 'No users match your search.'
     : 'No users added yet.';
@@ -576,24 +532,23 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
   }
 
   function handleDeleteUser(user) {
-    if (user.source === 'student') {
-      deleteStudent(user.id);
-      addNotification({
-        icon: '\u{1F5D1}',
-        title: 'User removed from directory',
-        sub: `${user.name} - Student`,
-        action: buildUserManagementSearchAction(user.name),
-      });
-      return;
+    if (window.confirm(`Are you sure you want to delete ${user.name}?`)) {
+      deleteUser(user.id)
+        .then(() => {
+          addNotification({
+            icon: '\u{1F5D1}',
+            title: 'User removed',
+            sub: `${user.name} - ${formatLabel(user.role)}`,
+          });
+        })
+        .catch((err) => {
+          addNotification({
+            icon: '⚠️',
+            title: 'Failed to delete user',
+            sub: error || 'An error occurred',
+          });
+        });
     }
-
-    setDirectoryUsers((current) => current.filter((entry) => entry.id !== user.id));
-    addNotification({
-      icon: '\u{1F5D1}',
-      title: 'User removed from directory',
-      sub: `${user.name} - ${formatLabel(user.role)}`,
-      action: buildUserManagementSearchAction(user.name),
-    });
   }
 
   function handleOpenCreateView() {
@@ -607,7 +562,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
 
   function handleOpenEditView(user) {
     setEditingUser(user);
-    setSelectedRole(user.role);
+    setSelectedRole(String(user.role || '').toLowerCase());
     setFormValues(buildFormValuesFromUser(user));
     setFormErrors({});
     setShowPassword(false);
@@ -636,202 +591,191 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
     setFormValues(nextFormValues);
 
     if (Object.keys(formErrors).length > 0) {
-      setFormErrors(validateFormFields(selectedRole, nextFormValues, isEditing, allUsers, editingUser));
+      setFormErrors(validateFormFields(selectedRole, nextFormValues, isEditing, users, editingUser));
     }
   }
 
   function handleRoleChange(role) {
-    const nextFormValues = role === 'student'
-      ? {
-          ...formValues,
-          registrationNumber:
-            formValues.registrationNumber
-            || formValues.employeeId
-            || formValues.serviceUnit
-            || editingUser?.idNumber
-            || '',
-        }
-      : {
-          ...formValues,
-          employeeId:
-            formValues.employeeId
-            || formValues.registrationNumber
-            || editingUser?.idNumber
-            || '',
-          serviceUnit:
-            formValues.serviceUnit
-            || formValues.employeeId
-            || formValues.registrationNumber
-            || editingUser?.idNumber
-            || '',
-        };
-
+    const nextFormValues = { ...formValues };
     setSelectedRole(role);
     setFormValues(nextFormValues);
     setFormErrors({});
   }
 
-  function handleSubmitForm() {
+  async function handleSubmitForm() {
     if (!selectedRole) {
+      console.warn('No role selected');
       return;
     }
 
-    const accountErrors = validateFormFields(selectedRole, formValues, isEditing, allUsers, editingUser);
+    console.log('Form submission started for role:', selectedRole);
+    console.log('Current form values at submission:', formValues);
+    
+    const accountErrors = validateFormFields(selectedRole, formValues, isEditing, users, editingUser);
 
     if (Object.keys(accountErrors).length > 0) {
+      console.warn('FORM VALIDATION FAILED - Errors:', accountErrors);
       setFormErrors(accountErrors);
+      console.warn('Form submission BLOCKED due to validation errors');
       return;
     }
 
-    const safeName = formValues.fullName.trim() || `${formatLabel(selectedRole)} User`;
-    const safeEmail = formValues.email.trim() || buildGeneratedEmail(safeName);
+    console.log('Form validation PASSED - proceeding with submission');
+    setIsSubmitting(true);
 
-    if (selectedRole === 'student') {
-      const hasSpecialty = studentHasSpecialty(formValues.promotion);
-      const specialty = hasSpecialty ? normalizeSpecialty(formValues.specialty.trim()) : '';
-      const department = hasSpecialty
-        ? specialty
-        : formValues.promotion.trim();
-
-      const studentPayload = {
-        name: safeName,
-        email: safeEmail,
-        idNumber: formValues.registrationNumber.trim() || editingUser?.idNumber || '',
-        department,
-        specialization: department,
-        promotion: formValues.promotion,
-        module: formValues.promotion,
+    try {
+      const userData = {
+        firstName: formValues.firstName.trim(),
+        lastName: formValues.lastName.trim(),
         phone: formValues.phone.trim(),
-        accountStatus: editingUser?.accountStatus || 'active',
-        avatarTone: editingUser?.avatarTone || 'blue',
+        role: selectedRole.toUpperCase(),
       };
 
-      if (isEditing) {
-        if (editingUser.source !== 'student') {
-          setDirectoryUsers((current) => current.filter((user) => user.id !== editingUser.id));
-          addStudent(studentPayload);
-          addNotification({
-            icon: '\u270E',
-            title: 'User updated',
-            sub: `${safeName} - Student profile updated`,
-            action: buildUserManagementSearchAction(safeName),
-          });
-          handleCloseFormView();
-          return;
+      // Add password only for new users
+      if (!isEditing) {
+        userData.password = formValues.password.trim();
+      }
+
+      const normalizedRole = String(selectedRole || '').toLowerCase();
+
+      // Add role-specific fields - MUST MATCH BACKEND SCHEMA
+      if (normalizedRole === 'student') {
+        // Backend expects: registration_number, year, speciality
+        userData.registration_number = formValues.registrationNumber.trim();
+        userData.year = 1; // TODO: Map from promotion to year (1CPI/2CPI=1, 1CS/2CS/3CS=2-4)
+        
+        // Speciality is required by backend for all students
+        if (studentHasSpecialty(formValues.promotion)) {
+          userData.speciality = formValues.specialty.trim();
+        } else {
+          userData.speciality = 'N/A'; // Default value for promotions that don't have specialties
         }
-
-        updateStudent(editingUser.id, studentPayload);
-        addNotification({
-          icon: '\u270E',
-          title: 'User updated',
-          sub: `${safeName} - Student profile updated`,
-          action: buildUserManagementSearchAction(safeName),
+        
+        console.log('Student fields:', {
+          registration_number: userData.registration_number,
+          year: userData.year,
+          speciality: userData.speciality || 'Not required for this promotion'
         });
-        handleCloseFormView();
-        return;
       }
 
-      addStudent(studentPayload);
-      addNotification({
-        icon: '\u{1F465}',
-        title: 'New user created',
-        sub: `${safeName} - Student account added`,
-        action: buildUserManagementSearchAction(safeName),
-      });
+      if (normalizedRole === 'teacher') {
+        // Backend expects: field, department
+        userData.field = formValues.department.trim();
+        userData.department = formValues.department.trim();
+      }
+
+      console.log('User data being submitted:', userData);
+
+      if (isEditing) {
+        console.log('Updating existing user:', editingUser.id);
+        await updateUser(editingUser.id, userData);
+        addNotification({
+          icon: '\u270E',
+          title: 'User updated successfully',
+          sub: `${userData.firstName} ${userData.lastName}`,
+        });
+      } else {
+        console.log('Creating new user');
+        await addUser(userData);
+        addNotification({
+          icon: '\u{1F465}',
+          title: 'New user created successfully',
+          sub: `${userData.firstName} ${userData.lastName}`,
+        });
+      }
+
       handleCloseFormView();
-      return;
-    }
-
-    const department = formValues.department.trim()
-      || (selectedRole === 'teacher'
-        ? 'Academic Staff'
-        : selectedRole === 'scolarite'
-          ? 'School Office'
-          : 'Administration');
-    const idNumber = formValues.employeeId.trim()
-      || formValues.serviceUnit.trim()
-      || editingUser?.idNumber
-      || `USR-${Date.now().toString().slice(-6)}`;
-    const staffPayload = {
-      id: editingUser?.source === 'student' ? `staff-${Date.now()}` : editingUser?.id || `staff-${Date.now()}`,
-      initials: buildInitials(safeName),
-      name: safeName,
-      email: safeEmail,
-      phone: formValues.phone.trim(),
-      idNumber,
-      employeeId: formValues.employeeId.trim(),
-      officeName: formValues.officeName.trim(),
-      serviceUnit: formValues.serviceUnit.trim(),
-      accessLevel: formValues.accessLevel,
-      role: selectedRole,
-      department,
-      accountStatus: editingUser?.accountStatus || 'active',
-      avatarTone: getAvatarTone({
-        role: selectedRole,
-        accountStatus: editingUser?.accountStatus || 'active',
-      }),
-    };
-
-    if (isEditing) {
-      if (editingUser.source === 'student') {
-        deleteStudent(editingUser.id);
-        setDirectoryUsers((current) => [staffPayload, ...current]);
-        addNotification({
-          icon: '\u270E',
-          title: 'User updated',
-          sub: `${safeName} - ${formatLabel(selectedRole)} profile updated`,
-          action: buildUserManagementSearchAction(safeName),
-        });
-        handleCloseFormView();
-        return;
-      }
-
-      setDirectoryUsers((current) =>
-        current.map((user) =>
-          user.id === editingUser.id
-            ? {
-                ...user,
-                role: selectedRole,
-                name: safeName,
-                initials: buildInitials(safeName),
-                email: safeEmail,
-                phone: formValues.phone.trim(),
-                department,
-                idNumber,
-                employeeId: formValues.employeeId.trim(),
-                officeName: formValues.officeName.trim(),
-                serviceUnit: formValues.serviceUnit.trim(),
-                accessLevel: formValues.accessLevel,
-                avatarTone: getAvatarTone({ role: selectedRole, accountStatus: user.accountStatus }),
+    } catch (err) {
+      console.error('Form submission error - Full error:', err);
+      console.error('Form submission error - Response data:', err.response?.data);
+      
+      // Handle different error response formats
+      let errorMsg = 'Failed to save user';
+      let fieldErrors = {};
+      
+      if (err.response?.data) {
+        const responseData = err.response.data;
+        
+        // Check if response is HTML (Django debug error page)
+        if (typeof responseData === 'string' && responseData.includes('IntegrityError')) {
+          console.log('Detected Django IntegrityError HTML response');
+          // Extract error message from HTML
+          const integrityErrorMatch = responseData.match(/<pre class="exception_value">([^<]+)<\/pre>/);
+          if (integrityErrorMatch) {
+            const errorText = integrityErrorMatch[1];
+            console.error('Extracted IntegrityError:', errorText);
+            
+            // Parse specific integrity errors
+            if (errorText.includes('Duplicate entry') && errorText.includes('registration_number')) {
+              const regNumberMatch = errorText.match(/Duplicate entry '([^']+)' for key 'accounts_studentprofile\.registration_number'/);
+              if (regNumberMatch) {
+                errorMsg = `Registration number '${regNumberMatch[1]}' is already in use.`;
+                fieldErrors.registrationNumber = 'This registration number is already taken.';
+              } else {
+                errorMsg = 'Registration number is already in use.';
+                fieldErrors.registrationNumber = 'This registration number is already taken.';
               }
-            : user
-        )
-      );
+            } else {
+              errorMsg = 'Database integrity error occurred.';
+            }
+          } else {
+            errorMsg = 'Database error occurred while saving.';
+          }
+        }
+        // Check for error message at top level
+        else if (responseData.error) {
+          errorMsg = responseData.error;
+        }
+        
+        // Check for field-level errors in 'details' object (Django custom format)
+        else if (responseData.details && typeof responseData.details === 'object') {
+          console.log('Backend field details:', responseData.details);
+          Object.keys(responseData.details).forEach(field => {
+            const fieldError = responseData.details[field];
+            if (Array.isArray(fieldError) && fieldError.length > 0) {
+              const errorText = fieldError[0];
+              fieldErrors[field] = errorText;
+              console.error(`Field error - ${field}:`, errorText);
+              errorMsg = `${field}: ${errorText}`;
+            } else if (typeof fieldError === 'string') {
+              fieldErrors[field] = fieldError;
+              console.error(`Field error - ${field}:`, fieldError);
+              errorMsg = `${field}: ${fieldError}`;
+            }
+          });
+        }
+        // Check for field-level errors at top level (standard DRF format)
+        else if (typeof responseData === 'object' && !Array.isArray(responseData)) {
+          Object.keys(responseData).forEach(field => {
+            if (field !== 'error' && field !== 'detail') {
+              const fieldError = responseData[field];
+              if (Array.isArray(fieldError)) {
+                fieldErrors[field] = fieldError[0];
+                errorMsg = `${field}: ${fieldError[0]}`;
+              } else if (typeof fieldError === 'string') {
+                fieldErrors[field] = fieldError;
+                errorMsg = `${field}: ${fieldError}`;
+              }
+            }
+          });
+        }
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+      
+      console.error('Final error message:', errorMsg);
+      console.error('All field errors:', fieldErrors);
+      
       addNotification({
-        icon: '\u270E',
-        title: 'User updated',
-        sub: `${safeName} - ${formatLabel(selectedRole)} profile updated`,
-        action: buildUserManagementSearchAction(safeName),
+        icon: '⚠️',
+        title: 'Error saving user',
+        sub: errorMsg,
       });
-      handleCloseFormView();
-      return;
+      
+      setFormErrors({ submit: errorMsg, ...fieldErrors });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setDirectoryUsers((current) => [
-      {
-        ...staffPayload,
-        accountStatus: 'active',
-        avatarTone: getAvatarTone({ role: selectedRole, accountStatus: 'active' }),
-      },
-      ...current,
-    ]);
-    addNotification({
-      icon: '\u{1F465}',
-      title: 'New user created',
-      sub: `${safeName} - ${formatLabel(selectedRole)} account added`,
-      action: buildUserManagementSearchAction(safeName),
-    });
-    handleCloseFormView();
   }
 
   function renderRoleSpecificFields() {
@@ -843,150 +787,45 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
       );
     }
 
-    if (selectedRole === 'teacher') {
+    const normalizedRole = selectedRole.toLowerCase();
+
+    if (normalizedRole === 'teacher') {
       return (
         <>
-              <label className="create-field">
-                <span className="create-field-label">Employee ID</span>
-                <input
-                  type="text"
-                  name="employeeId"
-                  className={getFieldClass('employeeId')}
-                  placeholder="T-992384"
-                  value={formValues.employeeId}
-                  onChange={handleFieldChange}
-                  aria-invalid={Boolean(formErrors.employeeId)}
-                />
-                {renderFieldError('employeeId')}
-              </label>
-              <label className="create-field">
-                <span className="create-field-label">Department</span>
-                <input
-                  type="text"
-                  name="department"
-                  className={getFieldClass('department')}
-                  placeholder="Artificial Intelligence"
-                  value={formValues.department}
-                  onChange={handleFieldChange}
-                  aria-invalid={Boolean(formErrors.department)}
-                />
-                {renderFieldError('department')}
-              </label>
-              <label className="create-field">
-                <span className="create-field-label">Office / Grade</span>
-                <input
-                  type="text"
-                  name="officeName"
-                  className={getFieldClass('officeName')}
-                  placeholder="B-204"
-                  value={formValues.officeName}
-                  onChange={handleFieldChange}
-                  aria-invalid={Boolean(formErrors.officeName)}
-                />
-                {renderFieldError('officeName')}
-              </label>
+          <label className="create-field">
+            <span className="create-field-label">Department</span>
+            <input
+              type="text"
+              name="department"
+              className={getFieldClass('department')}
+              placeholder="Mathematics, English, etc."
+              value={formValues.department}
+              onChange={handleFieldChange}
+              aria-invalid={Boolean(formErrors.department)}
+            />
+            {renderFieldError('department')}
+          </label>
         </>
       );
     }
 
-    if (selectedRole === 'scolarite') {
+    if (normalizedRole === 'scolarite') {
       return (
-        <>
-              <label className="create-field">
-                <span className="create-field-label">Service Unit</span>
-                <input
-                  type="text"
-                  name="serviceUnit"
-                  className={getFieldClass('serviceUnit')}
-                  placeholder="SC-Desk-02"
-                  value={formValues.serviceUnit}
-                  onChange={handleFieldChange}
-                  aria-invalid={Boolean(formErrors.serviceUnit)}
-                />
-                {renderFieldError('serviceUnit')}
-              </label>
-              <label className="create-field">
-                <span className="create-field-label">Department</span>
-                <input
-                  type="text"
-                  name="department"
-                  className={getFieldClass('department')}
-                  placeholder="School Office"
-                  value={formValues.department}
-                  onChange={handleFieldChange}
-                  aria-invalid={Boolean(formErrors.department)}
-                />
-                {renderFieldError('department')}
-              </label>
-              <label className="create-field">
-                <span className="create-field-label">Access Level</span>
-                <select
-                  name="accessLevel"
-                  className={getFieldClass('accessLevel', 'create-input create-select')}
-                  value={formValues.accessLevel}
-                  onChange={handleFieldChange}
-                  aria-invalid={Boolean(formErrors.accessLevel)}
-                >
-                  <option value="">Select access level</option>
-                  <option>Level 1</option>
-                  <option>Level 2</option>
-                  <option>Level 3</option>
-                </select>
-                {renderFieldError('accessLevel')}
-              </label>
-        </>
+        <div className="create-role-placeholder">
+          No additional fields required for Scolarite role.
+        </div>
       );
     }
 
-    if (selectedRole === 'admin') {
+    if (normalizedRole === 'admin') {
       return (
-        <>
-              <label className="create-field">
-                <span className="create-field-label">Admin ID</span>
-                <input
-                  type="text"
-                  name="employeeId"
-                  className={getFieldClass('employeeId')}
-                  placeholder="ADM-0045"
-                  value={formValues.employeeId}
-                  onChange={handleFieldChange}
-                  aria-invalid={Boolean(formErrors.employeeId)}
-                />
-                {renderFieldError('employeeId')}
-              </label>
-              <label className="create-field">
-                <span className="create-field-label">Access Level</span>
-                <select
-                  name="accessLevel"
-                  className={getFieldClass('accessLevel', 'create-input create-select')}
-                  value={formValues.accessLevel}
-                  onChange={handleFieldChange}
-                  aria-invalid={Boolean(formErrors.accessLevel)}
-                >
-                  <option value="">Select access level</option>
-                  <option>Level 1</option>
-                  <option>Level 2</option>
-                  <option>Level 3</option>
-                </select>
-                {renderFieldError('accessLevel')}
-              </label>
-              <label className="create-field">
-                <span className="create-field-label">Department</span>
-                <input
-                  type="text"
-                  name="department"
-                  className={getFieldClass('department')}
-                  placeholder="Administration"
-                  value={formValues.department}
-                  onChange={handleFieldChange}
-                  aria-invalid={Boolean(formErrors.department)}
-                />
-                {renderFieldError('department')}
-              </label>
-        </>
+        <div className="create-role-placeholder">
+          No additional fields required for Admin role.
+        </div>
       );
     }
 
+    // Student role
     return (
       <>
         <label className="create-field">
@@ -1122,56 +961,58 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
 
             <div className="create-form-grid">
               <label className="create-field">
-                <span className="create-field-label">Full Name</span>
+                <span className="create-field-label">First Name</span>
                 <input
                   type="text"
-                  name="fullName"
-                  className={getFieldClass('fullName')}
-                  placeholder="e.g. Jean Dupont"
-                  value={formValues.fullName}
+                  name="firstName"
+                  className={getFieldClass('firstName')}
+                  placeholder="e.g. Jean"
+                  value={formValues.firstName}
                   onChange={handleFieldChange}
-                  aria-invalid={Boolean(formErrors.fullName)}
+                  aria-invalid={Boolean(formErrors.firstName)}
                 />
-                {renderFieldError('fullName')}
+                {renderFieldError('firstName')}
               </label>
 
               <label className="create-field">
-                <span className="create-field-label">Email Address</span>
+                <span className="create-field-label">Last Name</span>
                 <input
-                  type="email"
-                  name="email"
-                  className={getFieldClass('email')}
-                  placeholder="email@esi-sba.dz"
-                  value={formValues.email}
+                  type="text"
+                  name="lastName"
+                  className={getFieldClass('lastName')}
+                  placeholder="e.g. Dupont"
+                  value={formValues.lastName}
                   onChange={handleFieldChange}
-                  aria-invalid={Boolean(formErrors.email)}
+                  aria-invalid={Boolean(formErrors.lastName)}
                 />
-                {renderFieldError('email')}
+                {renderFieldError('lastName')}
               </label>
 
-              <label className="create-field">
-                <span className="create-field-label">Temporary Password</span>
-                <span className="create-input-shell">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    className={getFieldClass('password')}
-                    placeholder="temporaryPass123"
-                    value={formValues.password}
-                    onChange={handleFieldChange}
-                    aria-invalid={Boolean(formErrors.password)}
-                  />
-                  <button
-                    type="button"
-                    className="create-input-toggle"
-                    onClick={() => setShowPassword((current) => !current)}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {EYE_ICON}
-                  </button>
-                </span>
-                {renderFieldError('password')}
-              </label>
+              {!isEditing && (
+                <label className="create-field">
+                  <span className="create-field-label">Temporary Password</span>
+                  <span className="create-input-shell">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      className={getFieldClass('password')}
+                      placeholder="temporaryPass123"
+                      value={formValues.password}
+                      onChange={handleFieldChange}
+                      aria-invalid={Boolean(formErrors.password)}
+                    />
+                    <button
+                      type="button"
+                      className="create-input-toggle"
+                      onClick={() => setShowPassword((current) => !current)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {EYE_ICON}
+                    </button>
+                  </span>
+                  {renderFieldError('password')}
+                </label>
+              )}
 
               <label className="create-field">
                 <span className="create-field-label">Phone Number</span>
@@ -1208,6 +1049,7 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
               type="button"
               className="create-cancel-btn"
               onClick={handleCloseFormView}
+              disabled={isSubmitting}
             >
               Cancel
             </button>
@@ -1217,8 +1059,8 @@ export default function UserManagementPage({ initialSearchQuery = '', onInitialS
               onClick={handleSubmitForm}
               disabled={!canSubmitForm}
             >
-              {submitLabel}
-              <span className="users-btn-icon">{isEditing ? CHECK_ICON : '+'}</span>
+              {isSubmitting ? 'Saving...' : submitLabel}
+              <span className="users-btn-icon">{isSubmitting ? '⏳' : (isEditing ? CHECK_ICON : '+')}</span>
             </button>
           </div>
         </div>

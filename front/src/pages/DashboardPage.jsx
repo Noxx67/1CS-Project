@@ -4,12 +4,28 @@ import AbsenceTable from '../components/AbsenceTable';
 import { useUsers } from '../context/UsersContext';
 import { useAbsenceRecords } from '../context/AbsenceRecordsContext';
 import styles from './DashboardPage.module.css';
+import { useEffect } from 'react';
 
 export default function DashboardPage({ searchQuery, onSearch, onOpenUserManagementSearch }) {
-    const { users } = useUsers();
+    const { users, fetchAllUsers, isLoading } = useUsers();
     const { absenceRecords } = useAbsenceRecords();
-    const students = users.filter(user => user.role === 'student'); 
+    
+    // Fetch all users on component mount
+    useEffect(() => {
+      console.log('DashboardPage: Fetching users...');
+      fetchAllUsers()
+        .then((fetchedUsers) => {
+          console.log('DashboardPage: Users fetched successfully:', fetchedUsers);
+        })
+        .catch((err) => {
+          console.error('DashboardPage: Failed to fetch users:', err);
+        });
+    }, [fetchAllUsers]);
+    
+    console.log('DashboardPage: Current users state:', users);
+    const students = users.filter((user) => String(user.role || '').toUpperCase() === 'STUDENT');
     const totalStudents = students.length;
+    console.log('DashboardPage: Total students calculated:', totalStudents);
     const totalAbsences = absenceRecords.length;
     const pendingJustifications = absenceRecords.filter((record) => record.status === 'pending').length;
     const stats = [

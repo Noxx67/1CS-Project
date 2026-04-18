@@ -8,11 +8,11 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Service handles the logic, Context just updates state
-    const savedUser = authService.getUser();
-    if (savedUser) {
-      setUser(savedUser);
-    }
+    // Don't automatically load saved user - force login every time
+    // const savedUser = authService.getUser();
+    // if (savedUser) {
+    //   setUser(savedUser);
+    // }
     setLoading(false);
   }, []);
 
@@ -24,8 +24,11 @@ export function AuthProvider({ children }) {
       // 2. Await the service call directly
       const data = await authService.login(email, password);
   
-      // 3. Update the state using the result
-      setUser(data.user);
+      // 3. Update the state using the result (include must_change_password flag)
+      setUser({
+        ...data.user,
+        must_change_password: data.must_change_password,
+      });
   
       // 4. Return the data so the LoginPage knows it was successful
       return data; 
@@ -38,8 +41,9 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    try {authService.logout()}
-    catch (error) {
+    try {
+      authService.logout();
+    } catch (error) {
       console.error("Logout Error:", error.response);
     } finally {
       setUser(null);

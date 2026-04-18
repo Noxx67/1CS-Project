@@ -26,7 +26,11 @@ export const authService = {
     setSession(data) {
         localStorage.setItem(TOKEN_KEY, data.access);
         localStorage.setItem(REFRESH_KEY, data.refresh);
-        localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+        const userData = {
+            ...data.user,
+            must_change_password: data.must_change_password,
+        };
+        localStorage.setItem(USER_KEY, JSON.stringify(userData));
     },
 
     async logout() {

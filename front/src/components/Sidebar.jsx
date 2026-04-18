@@ -18,6 +18,10 @@ export default function Sidebar({ activePage, onNavigate }) {
     logout();
   }
 
+  const allowedNavItems = user?.role === 'ADMIN'
+    ? navItems
+    : navItems.filter((item) => item.id !== 'users' && item.id !== 'activity' && item.id !== 'settings');
+
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
@@ -29,7 +33,7 @@ export default function Sidebar({ activePage, onNavigate }) {
       </div>
 
       <nav className="sidebar-nav" aria-label="Main navigation">
-        {navItems.map((item) => (
+        {allowedNavItems.map((item) => (
           <button
             key={item.id}
             type="button"

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react';
+import { usersService } from '../services/usersService.js';
 
 const UsersContext = createContext(null);
 
@@ -12,79 +13,230 @@ function buildInitials(name) {
 }
 
 // Helper to build professional ESI-SBA emails
-function buildUserEmail(name) {
-  return `${name
-    .trim()
+function buildUserEmail(firstName, lastName) {
+  const fullName = `${firstName} ${lastName}`.trim();
+  return `${fullName
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '.')
     .replace(/^\.+|\.+$/g, '')}@esi-sba.dz`;
 }
 
+// Helper to normalize user data from backend response
+function normalizeUserData(backendUser) {
+  const fullName = `${backendUser.first_name} ${backendUser.last_name}`.trim();
+  return {
+    id: backendUser.id,
+    email: backendUser.email,
+    firstName: backendUser.first_name,
+    lastName: backendUser.last_name,
+    name: fullName,
+    initials: buildInitials(fullName),
+    phone: backendUser.phone || '',
+    role: backendUser.role,
+    is_active: backendUser.is_active,
+    must_change_password: backendUser.must_change_password,
+    date_joined: backendUser.date_joined,
+    last_login: backendUser.last_login,
+    profile_picture: backendUser.profile_picture,
+  };
+}
+
 export function UsersProvider({ children }) {
   const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Generic function to add any type of user
-  function addUser(userData) {
-    const safeName = userData.name?.trim() || 'New User';
-    const initials = buildInitials(safeName);
-    const now = Date.now();
-    
-    const department = userData.department || userData.specialization || 'General';
-    const specialization = userData.specialization || department;
-
-    setUsers((prev) => [
-      ...prev,
-      {
-        ...userData,
-        id: `user-${now}`,
-        idNumber: userData.idNumber || `ID-${now}`,
-        initials,
-        name: safeName,
-        email: userData.email || buildUserEmail(safeName),
-        specialization,
-        department,
-        validation: userData.validation || 'PENDING REVIEW',
-        status: userData.status || 'pending',
-        role: userData.role || 'user', // Default to generic user
-        accountStatus: userData.accountStatus || 'active',
-        avatarTone: userData.avatarTone || 'blue',
-        timestamp: userData.timestamp || new Date().toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
-        }),
-      },
-    ]);
+  // ============================================================
+  // FETCH ALL USERS
+  // ============================================================
+  async function fetchAllUsers(filters = {}) {
+    setIsLoading(true);
+    setError(null);
+    try {
+      console.log('UsersContext: Fetching all users with filters:', filters);
+      const response = await usersService.getAllUsers(filters);
+      console.log('UsersContext: Response received:', response);
+      console.log('UsersContext: Response.users:', response.users);
+      const normalizedUsers = response.users.map(normalizeUserData);
+      console.log('UsersContext: Normalized users:', normalizedUsers);
+      setUsers(normalizedUsers);
+      console.log('UsersContext: Users state updated, count:', normalizedUsers.length);
+      return normalizedUsers;
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to fetch users';
+      setError(errorMessage);
+      console.error('Fetch All Users Error:', errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
   }
 
-  function deleteUser(id) {
-    setUsers((prev) => prev.filter((user) => user.id !== id));
+  // ============================================================
+  // FETCH ONE USER (Search/Filter for a particular user)
+  // ============================================================
+  async function fetchOneUser(userId) {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await usersService.getOneUser(userId);
+      const normalizedUser = normalizeUserData(response);
+      return normalizedUser;
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to fetch user';
+      setError(errorMessage);
+      console.error('Fetch One User Error:', errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
   }
 
-  function updateUser(id, updates) {
-    setUsers((prev) =>
-      prev.map((user) => {
-        if (user.id !== id) return user;
+  // ============================================================
+  // ADD USER (Create new user via API)
+  // Email is ALWAYS auto-generated from firstName + lastName
+  // ============================================================
+  async function addUser(userData) {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Auto-generate email from firstName and lastName
+      const autoGeneratedEmail = buildUserEmail(userData.firstName, userData.lastName);
 
-        const safeName = updates.name?.trim() || user.name;
-        const department = updates.department || updates.specialization || user.department;
-        const specialization = updates.specialization || updates.department || user.specialization;
+      console.log('Context: Creating user with email:', autoGeneratedEmail);
+      console.log('Context: User data to pass to service:', userData);
 
-        return {
-          ...user,
-          ...updates,
-          name: safeName,
-          initials: buildInitials(safeName),
-          email: updates.email || user.email || buildUserEmail(safeName),
-          department,
-          specialization,
-        };
-      })
-    );
+      // Pass ALL userData including role-specific fields
+      const response = await usersService.addUser({
+        email: autoGeneratedEmail,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        phone: userData.phone || '',
+        role: userData.role,
+        password: userData.password, // Include password for new users
+        // Include all role-specific fields
+        registration_number: userData.registration_number,
+        year: userData.year,
+        speciality: userData.speciality,
+        field: userData.field,
+        department: userData.department,
+      });
+
+      console.log('Context: API response:', response);
+
+      if (!response || !response.user) {
+        throw new Error('Invalid response from server - missing user data');
+      }
+
+      const normalizedUser = normalizeUserData(response.user);
+      console.log('Context: Normalized user:', normalizedUser);
+      
+      setUsers((prev) => [...prev, normalizedUser]);
+      return normalizedUser;
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to create user';
+      setError(errorMessage);
+      console.error('Add User Error:', err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
   }
+
+  // ============================================================
+  // UPDATE USER
+  // Email will be regenerated if firstName or lastName changes
+  // ============================================================
+  async function updateUser(userId, userData) {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Auto-generate new email if name is being updated
+      const autoGeneratedEmail = buildUserEmail(userData.firstName, userData.lastName);
+
+      const response = await usersService.updateUser(userId, {
+        email: autoGeneratedEmail,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        phone: userData.phone || '',
+        role: userData.role,
+        // Include all role-specific fields
+        registration_number: userData.registration_number,
+        year: userData.year,
+        speciality: userData.speciality,
+        field: userData.field,
+        department: userData.department,
+      });
+
+      const normalizedUser = normalizeUserData(response.user);
+      setUsers((prev) =>
+        prev.map((user) => (user.id === userId ? normalizedUser : user))
+      );
+      return normalizedUser;
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to update user';
+      setError(errorMessage);
+      console.error('Update User Error:', errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // ============================================================
+  // DELETE USER
+  // ============================================================
+  async function deleteUser(userId) {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await usersService.deleteUser(userId);
+      setUsers((prev) => prev.filter((user) => user.id !== userId));
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to delete user';
+      setError(errorMessage);
+      console.error('Delete User Error:', errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // ============================================================
+  // RESET USER PASSWORD
+  // ============================================================
+  async function resetUserPassword(userId, newPassword) {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await usersService.resetUserPassword(userId, newPassword);
+      return response;
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to reset password';
+      setError(errorMessage);
+      console.error('Reset Password Error:', errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const value = {
+    // State
+    users,
+    isLoading,
+    error,
+    // Functions
+    fetchAllUsers,
+    fetchOneUser,
+    addUser,
+    updateUser,
+    deleteUser,
+    resetUserPassword,
+  };
 
   return (
-    <UsersContext.Provider value={{ users, addUser, deleteUser, updateUser }}>
+    <UsersContext.Provider value={value}>
       {children}
     </UsersContext.Provider>
   );
