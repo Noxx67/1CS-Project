@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { LoginPage } from './pages/LoginPage';
+import ContactPage from './pages/ContactPage';
 import Wowzers from './pages/Wowzers';
 import WrongInfoPage from './pages/WrongInfoPage';
 import DashboardShell from './pages/DashboardShell';
@@ -57,6 +58,8 @@ export default function App() {
           </PublicRoute>
         } 
       />
+
+      <Route path="/contact" element={<ContactPage />} />
 
       {/* Dashboard is Protected: If not logged in, redirect to login */}
           <Route

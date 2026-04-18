@@ -11,6 +11,13 @@ body {
   width: 100%;
 }
 
+.page-body {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .placeholder-card {
   display: flex;
   flex-direction: column;

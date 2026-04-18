@@ -103,7 +103,7 @@ export function LoginPage() {
 
                     <div className={styles.supportContainer}>
                         Technical issues?
-                        <a href="mailto:support@example.com" className={styles.supportLink}>Contact Support</a>
+                        <Link to="/contact" className={styles.supportLink}>Contact Support</Link>
                     </div>
                 </form>
 

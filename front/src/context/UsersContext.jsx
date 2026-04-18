@@ -1,7 +1,22 @@
 import { createContext, useContext, useState } from 'react';
 import { usersService } from '../services/usersService.js';
+import { TEMP_FRONTEND_PREVIEW_MODE } from '../config/previewMode.js';
+import { getLocalUserData, mergeLocalUserData } from '../services/userLocalDataService.js';
+import { getPreviewUsers, savePreviewUsers } from '../services/previewUsersService.js';
+import { buildUserEmail } from '../utils/userEmail.js';
+import { getStudentDepartmentFromPromotion } from '../utils/studentDepartment.js';
 
 const UsersContext = createContext(null);
+const PROMOTION_TO_YEAR = {
+  '1CPI': 1,
+  '2CPI': 2,
+  '1CS': 3,
+  '2CS': 4,
+  '3CS': 5,
+};
+const YEAR_TO_PROMOTION = Object.fromEntries(
+  Object.entries(PROMOTION_TO_YEAR).map(([promotion, year]) => [String(year), promotion])
+);
 
 // Helper to get initials from any user name
 function buildInitials(name) {
@@ -12,18 +27,112 @@ function buildInitials(name) {
   return parts[0].slice(0, 2).toUpperCase();
 }
 
-// Helper to build professional ESI-SBA emails
-function buildUserEmail(firstName, lastName) {
+function getNumericYearFromPromotion(promotion) {
+  return PROMOTION_TO_YEAR[String(promotion || '').toUpperCase()] || null;
+}
+
+function getPromotionFromYear(year) {
+  return YEAR_TO_PROMOTION[String(year || '')] || '';
+}
+
+function normalizeRole(role) {
+  return String(role || '').toLowerCase();
+}
+
+function buildPreviewUserId() {
+  return `preview-user-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function buildNormalizedPreviewUser(userId, userData, existingUser = null) {
+  const firstName = userData.firstName?.trim() || existingUser?.firstName || '';
+  const lastName = userData.lastName?.trim() || existingUser?.lastName || '';
   const fullName = `${firstName} ${lastName}`.trim();
-  return `${fullName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '.')
-    .replace(/^\.+|\.+$/g, '')}@esi-sba.dz`;
+  const role = normalizeRole(userData.role || existingUser?.role);
+  const promotion = userData.promotion || existingUser?.promotion || getPromotionFromYear(userData.year);
+  const year = getNumericYearFromPromotion(promotion) || userData.year || existingUser?.year || null;
+  const studentDepartment = getStudentDepartmentFromPromotion(promotion);
+  const department = role === 'student'
+    ? studentDepartment
+    : (
+      userData.department?.trim()
+      || userData.field?.trim()
+      || existingUser?.department
+      || ''
+    );
+  const specialty = userData.speciality && userData.speciality !== 'N/A'
+    ? userData.speciality.trim()
+    : existingUser?.specialty || '';
+  const email = buildUserEmail(firstName, lastName) || userData.email || existingUser?.email || '';
+  const dateJoined = existingUser?.dateJoined || existingUser?.date_joined || new Date().toISOString();
+  const profilePicture = userData.avatarUrl || existingUser?.profilePicture || existingUser?.profile_picture || '';
+
+  return {
+    id: userId,
+    email,
+    firstName,
+    lastName,
+    name: fullName,
+    initials: buildInitials(fullName || 'Preview User'),
+    phone: userData.phone?.trim() || existingUser?.phone || '',
+    role,
+    accountStatus: existingUser?.accountStatus || 'active',
+    idNumber: role === 'student'
+      ? (userData.registration_number?.trim() || existingUser?.idNumber || '')
+      : (existingUser?.idNumber || ''),
+    promotion: role === 'student' ? promotion : '',
+    year: role === 'student' ? year : null,
+    specialty: role === 'student' ? specialty : '',
+    specialization: role === 'student' ? specialty : '',
+    department: role === 'student' || role === 'teacher' ? department : '',
+    is_active: existingUser?.is_active ?? true,
+    must_change_password: existingUser?.must_change_password ?? (role !== 'admin'),
+    date_joined: dateJoined,
+    dateJoined,
+    last_login: existingUser?.last_login || null,
+    profile_picture: profilePicture,
+    profilePicture,
+  };
+}
+
+function buildLocalUserDetails(userData) {
+  const normalizedRole = String(userData.role || '').toUpperCase();
+  const localDetails = {
+    registrationNumber: '',
+    promotion: '',
+    specialty: '',
+    department: '',
+  };
+
+  if (Object.prototype.hasOwnProperty.call(userData, 'avatarUrl')) {
+    localDetails.avatarUrl = userData.avatarUrl;
+  }
+
+  if (normalizedRole === 'STUDENT') {
+    localDetails.registrationNumber = userData.registration_number || '';
+    localDetails.promotion = userData.promotion || getPromotionFromYear(userData.year);
+    localDetails.department = getStudentDepartmentFromPromotion(localDetails.promotion);
+    localDetails.specialty = userData.speciality && userData.speciality !== 'N/A'
+      ? userData.speciality
+      : '';
+    return localDetails;
+  }
+
+  if (normalizedRole === 'TEACHER') {
+    localDetails.department = userData.department || '';
+  }
+
+  return localDetails;
 }
 
 // Helper to normalize user data from backend response
 function normalizeUserData(backendUser) {
+  const localUserData = getLocalUserData(backendUser.id);
   const fullName = `${backendUser.first_name} ${backendUser.last_name}`.trim();
+  const normalizedRole = normalizeRole(backendUser.role);
+  const promotion = localUserData.promotion || getPromotionFromYear(backendUser.year);
+  const studentDepartment = getStudentDepartmentFromPromotion(promotion);
+  const profilePicture = localUserData.avatarUrl || backendUser.profile_picture || '';
+
   return {
     id: backendUser.id,
     email: backendUser.email,
@@ -32,12 +141,23 @@ function normalizeUserData(backendUser) {
     name: fullName,
     initials: buildInitials(fullName),
     phone: backendUser.phone || '',
-    role: backendUser.role,
+    role: normalizedRole,
+    accountStatus: backendUser.is_active ? 'active' : 'suspended',
+    idNumber: localUserData.registrationNumber || backendUser.registration_number || '',
+    promotion,
+    year: getNumericYearFromPromotion(promotion) || backendUser.year || null,
+    specialty: localUserData.specialty || backendUser.speciality || '',
+    specialization: localUserData.specialty || backendUser.speciality || '',
+    department: normalizedRole === 'student'
+      ? (localUserData.department || backendUser.department || studentDepartment || '')
+      : (localUserData.department || backendUser.department || backendUser.field || ''),
     is_active: backendUser.is_active,
     must_change_password: backendUser.must_change_password,
     date_joined: backendUser.date_joined,
+    dateJoined: backendUser.date_joined,
     last_login: backendUser.last_login,
-    profile_picture: backendUser.profile_picture,
+    profile_picture: profilePicture,
+    profilePicture,
   };
 }
 
@@ -53,6 +173,12 @@ export function UsersProvider({ children }) {
     setIsLoading(true);
     setError(null);
     try {
+      if (TEMP_FRONTEND_PREVIEW_MODE) {
+        const previewUsers = getPreviewUsers();
+        setUsers(previewUsers);
+        return previewUsers;
+      }
+
       console.log('UsersContext: Fetching all users with filters:', filters);
       const response = await usersService.getAllUsers(filters);
       console.log('UsersContext: Response received:', response);
@@ -79,6 +205,14 @@ export function UsersProvider({ children }) {
     setIsLoading(true);
     setError(null);
     try {
+      if (TEMP_FRONTEND_PREVIEW_MODE) {
+        const previewUser = getPreviewUsers().find((user) => user.id === userId);
+        if (!previewUser) {
+          throw new Error('User not found');
+        }
+        return previewUser;
+      }
+
       const response = await usersService.getOneUser(userId);
       const normalizedUser = normalizeUserData(response);
       return normalizedUser;
@@ -94,13 +228,25 @@ export function UsersProvider({ children }) {
 
   // ============================================================
   // ADD USER (Create new user via API)
-  // Email is ALWAYS auto-generated from firstName + lastName
+  // Email is auto-generated from first-name initials + family name
   // ============================================================
   async function addUser(userData) {
     setIsLoading(true);
     setError(null);
     try {
-      // Auto-generate email from firstName and lastName
+      if (TEMP_FRONTEND_PREVIEW_MODE) {
+        const previewUser = buildNormalizedPreviewUser(buildPreviewUserId(), userData);
+        const nextUsers = [previewUser, ...getPreviewUsers()];
+
+        mergeLocalUserData(previewUser.id, buildLocalUserDetails({
+          ...userData,
+          email: previewUser.email,
+        }));
+        savePreviewUsers(nextUsers);
+        setUsers(nextUsers);
+        return previewUser;
+      }
+
       const autoGeneratedEmail = buildUserEmail(userData.firstName, userData.lastName);
 
       console.log('Context: Creating user with email:', autoGeneratedEmail);
@@ -128,10 +274,14 @@ export function UsersProvider({ children }) {
         throw new Error('Invalid response from server - missing user data');
       }
 
+      mergeLocalUserData(response.user.id, buildLocalUserDetails({
+        ...userData,
+        email: autoGeneratedEmail,
+      }));
       const normalizedUser = normalizeUserData(response.user);
       console.log('Context: Normalized user:', normalizedUser);
       
-      setUsers((prev) => [...prev, normalizedUser]);
+      setUsers((prev) => [normalizedUser, ...prev]);
       return normalizedUser;
     } catch (err) {
       const errorMessage = err.response?.data?.error || err.message || 'Failed to create user';
@@ -145,17 +295,31 @@ export function UsersProvider({ children }) {
 
   // ============================================================
   // UPDATE USER
-  // Email will be regenerated if firstName or lastName changes
+  // Email is regenerated from the current first name + family name
   // ============================================================
   async function updateUser(userId, userData) {
     setIsLoading(true);
     setError(null);
     try {
-      // Auto-generate new email if name is being updated
-      const autoGeneratedEmail = buildUserEmail(userData.firstName, userData.lastName);
+      if (TEMP_FRONTEND_PREVIEW_MODE) {
+        const currentUsers = getPreviewUsers();
+        const existingUser = currentUsers.find((user) => user.id === userId);
+        const previewUser = buildNormalizedPreviewUser(userId, userData, existingUser);
+        const nextUsers = currentUsers.map((user) => (user.id === userId ? previewUser : user));
+
+        mergeLocalUserData(userId, buildLocalUserDetails({
+          ...userData,
+          email: previewUser.email,
+        }));
+        savePreviewUsers(nextUsers);
+        setUsers(nextUsers);
+        return previewUser;
+      }
+
+      const generatedEmail = buildUserEmail(userData.firstName, userData.lastName);
 
       const response = await usersService.updateUser(userId, {
-        email: autoGeneratedEmail,
+        email: generatedEmail,
         firstName: userData.firstName,
         lastName: userData.lastName,
         phone: userData.phone || '',
@@ -163,11 +327,17 @@ export function UsersProvider({ children }) {
         // Include all role-specific fields
         registration_number: userData.registration_number,
         year: userData.year,
+        promotion: userData.promotion,
         speciality: userData.speciality,
         field: userData.field,
         department: userData.department,
+        avatarUrl: userData.avatarUrl,
       });
 
+      mergeLocalUserData(userId, buildLocalUserDetails({
+        ...userData,
+        email: generatedEmail,
+      }));
       const normalizedUser = normalizeUserData(response.user);
       setUsers((prev) =>
         prev.map((user) => (user.id === userId ? normalizedUser : user))
@@ -190,6 +360,13 @@ export function UsersProvider({ children }) {
     setIsLoading(true);
     setError(null);
     try {
+      if (TEMP_FRONTEND_PREVIEW_MODE) {
+        const nextUsers = getPreviewUsers().filter((user) => user.id !== userId);
+        savePreviewUsers(nextUsers);
+        setUsers(nextUsers);
+        return;
+      }
+
       await usersService.deleteUser(userId);
       setUsers((prev) => prev.filter((user) => user.id !== userId));
     } catch (err) {
@@ -209,6 +386,13 @@ export function UsersProvider({ children }) {
     setIsLoading(true);
     setError(null);
     try {
+      if (TEMP_FRONTEND_PREVIEW_MODE) {
+        return {
+          message: `Preview mode: password reset simulated for ${userId}.`,
+          new_password: newPassword,
+        };
+      }
+
       const response = await usersService.resetUserPassword(userId, newPassword);
       return response;
     } catch (err) {

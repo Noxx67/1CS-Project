@@ -6,7 +6,7 @@
   flex-direction: column;
   padding: 24px 0;
   position: fixed;
-  left: 0;
+  inset-inline-start: 0;
   top: 0;
   bottom: 0;
   z-index: 100;
@@ -73,7 +73,7 @@
   color: rgba(255, 255, 255, 0.72);
   font-size: 0.94rem;
   font-weight: 600;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
   position: relative;
@@ -93,7 +93,7 @@
 .nav-item--active::before {
   content: '';
   position: absolute;
-  left: 0;
+  inset-inline-start: 0;
   top: 18%;
   bottom: 18%;
   width: 3px;
@@ -137,6 +137,16 @@
   object-fit: cover;
 }
 
+.user-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.15rem;
+}
+
 .user-info {
   flex: 1;
   display: flex;
@@ -166,6 +176,14 @@
 
 .logout-btn:hover {
   color: #fff;
+}
+
+html[dir='rtl'] .nav-item:hover {
+  transform: translateX(-2px);
+}
+
+html[dir='rtl'] .nav-item--active::before {
+  border-radius: 4px 0 0 4px;
 }
 
 @media (max-width: 960px) {

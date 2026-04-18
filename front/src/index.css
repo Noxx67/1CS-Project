@@ -20,6 +20,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #f4f6fb;
   color: #1a2340;
+  direction: inherit;
 }
 
 a {

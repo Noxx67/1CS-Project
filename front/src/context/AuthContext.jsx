@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService';
+import { TEMP_FRONTEND_PREVIEW_MODE, TEMP_PREVIEW_ADMIN_USER } from '../config/previewMode';
 
 const AuthContext = createContext();
 
@@ -8,6 +9,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (TEMP_FRONTEND_PREVIEW_MODE) {
+      // Temporary frontend-only bypass so `/` redirects straight to the admin dashboard.
+      setUser(TEMP_PREVIEW_ADMIN_USER);
+      setLoading(false);
+      return;
+    }
+
     // Don't automatically load saved user - force login every time
     // const savedUser = authService.getUser();
     // if (savedUser) {

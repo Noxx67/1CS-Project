@@ -1,31 +1,45 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNotifications } from '../context/NotificationsContext';
+import { useAppPreferences } from '../context/AppPreferencesContext';
 import './Header.css';
 
-function formatNotificationTime(createdAt) {
+function formatNotificationTime(createdAt, language, t) {
   const elapsedMs = Date.now() - new Date(createdAt).getTime();
   const elapsedMinutes = Math.max(0, Math.floor(elapsedMs / 60000));
 
   if (elapsedMinutes < 1) {
-    return 'Just now';
+    return t('header.justNow');
   }
 
   if (elapsedMinutes < 60) {
-    return `${elapsedMinutes} min ago`;
+    if (language === 'ar') {
+      return `منذ ${elapsedMinutes} ${t('header.minuteAgo')}`;
+    }
+
+    return `${elapsedMinutes} ${t('header.minuteAgo')}`;
   }
 
   const elapsedHours = Math.floor(elapsedMinutes / 60);
 
   if (elapsedHours < 24) {
-    return `${elapsedHours} hr ago`;
+    if (language === 'ar') {
+      return `منذ ${elapsedHours} ${t('header.hourAgo')}`;
+    }
+
+    return `${elapsedHours} ${t('header.hourAgo')}`;
   }
 
   const elapsedDays = Math.floor(elapsedHours / 24);
-  return `${elapsedDays} day${elapsedDays === 1 ? '' : 's'} ago`;
+
+  if (language === 'ar') {
+    return `منذ ${elapsedDays} ${elapsedDays === 1 ? t('header.dayAgo') : t('header.daysAgo')}`;
+  }
+
+  return `${elapsedDays} ${elapsedDays === 1 ? t('header.dayAgo') : t('header.daysAgo')}`;
 }
 
-function formatUrgentLabel(count) {
-  return `${count} URGENT ALERT${count === 1 ? '' : 'S'}`;
+function formatUrgentLabel(count, t) {
+  return `${count} ${count === 1 ? t('header.urgentAlert') : t('header.urgentAlertsPlural')}`;
 }
 
 export default function Header({ searchQuery, onSearch, onOpenUserManagementSearch }) {
@@ -34,6 +48,7 @@ export default function Header({ searchQuery, onSearch, onOpenUserManagementSear
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const notifRef = useRef(null);
   const alertRef = useRef(null);
+  const { language, locale, t } = useAppPreferences();
   const {
     notifications,
     markAllRead,
@@ -68,11 +83,11 @@ export default function Header({ searchQuery, onSearch, onOpenUserManagementSear
     return () => window.clearInterval(intervalId);
   }, []);
 
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
+  const formattedDate = new Intl.DateTimeFormat(locale, {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-  }).format(currentDate).toUpperCase();
+  }).format(currentDate);
 
   function handleNotificationClick(notification) {
     markNotificationRead(notification.id);
@@ -90,7 +105,7 @@ export default function Header({ searchQuery, onSearch, onOpenUserManagementSear
         <span className="search-icon">{'\u{1F50D}'}</span>
         <input
           type="text"
-          placeholder="Search students, departments, or records..."
+          placeholder={t('header.searchPlaceholder')}
           className="search-input"
           value={searchQuery}
           onChange={(event) => onSearch(event.target.value)}
@@ -113,18 +128,18 @@ export default function Header({ searchQuery, onSearch, onOpenUserManagementSear
             }}
           >
             <span className="alert-dot" />
-            {formatUrgentLabel(urgentAlerts.length)}
+            {formatUrgentLabel(urgentAlerts.length, t)}
           </button>
 
           {showAlerts && (
             <div className="alert-panel">
               <div className="alert-panel-header">
-                <span>Urgent Alerts</span>
+                <span>{t('header.urgentAlerts')}</span>
               </div>
 
               <ul className="alert-list">
                 {urgentAlerts.length === 0 ? (
-                  <li className="alert-empty">No urgent alerts right now.</li>
+                  <li className="alert-empty">{t('header.noUrgentAlerts')}</li>
                 ) : (
                   urgentAlerts.map((alert) => (
                     <li key={alert.id} className="alert-item">
@@ -133,7 +148,7 @@ export default function Header({ searchQuery, onSearch, onOpenUserManagementSear
                         <p className="alert-title">{alert.title}</p>
                         <p className="alert-sub">{alert.sub}</p>
                         <span className="alert-time">
-                          {formatNotificationTime(alert.createdAt)}
+                          {formatNotificationTime(alert.createdAt, language, t)}
                         </span>
                       </div>
                       <div className="alert-actions">
@@ -142,14 +157,14 @@ export default function Header({ searchQuery, onSearch, onOpenUserManagementSear
                           className="alert-action alert-action--dismiss"
                           onClick={() => dismissAlert(alert.id)}
                         >
-                          Dismiss
+                          {t('header.dismiss')}
                         </button>
                         <button
                           type="button"
                           className="alert-action alert-action--delete"
                           onClick={() => deleteNotification(alert.id)}
                         >
-                          Delete
+                          {t('header.delete')}
                         </button>
                       </div>
                     </li>
@@ -177,20 +192,20 @@ export default function Header({ searchQuery, onSearch, onOpenUserManagementSear
           {showNotifs && (
             <div className="notif-panel">
               <div className="notif-panel-header">
-                <span>Notifications</span>
+                <span>{t('header.notifications')}</span>
                 <button
                   type="button"
                   className="notif-mark-all"
                   onClick={markAllRead}
                   disabled={unreadCount === 0}
                 >
-                  Mark all read
+                  {t('header.markAllRead')}
                 </button>
               </div>
 
               <ul className="notif-list">
                 {notifications.length === 0 ? (
-                  <li className="notif-empty">No notifications right now.</li>
+                  <li className="notif-empty">{t('header.noNotifications')}</li>
                 ) : (
                   notifications.map((notification) => (
                     <li
@@ -217,7 +232,7 @@ export default function Header({ searchQuery, onSearch, onOpenUserManagementSear
                       )}
                       <div className="notif-actions">
                         <span className="notif-time">
-                          {formatNotificationTime(notification.createdAt)}
+                          {formatNotificationTime(notification.createdAt, language, t)}
                         </span>
                         <button
                           type="button"
@@ -225,7 +240,7 @@ export default function Header({ searchQuery, onSearch, onOpenUserManagementSear
                           onClick={() => deleteNotification(notification.id)}
                           aria-label={`Delete notification: ${notification.title}`}
                         >
-                          Delete
+                          {t('header.delete')}
                         </button>
                       </div>
                     </li>
@@ -238,7 +253,7 @@ export default function Header({ searchQuery, onSearch, onOpenUserManagementSear
       </div>
 
       <div className="header-title">
-        <span className="page-title">Academic Overview</span>
+        <span className="page-title">{t('header.academicOverview')}</span>
         <span className="page-date">{formattedDate}</span>
       </div>
     </header>

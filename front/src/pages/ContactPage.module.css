@@ -1,0 +1,1084 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;900&family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  --color-bg-page:        #F6F7F8;
+  --color-overlay-dark:   linear-gradient(180deg, #001B4D 0%, #000610 100%);
+  --color-overlay-light:  linear-gradient(180deg, #BCD3FF 0%, #001741 100%);
+
+  --color-panel-left:     #00194F;
+  --color-panel-gradient: linear-gradient(135deg, #60A5FA 0%, rgba(96,165,250,0) 100%);
+  --color-heading:        #FFFFFF;
+  --color-subheading:     rgba(219, 234, 254, 0.8);
+  --color-info-label:     #93C5FD;
+  --color-info-value:     #FFFFFF;
+  --color-icon-bg:        rgba(255, 255, 255, 0.1);
+
+  --color-panel-right:    #FFFFFF;
+  --color-title:          #0F172A;
+  --color-subtitle:       #64748B;
+  --color-field-label:    #334155;
+  --color-input-bg:       #F8FAFC;
+  --color-input-border:   #E2E8F0;
+  --color-placeholder:    #94A3B8;
+  --color-icon-input:     #94A3B8;
+  --color-btn-bg:         #00194F;
+  --color-btn-text:       #FFFFFF;
+  --color-return:         #64748B;
+
+  --color-footer-text:    rgba(255, 255, 255, 0.7);
+
+  --font-lexend:   'Lexend', sans-serif;
+  --font-inter:    'Inter', sans-serif;
+
+  --shadow-card:  0px 20px 50px rgba(0, 27, 77, 0.15);
+  --shadow-btn:   0px 10px 15px -3px rgba(30, 58, 138, 0.2),
+                  0px 4px 6px -4px rgba(30, 58, 138, 0.2);
+
+  --radius-card:  24px;
+  --radius-input: 8px;
+  --radius-logo:  12px;
+  --radius-icon:  8px;
+}
+
+@media (max-width: 900px) {
+  :root {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    font-size: 13px;
+  }
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-inter);
+  background: var(--color-bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  height: 100dvh;
+  background: var(--color-bg-page);
+  overflow: hidden;
+  padding: 12px 0;
+  gap: 12px;
+}
+
+.pageWrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-overlay-dark);
+  mix-blend-mode: multiply;
+  z-index: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 100%;
+  min-height: 0;
+  height: auto;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.card {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: min(1157px, 95vw);
+  min-height: 0;
+  height: min(756px, calc(100dvh - 84px));
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+
+.leftPanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 48px;
+  gap: 24px;
+  flex: 1;
+  min-width: 0;
+  background: var(--color-panel-left);
+  overflow: hidden;
+  border-radius: var(--radius-card) 0 0 var(--radius-card);
+}
+
+.leftPanel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-panel-gradient);
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.logoWrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.logoBackground {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  border-radius: var(--radius-logo);
+}
+
+.logoImage {
+  position: absolute;
+  width: 125px;
+  height: 125px;
+  left: 11.72px;
+  top: 12.5px;
+  object-fit: contain;
+}
+
+.brandingBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  z-index: 1;
+}
+
+.heading {
+  font-family: var(--font-lexend);
+  font-weight: 900;
+  font-size: 40px;
+  line-height: 38px;
+  letter-spacing: -0.75px;
+  color: var(--color-heading);
+  max-width: 484px;
+}
+
+.subheading {
+  font-family: var(--font-lexend);
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 29px;
+  color: var(--color-subheading);
+  max-width: 384px;
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: auto;
+  z-index: 2;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.infoIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--color-icon-bg);
+  border-radius: var(--radius-icon);
+  flex-shrink: 0;
+}
+
+.infoTextBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoLabel {
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--color-info-label);
+}
+
+.infoValue {
+  font-family: var(--font-inter);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-info-value);
+}
+
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px;
+  flex: 1;
+  min-width: 0;
+  background: var(--color-panel-right);
+  border-radius: 0 var(--radius-card) var(--radius-card) 0;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 32px;
+  width: 100%;
+}
+
+.title {
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.6px;
+  color: var(--color-title);
+}
+
+.subtitle {
+  font-family: var(--font-inter);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-subtitle);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  padding-bottom: 16px;
+}
+
+.fieldWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-field-label);
+  padding-left: 4px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: var(--color-icon-input);
+  z-index: 1;
+}
+
+.input,
+.textarea,
+.selectButton {
+  width: 100%;
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-input);
+  font-family: var(--font-inter);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+  color: var(--color-title);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input,
+.selectButton {
+  height: 49px;
+  padding: 14px 16px 14px 44px;
+}
+
+.textarea {
+  height: 122px;
+  padding: 12px 16px 12px 16px;
+  resize: none;
+  line-height: 24px;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--color-placeholder);
+}
+
+.selectPlaceholder {
+  color: var(--color-placeholder);
+}
+
+.input:focus,
+.textarea:focus,
+.selectButton:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.15);
+  outline: none;
+}
+
+.selectOpen {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.15);
+  outline: none;
+}
+
+.selectWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.selectButton {
+  appearance: none;
+  -webkit-appearance: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.selectChevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  color: #6b7280;
+  transition: transform 0.2s ease;
+}
+
+.selectChevronOpen {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.optionsList {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-input);
+  box-shadow: 0 16px 24px rgba(15, 23, 42, 0.12);
+  z-index: 10;
+}
+
+.optionItem {
+  width: 100%;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  text-align: left;
+  font-family: var(--font-inter);
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--color-title);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.optionItem:hover {
+  background: #f1f5f9;
+}
+
+.optionItemSelected {
+  background: #eaf2ff;
+  color: #0b2a66;
+}
+
+.sendButton {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 52px;
+  padding: 16px 24px;
+  background: var(--color-btn-bg);
+  border-radius: var(--radius-input);
+  box-shadow: var(--shadow-btn);
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.sendButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.002);
+  border-radius: var(--radius-input);
+  pointer-events: none;
+}
+
+.sendButton:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.sendButton:active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sendButton:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 3px;
+}
+
+.sendButtonLabel {
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--color-btn-text);
+  position: relative;
+  z-index: 1;
+}
+
+.sendButtonIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-btn-text);
+  position: relative;
+  z-index: 1;
+}
+
+.returnWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 24px;
+  width: 100%;
+}
+
+.returnButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.returnButton:hover {
+  opacity: 0.7;
+}
+
+.returnIcon {
+  width: 12px;
+  height: 12px;
+  color: var(--color-return);
+}
+
+.returnText {
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-return);
+}
+
+.footer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 2;
+}
+
+.footerText {
+  font-family: var(--font-lexend);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-footer-text);
+  text-align: center;
+}
+
+@media (max-height: 820px) and (min-width: 901px) {
+  .logoWrapper {
+    width: 124px;
+    height: 124px;
+  }
+
+  .logoImage {
+    width: 102px;
+    height: 102px;
+    left: 10px;
+    top: 10px;
+  }
+
+  .brandingBlock {
+    gap: 24px;
+  }
+
+  .heading {
+    font-size: 34px;
+    line-height: 33px;
+    max-width: 420px;
+  }
+
+  .subheading {
+    font-size: 16px;
+    line-height: 23px;
+    max-width: 350px;
+  }
+
+  .infoBlock {
+    gap: 14px;
+  }
+
+  .header {
+    padding-bottom: 20px;
+  }
+
+  .title {
+    font-size: 22px;
+    line-height: 28px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .form {
+    gap: 14px;
+    padding-bottom: 8px;
+  }
+
+  .sendButton {
+    height: 46px;
+    padding: 12px 20px;
+    gap: 6px;
+  }
+
+  .sendButtonLabel {
+    font-size: 12px;
+    line-height: 18px;
+    letter-spacing: 1.2px;
+  }
+
+  .returnWrapper {
+    padding-top: 16px;
+  }
+
+  .returnText {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .fieldLabel {
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  .input,
+  .selectButton {
+    height: 43px;
+    padding: 10px 14px 10px 40px;
+    font-size: 14px;
+  }
+
+  .textarea {
+    height: 92px;
+    padding: 10px 14px;
+    line-height: 20px;
+    font-size: 14px;
+  }
+
+  .inputIcon {
+    left: 12px;
+  }
+
+  .selectChevron {
+    right: 12px;
+  }
+
+  .optionItem {
+    font-size: 14px;
+    line-height: 18px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 900px) and (min-width: 641px) {
+  .pageWrapper {
+    min-height: 100dvh;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .card {
+    flex-direction: column;
+    width: 90vw;
+    height: auto;
+    min-height: unset;
+  }
+
+  .container {
+    height: auto;
+    min-height: 0;
+    padding: 24px 0 24px;
+    flex: 0;
+  }
+
+  .leftPanel {
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    padding: 40px 32px;
+    gap: 32px;
+  }
+
+  .rightPanel {
+    border-radius: 0 0 var(--radius-card) var(--radius-card);
+    padding: 40px 32px;
+    justify-content: flex-start;
+  }
+
+  .heading {
+    font-size: 32px;
+    line-height: 36px;
+  }
+
+  .subheading {
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .logoWrapper {
+    width: 120px;
+    height: 120px;
+  }
+
+  .logoImage {
+    width: 100px;
+    height: 100px;
+    left: 9.72px;
+    top: 10px;
+  }
+
+  .header {
+    padding-bottom: 24px;
+  }
+
+  .title {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 640px) {
+  .pageWrapper {
+    min-height: 100dvh;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .card {
+    flex-direction: column;
+    width: 95vw;
+    height: auto;
+    min-height: unset;
+  }
+
+  .container {
+    height: auto;
+    min-height: 0;
+    padding: 16px 0 16px;
+    flex: 0;
+  }
+
+  .leftPanel {
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    padding: 32px 24px;
+    gap: 24px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .leftPanel::before {
+    opacity: 0.05;
+  }
+
+  .rightPanel {
+    border-radius: 0 0 var(--radius-card) var(--radius-card);
+    padding: 32px 24px;
+    justify-content: flex-start;
+  }
+
+  .logoWrapper {
+    width: 120px;
+    height: 120px;
+  }
+
+  .logoImage {
+    width: 100px;
+    height: 100px;
+    left: 9.72px;
+    top: 10px;
+  }
+
+  .brandingBlock {
+    align-items: center;
+    gap: 16px;
+  }
+
+  .heading {
+    font-size: 28px;
+    line-height: 32px;
+    max-width: 100%;
+  }
+
+  .subheading {
+    font-size: 14px;
+    line-height: 20px;
+    max-width: 100%;
+  }
+
+  .infoBlock {
+    gap: 16px;
+    width: 100%;
+  }
+
+  .infoItem {
+    gap: 12px;
+  }
+
+  .infoIconWrapper {
+    width: 32px;
+    height: 32px;
+  }
+
+  .infoLabel {
+    font-size: 10px;
+    line-height: 14px;
+    letter-spacing: 1px;
+  }
+
+  .infoValue {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .header {
+    padding-bottom: 24px;
+  }
+
+  .title {
+    font-size: 18px;
+    line-height: 26px;
+    letter-spacing: -0.4px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .form {
+    gap: 16px;
+    padding-bottom: 12px;
+  }
+
+  .fieldLabel {
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  .input,
+  .selectButton {
+    height: 44px;
+    padding: 12px 14px 12px 40px;
+    font-size: 15px;
+  }
+
+  .textarea {
+    height: 100px;
+    padding: 10px 14px 10px 14px;
+    line-height: 20px;
+  }
+
+  .inputIcon {
+    left: 12px;
+  }
+
+  .selectChevron {
+    right: 12px;
+  }
+
+  .optionsList {
+    top: calc(100% + 6px);
+    padding: 4px;
+  }
+
+  .optionItem {
+    font-size: 14px;
+    line-height: 18px;
+    padding: 8px 10px;
+  }
+
+  .sendButton {
+    height: 48px;
+    padding: 14px 20px;
+    gap: 6px;
+  }
+
+  .sendButtonLabel {
+    font-size: 12px;
+    line-height: 18px;
+    letter-spacing: 1.2px;
+  }
+
+  .returnWrapper {
+    padding-top: 20px;
+  }
+
+  .returnText {
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .returnIcon {
+    width: 10px;
+    height: 10px;
+  }
+
+  .footer {
+    position: static;
+    margin-top: 10px;
+  }
+
+  .footerText {
+    font-size: 10px;
+    line-height: 14px;
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 12px 0 12px;
+  }
+
+  .leftPanel {
+    padding: 24px 16px;
+    gap: 20px;
+  }
+
+  .rightPanel {
+    padding: 24px 16px;
+  }
+
+  .logoWrapper {
+    width: 100px;
+    height: 100px;
+  }
+
+  .logoImage {
+    width: 85px;
+    height: 85px;
+    left: 7.72px;
+    top: 7.5px;
+  }
+
+  .heading {
+    font-size: 24px;
+    line-height: 28px;
+  }
+
+  .subheading {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .infoItem {
+    gap: 10px;
+  }
+
+  .infoIconWrapper {
+    width: 30px;
+    height: 30px;
+  }
+
+  .infoLabel {
+    font-size: 9px;
+    line-height: 13px;
+  }
+
+  .infoValue {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .header {
+    padding-bottom: 20px;
+  }
+
+  .title {
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .subtitle {
+    font-size: 11px;
+  }
+
+  .form {
+    gap: 14px;
+    padding-bottom: 8px;
+  }
+
+  .input,
+  .selectButton {
+    height: 40px;
+    padding: 10px 12px 10px 36px;
+    font-size: 14px;
+  }
+
+  .textarea {
+    height: 90px;
+    padding: 8px 12px 8px 12px;
+    line-height: 18px;
+  }
+
+  .inputIcon {
+    left: 10px;
+  }
+
+  .selectChevron {
+    right: 10px;
+  }
+
+  .optionsList {
+    top: calc(100% + 4px);
+  }
+
+  .optionItem {
+    font-size: 13px;
+    line-height: 17px;
+    padding: 7px 9px;
+  }
+
+  .sendButton {
+    height: 44px;
+    padding: 12px 16px;
+    gap: 6px;
+    border-radius: 6px;
+  }
+
+  .sendButtonLabel {
+    font-size: 11px;
+    line-height: 16px;
+    letter-spacing: 1px;
+  }
+
+  .returnWrapper {
+    padding-top: 16px;
+  }
+
+  .returnText {
+    font-size: 11px;
+    line-height: 16px;
+  }
+}

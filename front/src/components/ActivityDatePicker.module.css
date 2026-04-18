@@ -1,0 +1,186 @@
+.wrapper {
+  position: relative;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #dbe4f2;
+  border-radius: 14px;
+  background: #f7f9fd;
+  padding: 0 14px;
+  color: #7385a4;
+  font-size: 0.96rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.trigger:hover,
+.trigger:focus-visible {
+  outline: none;
+  border-color: #c2d2ea;
+  box-shadow: 0 0 0 4px rgba(23, 60, 133, 0.08);
+}
+
+.triggerFilled {
+  color: #1b315f;
+  background: #fff;
+}
+
+.triggerText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.triggerIcon {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  color: #173c85;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 30;
+  width: min(100vw - 32px, 306px);
+  border: 1px solid #dbe5f3;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 22px 40px rgba(15, 35, 82, 0.16);
+  padding: 16px;
+}
+
+.popoverHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.monthLabel {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #132b63;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #d9e3f1;
+  border-radius: 12px;
+  background: #fff;
+  color: #173c85;
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.weekdays,
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.weekdays {
+  margin-bottom: 8px;
+}
+
+.weekday {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8598b7;
+}
+
+.dayBlank {
+  min-height: 36px;
+}
+
+.day {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #1d3564;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.day:hover {
+  background: #eef4fe;
+}
+
+.dayToday {
+  border-color: #cdd9ee;
+  background: #f4f7fc;
+}
+
+.daySelected {
+  background: linear-gradient(135deg, #173c85 0%, #0d2354 100%);
+  border-color: #173c85;
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(13, 35, 84, 0.18);
+}
+
+.daySelected.dayToday {
+  border-color: #173c85;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #edf2f8;
+}
+
+.actionButton {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #d9e3f1;
+  border-radius: 12px;
+  background: #fff;
+  color: #5b7295;
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.actionButtonPrimary {
+  background: #eff4ff;
+  border-color: #d3e0f7;
+  color: #173c85;
+}
+
+@media (max-width: 720px) {
+  .popover {
+    left: auto;
+    right: 0;
+    width: min(100vw - 48px, 320px);
+  }
+}
