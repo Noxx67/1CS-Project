@@ -9,7 +9,8 @@ from django.shortcuts import get_object_or_404
 from .models import User
 from .serializers import (
     UserSerializer, CreateUserSerializer,
-    LoginSerializer, ChangePasswordSerializer, UpdateUserSerializer
+    LoginSerializer, ChangePasswordSerializer, UpdateUserSerializer,
+    MeUpdateSerializer
 )
 from .permissions import IsAdmin
  
@@ -185,6 +186,29 @@ class MeView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+
+    def put(self, request):
+        """Met à jour toutes les informations de l'utilisateur connecté."""
+        serializer = MeUpdateSerializer(request.user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'message': 'Profil mis à jour avec succès.',
+                'user': UserSerializer(request.user).data
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        """Met à jour partiellement les informations de l'utilisateur connecté."""
+        serializer = MeUpdateSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'message': 'Profil mis à jour partiellement avec succès.',
+                'user': UserSerializer(request.user).data
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
  
  
 # ============================================================

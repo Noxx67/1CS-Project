@@ -62,5 +62,48 @@ export const authService = {
 
     isAuthenticated() {
         return !!this.getToken();
+    },
+
+    async updateMe(userData) {
+        try {
+            const response = await api.patch('accounts/me/', userData);
+            if (response.status === 200) {
+                const currentSessionUser = this.getUser();
+                this.setSession({
+                    access: this.getToken(),
+                    refresh: localStorage.getItem(REFRESH_KEY),
+                    user: response.data.user,
+                    must_change_password: currentSessionUser.must_change_password
+                });
+            }
+            return response.data;
+        } catch (error) {
+            console.error("Update Me Error:", error.response);
+            throw error;
+        }
+    },
+
+    async updateProfilePicture(file) {
+        try {
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+            const response = await api.put('accounts/me/picture/', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            if (response.status === 200) {
+                const currentSessionUser = this.getUser();
+                const updatedUser = {
+                    ...currentSessionUser,
+                    profile_picture: response.data.profile_picture
+                };
+                localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
+            }
+            return response.data;
+        } catch (error) {
+            console.error("Update Profile Picture Error:", error.response);
+            throw error;
+        }
     }
-};
+};

@@ -139,6 +139,52 @@
   padding: 24px 28px 28px;
 }
 
+.sectionFooter {
+  padding: 20px 28px;
+  background: #fbfcfe;
+  border-top: 1px solid #edf2f8;
+  border-radius: 0 0 24px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 32px;
+  border: 0;
+  border-radius: 14px;
+  background: #ef414d;
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.1s ease;
+}
+
+.primaryButton:hover {
+  background: #d93540;
+}
+
+.primaryButton:active {
+  transform: translateY(1px);
+}
+
+.primaryButton:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+
+
 .profileIntro {
   display: flex;
   align-items: center;
@@ -253,6 +299,38 @@
   border-color: #c7d6ec;
   box-shadow: 0 0 0 4px rgba(23, 60, 133, 0.08);
 }
+
+.inputInvalid {
+  border-color: #ef414d !important;
+  background-color: #fff8f8 !important;
+}
+
+.fieldError {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ef414d;
+  animation: fieldErrorIn 0.2s ease-out;
+}
+
+@keyframes fieldErrorIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.staticValue {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: #f1f4f9;
+  border: 1px solid #dbe4f2;
+  border-radius: 14px;
+  color: #5b6f91;
+  font-size: 0.98rem;
+  font-weight: 500;
+}
+
 
 .passwordShell {
   display: grid;

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useAppPreferences } from '../context/AppPreferencesContext';
+import { authService } from '../services/authService';
 import AcademicYearPicker from '../components/AcademicYearPicker';
 import styles from './SystemSettingsPage.module.css';
 import UserPasswordPlaceholderDialog from './UserPasswordPlaceholderDialog';
@@ -8,6 +10,8 @@ import {
   fetchSystemSettings,
   normalizeSystemSettingsPayload,
 } from '../services/systemSettingsEndpoint';
+
+
 
 const SECTION_IDS = [
   'admin-account',
@@ -23,6 +27,9 @@ const NOTIFICATION_TAB_IDS = [
 ];
 
 const TEXT_TOOLBAR_ITEMS = ['B', 'I', '\u2022'];
+
+const ALGERIAN_PHONE_REGEX = /^(0\d{9}|\+213\d{9})$/;
+
 
 function getClosestVisibleSection(sectionRefs) {
   return SECTION_IDS
@@ -45,6 +52,7 @@ function getClosestVisibleSection(sectionRefs) {
 export default function SystemSettingsPage() {
   const sectionRefs = useRef({});
   const fileInputRef = useRef(null);
+  const { user } = useAuth();
   const {
     adminDisplayName,
     adminPhotoUrl,
@@ -55,11 +63,34 @@ export default function SystemSettingsPage() {
     setLanguage,
     t,
   } = useAppPreferences();
+
   const [settingsState, setSettingsState] = useState(createEmptySystemSettings());
   const [activeSectionId, setActiveSectionId] = useState(SECTION_IDS[0]);
   const [selectedTemplateKey, setSelectedTemplateKey] = useState(NOTIFICATION_TAB_IDS[0]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+
+
+  // Initialize state with logged-in user info
+  useEffect(() => {
+    if (user) {
+      setSettingsState((currentState) => ({
+        ...currentState,
+          adminAccount: {
+            ...currentState.adminAccount,
+            firstName: user.first_name || '',
+            lastName: user.last_name || '',
+            email: user.email || '',
+            phoneNumber: user.phone || '',
+            profilePhotoUrl: user.profile_picture || '',
+          },
+
+      }));
+    }
+  }, [user]);
+
 
   useEffect(() => {
     let isMounted = true;
@@ -79,15 +110,20 @@ export default function SystemSettingsPage() {
         const nextLanguage = normalizedSettings.adminAccount.preferredLanguage || language;
         const nextPhoto = normalizedSettings.adminAccount.profilePhotoUrl || adminPhotoUrl;
 
-        setSettingsState({
+        setSettingsState((currentState) => ({
           ...normalizedSettings,
           adminAccount: {
             ...normalizedSettings.adminAccount,
-            fullName: nextAdminDisplayName,
-            preferredLanguage: nextLanguage,
-            profilePhotoUrl: nextPhoto,
+            firstName: user ? (user.first_name || '') : normalizedSettings.adminAccount.firstName,
+            lastName: user ? (user.last_name || '') : normalizedSettings.adminAccount.lastName,
+            email: user ? (user.email || '') : normalizedSettings.adminAccount.email,
+            phoneNumber: user ? (user.phone || '') : normalizedSettings.adminAccount.phoneNumber,
+            profilePhotoUrl: user ? (user.profile_picture || '') : (normalizedSettings.adminAccount.profilePhotoUrl || adminPhotoUrl),
           },
-        });
+
+
+        }));
+
         setSelectedTemplateKey(normalizedSettings.notificationTemplates.selectedKey || NOTIFICATION_TAB_IDS[0]);
 
         if (nextAdminDisplayName) {
@@ -170,10 +206,24 @@ export default function SystemSettingsPage() {
       },
     }));
 
-    if (fieldName === 'fullName') {
-      setAdminDisplayName(nextValue);
+    if (fieldName === 'firstName' || fieldName === 'lastName') {
+      const nextFirstName = fieldName === 'firstName' ? nextValue : settingsState.adminAccount.firstName;
+      const nextLastName = fieldName === 'lastName' ? nextValue : settingsState.adminAccount.lastName;
+      setAdminDisplayName(`${nextFirstName} ${nextLastName}`.trim());
+    }
+
+    if (fieldName === 'phoneNumber' && formErrors.phoneNumber) {
+      setFormErrors((prev) => {
+        const next = { ...prev };
+        delete next.phoneNumber;
+        return next;
+      });
     }
   }
+
+
+
+
 
   function updateGeneralConfigurationField(fieldName, nextValue) {
     setSettingsState((currentState) => ({
@@ -217,7 +267,7 @@ export default function SystemSettingsPage() {
     setLanguage(nextLanguage);
   }
 
-  function handlePhotoSelection(event) {
+  async function handlePhotoSelection(event) {
     const selectedFile = event.target.files?.[0] || null;
 
     if (!selectedFile || !String(selectedFile.type || '').startsWith('image/')) {
@@ -225,16 +275,67 @@ export default function SystemSettingsPage() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const nextPhotoUrl = typeof reader.result === 'string' ? reader.result : '';
+    try {
+      setIsSaving(true);
+      const response = await authService.updateProfilePicture(selectedFile);
+      const nextPhotoUrl = response.profile_picture;
 
       updateAdminAccountField('profilePhotoUrl', nextPhotoUrl);
       setAdminPhotoUrl(nextPhotoUrl);
-    };
-    reader.readAsDataURL(selectedFile);
-    event.target.value = '';
+    } catch (error) {
+      console.error('Failed to upload photo:', error);
+      alert(t('common.errorUpload'));
+    } finally {
+      setIsSaving(false);
+      event.target.value = '';
+    }
   }
+
+  async function handleSaveProfile() {
+    const phone = settingsState.adminAccount.phoneNumber.trim();
+    if (phone && !ALGERIAN_PHONE_REGEX.test(phone)) {
+      setFormErrors({ phoneNumber: t('userManagement.phoneError') });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { firstName, lastName, email, phoneNumber } = settingsState.adminAccount;
+      
+      await authService.updateMe({
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        phone: phoneNumber
+      });
+
+      alert(t('settings.saveSuccess'));
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+      alert(t('settings.saveError'));
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+
+  const isProfileDirty = () => {
+    if (!user) return false;
+    const { adminAccount } = settingsState;
+    const currentFullName = user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
+    
+    return (
+      adminAccount.firstName !== (user.first_name || '') ||
+      adminAccount.lastName !== (user.last_name || '') ||
+      adminAccount.email !== (user.email || '') ||
+      adminAccount.phoneNumber !== (user.phone || '') ||
+      adminAccount.profilePhotoUrl !== (user.profile_picture || '')
+    );
+  };
+
+
+
+
 
   function handleRemovePhoto() {
     updateAdminAccountField('profilePhotoUrl', '');
@@ -360,82 +461,73 @@ export default function SystemSettingsPage() {
 
               <div className={styles.fieldGrid}>
                 <label className={styles.field}>
-                  <span className={styles.fieldLabel}>{t('settings.fullName')}</span>
+                  <span className={styles.fieldLabel}>{t('userManagement.firstName')}</span>
                   <input
                     type="text"
                     className={styles.input}
-                    value={settingsState.adminAccount.fullName}
-                    onChange={(event) => updateAdminAccountField('fullName', event.target.value)}
+                    value={settingsState.adminAccount.firstName}
+                    onChange={(event) => updateAdminAccountField('firstName', event.target.value)}
                   />
                 </label>
 
                 <label className={styles.field}>
-                  <span className={styles.fieldLabel}>{t('settings.emailAddress')}</span>
+                  <span className={styles.fieldLabel}>{t('userManagement.lastName')}</span>
                   <input
-                    type="email"
+                    type="text"
                     className={styles.input}
-                    value={settingsState.adminAccount.email}
-                    onChange={(event) => updateAdminAccountField('email', event.target.value)}
+                    value={settingsState.adminAccount.lastName}
+                    onChange={(event) => updateAdminAccountField('lastName', event.target.value)}
                   />
                 </label>
+
+                <div className={styles.field}>
+                  <span className={styles.fieldLabel}>{t('settings.emailAddress')}</span>
+                  <div className={styles.staticValue}>{settingsState.adminAccount.email}</div>
+                </div>
+
+
 
                 <label className={styles.field}>
                   <span className={styles.fieldLabel}>{t('settings.phoneNumber')}</span>
                   <input
                     type="text"
-                    className={styles.input}
+                    className={`${styles.input} ${formErrors.phoneNumber ? styles.inputInvalid : ''}`}
                     value={settingsState.adminAccount.phoneNumber}
                     onChange={(event) => updateAdminAccountField('phoneNumber', event.target.value)}
                   />
+                  {formErrors.phoneNumber && (
+                    <span className={styles.fieldError}>{formErrors.phoneNumber}</span>
+                  )}
                 </label>
 
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>{t('settings.jobTitle')}</span>
-                  <input
-                    type="text"
-                    className={styles.input}
-                    value={settingsState.adminAccount.jobTitle}
-                    onChange={(event) => updateAdminAccountField('jobTitle', event.target.value)}
-                  />
-                </label>
 
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>{t('settings.preferredLanguage')}</span>
-                  <select
-                    className={styles.select}
-                    value={settingsState.adminAccount.preferredLanguage || language}
-                    onChange={(event) => handleLanguageChange(event.target.value)}
-                  >
-                    <option value="">{t('settings.selectLanguage')}</option>
-                    {languageOptions.map((languageOption) => (
-                      <option key={languageOption.value} value={languageOption.value}>
-                        {languageOption.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>{t('settings.password')}</span>
-                  <div className={styles.passwordShell}>
-                    <input
-                      type="password"
-                      className={styles.input}
-                      value={settingsState.adminAccount.passwordMask}
-                      readOnly
-                    />
-                    <button
-                      type="button"
-                      className={styles.inlineActionButton}
-                      onClick={() => setShowPasswordDialog(true)}
-                    >
-                      {t('settings.changePassword')}
-                    </button>
-                  </div>
-                </label>
               </div>
+
+
+
+                <div className={styles.sectionFooter}>
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    onClick={() => setShowPasswordDialog(true)}
+                  >
+                    {t('settings.changePassword')}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    onClick={handleSaveProfile}
+                    disabled={isSaving || !isProfileDirty()}
+                  >
+                    {isSaving ? t('common.saving') : t('settings.saveProfile')}
+                  </button>
+                </div>
+
+
+
             </div>
           </section>
+
 
           <section
             id="general-configuration"

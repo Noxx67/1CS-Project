@@ -15,7 +15,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'email', 'first_name', 'last_name', 'full_name',
-            'role', 'phone', 'is_active', 'must_change_password', 'date_joined','profile_picture',
+            'role', 'phone',
+            'is_active', 'must_change_password', 'date_joined', 'profile_picture',
         ]
         read_only_fields = ['id', 'date_joined', 'must_change_password']
 
@@ -153,7 +154,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 # ============================================================
-# SERIALIZER POUR METTRE À JOUR UN PROFIL
+# SERIALIZER POUR METTRE À JOUR UN PROFIL (ADMIN)
 # ============================================================
 class UpdateUserSerializer(serializers.ModelSerializer):
     """Permet à l'admin de modifier les informations d'un utilisateur."""
@@ -161,3 +162,20 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name', 'email', 'role', 'phone', 'is_active']
         extra_kwargs = {'email': {'required': False}}
+
+
+# ============================================================
+# SERIALIZER POUR METTRE À JOUR SON PROPRE PROFIL
+# ============================================================
+class MeUpdateSerializer(serializers.ModelSerializer):
+    """Permet à l'utilisateur connecté de modifier ses propres informations."""
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'phone']
+
+        extra_kwargs = {
+            'email': {'required': False},
+            'first_name': {'required': False},
+            'last_name': {'required': False},
+        }
+
