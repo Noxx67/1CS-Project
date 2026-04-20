@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/accounts/', include('accounts.urls')),
  
     # Futurs modules (à ajouter plus tard)
+    path('api/schedules/', include('schedules.urls')),
     # path('api/absences/', include('absences.urls')),
     # path('api/justificatifs/', include('justificatifs.urls')),
 ]

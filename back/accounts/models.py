@@ -121,6 +121,7 @@ class StudentProfile(models.Model):
     registration_number = models.CharField(max_length=50, unique=True, verbose_name='Numéro d inscription')
     year              = models.IntegerField(verbose_name='Année')
     speciality        = models.CharField(max_length=100, verbose_name='Spécialité')
+    group             = models.CharField(max_length=50, blank=True, null=True, verbose_name='Groupe')
 
     class Meta:
         verbose_name = 'Profil Étudiant'
