@@ -18,7 +18,6 @@ export function buildUserEmail(firstName, lastName) {
     .filter(Boolean);
 
   const initials = firstNameParts
-    .slice(0, 2)
     .map((part) => part[0])
     .join('');
   const familyName = lastNameParts.join('');
@@ -57,9 +56,9 @@ export function buildInstitutionalEmailFromFullName(fullName) {
 
   const familyName = partsWithoutTitle[partsWithoutTitle.length - 1] || '';
   const givenNameParts = partsWithoutTitle.slice(0, -1);
-  const firstInitial = givenNameParts[0]?.[0] || '';
-  const middleInitial = givenNameParts[1]?.[0] || '';
-  const initials = `${firstInitial}${middleInitial}`;
+  const initials = givenNameParts
+    .map((part) => part[0])
+    .join('');
 
   if (!initials && !familyName) {
     return '';

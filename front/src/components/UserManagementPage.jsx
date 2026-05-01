@@ -7,22 +7,11 @@ import { getStudentDepartmentFromPromotion } from '../utils/studentDepartment';
 import { exportUsersToCsv } from '../utils/exportUsersToCsv';
 import './UserManagementPage.css';
 
-const SEARCH_ICON = '\u{1F50D}';
-const EXPORT_ICON = '\u2193';
-const EDIT_ICON = '\u270E';
-const DELETE_ICON = '\u{1F5D1}';
-const PREV_ICON = '\u2039';
-const NEXT_ICON = '\u203A';
-const BACK_ICON = '\u2190';
-const BELL_ICON = '\u{1F514}';
-const CHECK_ICON = '\u2713';
-const EYE_ICON = '\u{1F441}';
-
 const roleOptions = [
-  { id: 'student', icon: '\u{1F464}' },
-  { id: 'teacher', icon: '\u{1F393}' },
-  { id: 'scolarite', icon: '\u{1F4DA}' },
-  { id: 'admin', icon: '\u2699' },
+  { id: 'student', icon: 'student' },
+  { id: 'teacher', icon: 'teacher' },
+  { id: 'scolarite', icon: 'folder' },
+  { id: 'admin', icon: 'settings' },
 ];
 
 const studentSpecialties = ['ISI', 'SIW', 'IASD', 'CyberSecurity'];
@@ -47,6 +36,141 @@ const initialFormState = {
   department: '',
   profilePicture: '',
 };
+
+function Icon({ name }) {
+  if (name === 'search') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="6.2" />
+        <path d="M20 20l-4.2-4.2" />
+      </svg>
+    );
+  }
+
+  if (name === 'export') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 4v10" />
+        <path d="m8.5 10.5 3.5 3.5 3.5-3.5" />
+        <path d="M5 18.5h14" />
+      </svg>
+    );
+  }
+
+  if (name === 'edit') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4.5 19.5h4l10-10a2.1 2.1 0 0 0-3-3l-10 10-1 3Z" />
+        <path d="m14 8 3 3" />
+      </svg>
+    );
+  }
+
+  if (name === 'trash') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 7h14" />
+        <path d="M9 7V5h6v2" />
+        <path d="M8 10v8M12 10v8M16 10v8" />
+        <path d="M7 7l1 13h8l1-13" />
+      </svg>
+    );
+  }
+
+  if (name === 'bell') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 4.5a4.8 4.8 0 0 0-4.8 4.8v2.1c0 1-.34 1.98-.95 2.78L4.8 16h14.4l-1.45-1.82a4.4 4.4 0 0 1-.95-2.78V9.3A4.8 4.8 0 0 0 12 4.5Z" />
+        <path d="M9.9 18.2a2.1 2.1 0 0 0 4.2 0" />
+      </svg>
+    );
+  }
+
+  if (name === 'eye') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3.8 12s3-5.2 8.2-5.2S20.2 12 20.2 12s-3 5.2-8.2 5.2S3.8 12 3.8 12Z" />
+        <circle cx="12" cy="12" r="2.2" />
+      </svg>
+    );
+  }
+
+  if (name === 'teacher') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m4 8 8-4 8 4-8 4-8-4Z" />
+        <path d="M7 10.5v4.2c1.3 1.4 3 2.1 5 2.1s3.7-.7 5-2.1v-4.2" />
+      </svg>
+    );
+  }
+
+  if (name === 'folder') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4.5 7.5h5.2l1.6 2h8.2v7.8a2.2 2.2 0 0 1-2.2 2.2H6.7a2.2 2.2 0 0 1-2.2-2.2V7.5Z" />
+        <path d="M4.5 7.5V6.8a2.2 2.2 0 0 1 2.2-2.2h2.6l1.6 2h6.4a2.2 2.2 0 0 1 2.2 2.2v.7" />
+      </svg>
+    );
+  }
+
+  if (name === 'settings') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 4.5v2M12 17.5v2M6.7 6.7l1.4 1.4M15.9 15.9l1.4 1.4M4.5 12h2M17.5 12h2M6.7 17.3l1.4-1.4M15.9 8.1l1.4-1.4" />
+      </svg>
+    );
+  }
+
+  if (name === 'check') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m6 12.5 3.5 3.5L18 7.5" />
+      </svg>
+    );
+  }
+
+  if (name === 'plus') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+    );
+  }
+
+  if (name === 'spinner') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 4a8 8 0 1 1-7.4 5" />
+      </svg>
+    );
+  }
+
+  if (name === 'next') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m9 6 6 6-6 6" />
+      </svg>
+    );
+  }
+
+  if (name === 'back') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m15 6-6 6 6 6" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="9" cy="8" r="3" />
+      <path d="M3.8 18.5a5.2 5.2 0 0 1 10.4 0" />
+      <circle cx="17.2" cy="9.2" r="2.2" />
+      <path d="M15.2 17.8a4.2 4.2 0 0 1 5-1.9" />
+    </svg>
+  );
+}
 
 function formatLabel(value, t) {
   const normalizedValue = String(value || '').toLowerCase();
@@ -368,6 +492,10 @@ export default function UserManagementPage({
   onInitialSearchApplied,
   initialViewMode = '',
   onInitialViewModeApplied,
+  initialCreateRole = '',
+  lockCreateRole = false,
+  initialEditUserId = '',
+  onCloseFormView,
 }) {
   const { t } = useAppPreferences();
   const { users, isLoading, error, addUser, updateUser, deleteUser, fetchAllUsers } = useUsers();
@@ -383,6 +511,10 @@ export default function UserManagementPage({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const rowsPerPage = 10;
   const isEditing = editingUser !== null;
+  const normalizedInitialCreateRole = String(initialCreateRole || '').toLowerCase();
+  const visibleRoleOptions = lockCreateRole && normalizedInitialCreateRole
+    ? roleOptions.filter((role) => role.id === normalizedInitialCreateRole)
+    : roleOptions;
 
   useEffect(() => {
     fetchAllUsers().catch((err) => {
@@ -463,7 +595,7 @@ export default function UserManagementPage({
 
     if (initialViewMode === 'create') {
       setEditingUser(null);
-      setSelectedRole('');
+      setSelectedRole(normalizedInitialCreateRole);
       setFormValues(initialFormState);
       setFormErrors({});
       setShowPassword(false);
@@ -480,7 +612,26 @@ export default function UserManagementPage({
     }
 
     onInitialViewModeApplied?.();
-  }, [initialViewMode, onInitialViewModeApplied]);
+  }, [initialViewMode, normalizedInitialCreateRole, onInitialViewModeApplied]);
+
+  useEffect(() => {
+    if (initialViewMode !== 'edit' || !initialEditUserId) {
+      return;
+    }
+
+    const userToEdit = users.find((user) => String(user.id) === String(initialEditUserId));
+
+    if (!userToEdit) {
+      return;
+    }
+
+    setEditingUser(userToEdit);
+    setSelectedRole(String(userToEdit.role || '').toLowerCase());
+    setFormValues(buildFormValuesFromUser(userToEdit));
+    setFormErrors({});
+    setShowPassword(false);
+    setViewMode('edit');
+  }, [initialEditUserId, initialViewMode, users]);
 
   function handleSearchChange(event) {
     setSearchQuery(event.target.value);
@@ -489,27 +640,29 @@ export default function UserManagementPage({
 
   function handleDeleteUser(user) {
     if (window.confirm(`${t('userManagement.confirmDeletePrefix')} ${user.name}?`)) {
-      deleteUser(user.id)
+      return deleteUser(user.id)
         .then(() => {
           addNotification({
-            icon: '\u{1F5D1}',
+            icon: <Icon name="trash" />,
             title: t('userManagement.userRemoved'),
             sub: `${user.name} - ${formatLabel(user.role, t)}`,
           });
         })
         .catch((err) => {
           addNotification({
-            icon: '\u26A0',
+          icon: <Icon name="bell" />,
             title: t('userManagement.failedDelete'),
             sub: err?.response?.data?.error || error || t('userManagement.errorOccurred'),
           });
         });
     }
+
+    return Promise.resolve();
   }
 
   function handleOpenCreateView() {
     setEditingUser(null);
-    setSelectedRole('');
+    setSelectedRole(normalizedInitialCreateRole);
     setFormValues(initialFormState);
     setFormErrors({});
     setShowPassword(false);
@@ -526,9 +679,14 @@ export default function UserManagementPage({
   }
 
   function handleCloseFormView() {
+    if (onCloseFormView) {
+      onCloseFormView();
+      return;
+    }
+
     setViewMode('directory');
     setEditingUser(null);
-    setSelectedRole('');
+    setSelectedRole(normalizedInitialCreateRole);
     setFormValues(initialFormState);
     setFormErrors({});
     setShowPassword(false);
@@ -655,7 +813,7 @@ export default function UserManagementPage({
         console.log('Updating existing user:', editingUser.id);
         await updateUser(editingUser.id, userData);
         addNotification({
-          icon: '\u270E',
+          icon: <Icon name="edit" />,
           title: t('userManagement.userUpdated'),
           sub: `${userData.firstName} ${userData.lastName}`,
         });
@@ -663,7 +821,7 @@ export default function UserManagementPage({
         console.log('Creating new user');
         const createdUser = await addUser(userData);
         addNotification({
-          icon: '\u{1F465}',
+          icon: <Icon name="student" />,
           title: t('userManagement.newUserCreated'),
           sub: `${userData.firstName} ${userData.lastName}`,
         });
@@ -748,7 +906,7 @@ export default function UserManagementPage({
       console.error('All field errors:', fieldErrors);
       
       addNotification({
-        icon: '\u26A0',
+        icon: <Icon name="bell" />,
         title: t('userManagement.errorSavingUser'),
         sub: errorMsg,
       });
@@ -881,6 +1039,14 @@ export default function UserManagementPage({
         onRoleChange={handleRoleChange}
         onFieldChange={handleFieldChange}
         onSubmit={handleSubmitForm}
+        onDelete={
+          roleIs(editingUser, 'student')
+            ? async () => {
+                await handleDeleteUser(editingUser);
+                handleCloseFormView();
+              }
+            : undefined
+        }
         onProfilePictureChange={handleProfilePictureChange}
         studentHasSpecialty={studentHasSpecialty}
       />
@@ -898,7 +1064,7 @@ export default function UserManagementPage({
               onClick={handleCloseFormView}
               aria-label={t('userManagement.backToUsersManagement')}
             >
-              {BACK_ICON}
+              <Icon name="back" />
             </button>
             <div>
               <h1 className="create-title">{formTitle}</h1>
@@ -908,7 +1074,7 @@ export default function UserManagementPage({
 
           <div className="create-topbar-tools">
             <button type="button" className="create-tool-btn" aria-label={t('userManagement.notifications')}>
-              {BELL_ICON}
+              <Icon name="bell" />
             </button>
             <span className="create-admin-pill">AD</span>
           </div>
@@ -936,18 +1102,22 @@ export default function UserManagementPage({
             </div>
 
             <div className="create-role-grid">
-              {roleOptions.map((role) => (
+              {visibleRoleOptions.map((role) => (
                 <button
                   key={role.id}
                   type="button"
                   className={`create-role-card ${selectedRole === role.id ? 'create-role-card--active' : ''}`}
-                  onClick={() => handleRoleChange(role.id)}
+                  onClick={() => {
+                    if (!lockCreateRole) {
+                      handleRoleChange(role.id);
+                    }
+                  }}
                   aria-pressed={selectedRole === role.id}
                 >
-                  <span className="create-role-icon">{role.icon}</span>
+                  <span className="create-role-icon"><Icon name={role.icon} /></span>
                   <span className="create-role-label">{t(`roles.${role.id.toUpperCase()}`)}</span>
                   {selectedRole === role.id && (
-                    <span className="create-role-check">{CHECK_ICON}</span>
+                    <span className="create-role-check"><Icon name="check" /></span>
                   )}
                 </button>
               ))}
@@ -1008,7 +1178,7 @@ export default function UserManagementPage({
                       onClick={() => setShowPassword((current) => !current)}
                       aria-label={showPassword ? t('userManagement.hidePassword') : t('userManagement.showPassword')}
                     >
-                      {EYE_ICON}
+                      <Icon name="eye" />
                     </button>
                   </span>
                   {renderFieldError('password')}
@@ -1061,7 +1231,9 @@ export default function UserManagementPage({
               disabled={!canSubmitForm}
             >
               {isSubmitting ? t('common.saving') : submitLabel}
-              <span className="users-btn-icon">{isSubmitting ? '\u23F3' : (isEditing ? CHECK_ICON : '+')}</span>
+              <span className="users-btn-icon">
+                <Icon name={isSubmitting ? 'spinner' : (isEditing ? 'check' : 'plus')} />
+              </span>
             </button>
           </div>
         </div>
@@ -1082,7 +1254,7 @@ export default function UserManagementPage({
             className="users-btn users-btn--secondary"
             onClick={() => exportUsersToCsv(filteredUsers)}
           >
-            <span className="users-btn-icon">{EXPORT_ICON}</span>
+            <span className="users-btn-icon"><Icon name="export" /></span>
             {t('userManagement.exportList')}
           </button>
           <button
@@ -1090,7 +1262,7 @@ export default function UserManagementPage({
             className="users-btn users-btn--primary"
             onClick={handleOpenCreateView}
           >
-            <span className="users-btn-icon">+</span>
+            <span className="users-btn-icon"><Icon name="plus" /></span>
             {t('userManagement.addNewUser')}
           </button>
         </div>
@@ -1099,7 +1271,7 @@ export default function UserManagementPage({
       <div className="page-body users-page-body">
         <section className="users-search-panel">
           <label className="users-search" htmlFor="user-directory-search">
-            <span className="users-search-icon">{SEARCH_ICON}</span>
+            <span className="users-search-icon"><Icon name="search" /></span>
             <input
               id="user-directory-search"
               type="text"
@@ -1175,7 +1347,7 @@ export default function UserManagementPage({
                             aria-label={`${t('userManagement.editUser')} ${user.name}`}
                             onClick={() => handleOpenEditView(user)}
                           >
-                            {EDIT_ICON}
+                            <Icon name="edit" />
                           </button>
                           <button
                             type="button"
@@ -1183,7 +1355,7 @@ export default function UserManagementPage({
                             aria-label={`${t('userManagement.deleteUser')} ${user.name}`}
                             onClick={() => handleDeleteUser(user)}
                           >
-                            {DELETE_ICON}
+                            <Icon name="trash" />
                           </button>
                         </div>
                       </td>
@@ -1207,7 +1379,7 @@ export default function UserManagementPage({
                 disabled={currentPage === 1}
                 aria-label={t('common.previousPage')}
               >
-                {PREV_ICON}
+                <Icon name="back" />
               </button>
 
               {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
@@ -1228,7 +1400,7 @@ export default function UserManagementPage({
                 disabled={currentPage === totalPages}
                 aria-label={t('common.nextPage')}
               >
-                {NEXT_ICON}
+                <Icon name="next" />
               </button>
             </div>
           </div>

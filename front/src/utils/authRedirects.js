@@ -13,6 +13,10 @@ export function getRoleHomePath(user) {
     return '/teacher/dashboard';
   }
 
+  if (role === 'SCOLARITE') {
+    return '/scolarite/dashboard';
+  }
+
   return '/wow';
 }
 

@@ -11,6 +11,7 @@ const Wowzers = lazy(() => import('../pages/Wowzers'));
 const WrongInfoPage = lazy(() => import('../pages/WrongInfoPage'));
 const DashboardShell = lazy(() => import('../pages/DashboardShell'));
 const TeacherShell = lazy(() => import('../pages/TeacherShell'));
+const ScolariteShell = lazy(() => import('../pages/ScolariteShell'));
 const TeacherDashboardPage = lazy(() => import('../pages/TeacherDashboardPage'));
 import { TeacherPortalProvider } from '../context/TeacherPortalContext';
 import Rattrapages from '../pages/Rattrapage.jsx';
@@ -18,6 +19,13 @@ const TeacherGroupsPage = lazy(() => import('../pages/TeacherGroupsPage'));
 const LiveAttendancePage1 = lazy(() => import('../pages/LiveAttendancePage1').then(m => ({ default: m.LiveAttendancePage1 })));
 const TeacherFeaturePlaceholderPage = lazy(() => import('../pages/TeacherFeaturePlaceholderPage'));
 const TeacherSettingsPage = lazy(() => import('../pages/TeacherSettingsPage'));
+const ScolariteDashboardPage = lazy(() => import('../pages/ScolariteDashboardPage'));
+const ScolariteTodayAbsencesPage = lazy(() => import('../pages/ScolariteTodayAbsencesPage'));
+const ScolariteStudentsPage = lazy(() => import('../pages/ScolariteStudentsPage'));
+const ScolariteJustificationsPage = lazy(() => import('../pages/ScolariteJustificationsPage'));
+const ScolariteMakeupSessionsPage = lazy(() => import('../pages/ScolariteMakeupSessionsPage'));
+const ScolariteScheduleExamsPage = lazy(() => import('../pages/ScolariteScheduleExamsPage'));
+const ScolariteFeaturePlaceholderPage = lazy(() => import('../pages/ScolariteFeaturePlaceholderPage'));
 const ResetPassword = lazy(() => import('../pages/ResetPassword').then((module) => ({ default: module.ResetPassword })));
 const StudentAbsencePage = lazy(() => import('../pages/StudentAbsencePage'));
 const DashboardStudent = lazy(() => import('../pages/DashboardStudent'));
@@ -77,6 +85,34 @@ export default function AppRoutes() {
           )}
         />
         <Route path="settings" element={<TeacherSettingsPage />} />
+      </Route>
+
+      <Route
+        path="/scolarite"
+        element={(
+          <ProtectedRoute allowedRoles={['SCOLARITE']}>
+            <ScolariteShell />
+          </ProtectedRoute>
+        )}
+      >
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<ScolariteDashboardPage />} />
+        <Route path="today-absences" element={<ScolariteTodayAbsencesPage />} />
+        <Route path="supporting-documents" element={<ScolariteJustificationsPage />} />
+        <Route path="makeup-sessions" element={<ScolariteMakeupSessionsPage />} />
+        <Route path="students" element={<ScolariteStudentsPage />} />
+        <Route path="schedule-exams" element={<ScolariteScheduleExamsPage />} />
+        <Route
+          path="import-export"
+          element={(
+            <ScolariteFeaturePlaceholderPage
+              title="Import / Export CSV"
+              breadcrumb="Home / Import / Export CSV"
+              description="Prepare CSV imports and exports for scolarite absence workflows."
+            />
+          )}
+        />
+        <Route path="*" element={<Navigate to="dashboard" replace />} />
       </Route>
 
       <Route

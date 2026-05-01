@@ -1,0 +1,17 @@
+.layout {
+  --scolarite-sidebar-width: 240px;
+  min-height: 100vh;
+  background: #f4f6fb;
+}
+
+.content {
+  min-height: 100vh;
+  margin-inline-start: var(--scolarite-sidebar-width);
+  background: #f4f6fb;
+}
+
+@media (max-width: 980px) {
+  .content {
+    margin-inline-start: 0;
+  }
+}

@@ -38,6 +38,32 @@ function buildFallbackAvatar() {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
+function Icon({ name }) {
+  if (name === 'edit') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4.5 19.5h4l10-10a2.1 2.1 0 0 0-3-3l-10 10-1 3Z" />
+        <path d="m14 8 3 3" />
+      </svg>
+    );
+  }
+
+  if (name === 'lock') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="5.5" y="10" width="13" height="9" rx="2" />
+        <path d="M8.5 10V7.8a3.5 3.5 0 0 1 7 0V10" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m15 6-6 6 6 6" />
+    </svg>
+  );
+}
+
 export default function UserEditPage({
   user,
   roleOptions,
@@ -51,6 +77,7 @@ export default function UserEditPage({
   onRoleChange,
   onFieldChange,
   onSubmit,
+  onDelete,
   onProfilePictureChange,
   studentHasSpecialty,
 }) {
@@ -95,7 +122,7 @@ export default function UserEditPage({
             onClick={onBack}
             aria-label={t('userEdit.backToUsersManagement')}
           >
-            {'\u2190'}
+            <Icon name="back" />
           </button>
           <div>
             <p className={styles.breadcrumb}>{t('userEdit.breadcrumb')}</p>
@@ -123,7 +150,7 @@ export default function UserEditPage({
                 onClick={() => fileInputRef.current?.click()}
                 aria-label={t('userEdit.uploadProfilePhoto')}
               >
-                {'\u270E'}
+                <Icon name="edit" />
               </button>
               <input
                 ref={fileInputRef}
@@ -150,6 +177,16 @@ export default function UserEditPage({
             >
               {t('userEdit.changePassword')}
             </button>
+            {onDelete ? (
+              <button
+                type="button"
+                className={styles.dangerButton}
+                onClick={onDelete}
+                disabled={isSubmitting}
+              >
+                Delete Student
+              </button>
+            ) : null}
             {renderFieldError('profilePicture')}
           </aside>
 
@@ -196,7 +233,7 @@ export default function UserEditPage({
                     className={`${styles.input} ${styles.inputDisabled}`}
                   />
                   <span className={styles.lockBadge} aria-hidden="true">
-                    {'\u{1F512}'}
+                    <Icon name="lock" />
                   </span>
                 </div>
                 <span className={styles.fieldHint}>{t('userEdit.emailHint')}</span>

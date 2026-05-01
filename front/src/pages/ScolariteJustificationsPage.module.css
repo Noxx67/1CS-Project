@@ -1,0 +1,88 @@
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.toolbar svg,
+.documentCell svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.filtersPanel {
+  display: grid;
+  grid-template-columns: 1.2fr minmax(170px, 1fr) minmax(170px, 1fr) minmax(170px, 1fr) auto;
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 14px;
+}
+
+.clearButton {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e1e6ef;
+  border-radius: 8px;
+  padding: 0 16px;
+  background: #ffffff;
+  color: #092452;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.documentsTable {
+  min-width: 820px;
+}
+
+.documentCell {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: center;
+}
+
+.documentCell span {
+  grid-row: 1 / span 2;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f2ff;
+  color: #245a95;
+}
+
+.documentCell strong {
+  color: #092452;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.documentCell small {
+  margin-top: 4px;
+  color: #66758f;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+@media (max-width: 1120px) {
+  .metricGrid,
+  .filtersPanel {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,288 @@
+.metricCard {
+  border-left: 4px solid #245a95;
+}
+
+.metricCard:nth-child(2) {
+  border-left-color: #f59e0b;
+}
+
+.metricCard:nth-child(3) {
+  border-left-color: #2563eb;
+}
+
+.metricCard:nth-child(4) {
+  border-left-color: #19a760;
+}
+
+.pageGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 20px;
+  align-items: start;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  border: 1px solid #e1e6ef;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: #092452;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.toolbar label span {
+  color: #66758f;
+}
+
+.toolbar select {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #092452;
+  font: inherit;
+  cursor: pointer;
+}
+
+.toolbar button,
+.examHeader button,
+.examActions button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #092452;
+  border-radius: 8px;
+  padding: 0 16px;
+  background: #ffffff;
+  color: #092452;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.examHeader button {
+  background: #092452;
+  color: #ffffff;
+}
+
+.examActions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.toolbar svg,
+.examHeader svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.timetableWrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e1e6ef;
+  border-radius: 8px;
+}
+
+.timetable {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.timetable th,
+.timetable td {
+  border: 1px solid #e1e6ef;
+  color: #092452;
+  font-size: 12px;
+  vertical-align: top;
+}
+
+.timetable thead th {
+  height: 44px;
+  background: #f7fafc;
+  font-weight: 800;
+  text-align: center;
+}
+
+.timetable tbody th {
+  width: 96px;
+  padding: 28px 12px;
+  background: #f7fafc;
+  color: #66758f;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.35;
+}
+
+.timetable td {
+  height: 112px;
+  padding: 8px;
+}
+
+.sessionBlock {
+  min-height: 88px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border-left: 3px solid #092452;
+  border-radius: 4px;
+  padding: 10px;
+  background: #e8f2ff;
+}
+
+.examBlock {
+  border-left-color: #f59e0b;
+  background: #fff2d9;
+}
+
+.sessionBlock strong {
+  color: #092452;
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+
+.sessionBlock span,
+.sessionBlock small {
+  color: #66758f;
+  font-size: 10.5px;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.tableState {
+  padding: 36px 18px;
+  text-align: center;
+  color: #66758f;
+  font-weight: 800;
+}
+
+.examHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.examHeader h2 {
+  margin: 0;
+  color: #092452;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.examList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+}
+
+.examList li {
+  border: 1px solid #e1e6ef;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.examTopline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.examTopline strong,
+.examTopline span,
+.examTopline b {
+  display: block;
+}
+
+.examTopline strong {
+  color: #092452;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.examTopline span {
+  margin-top: 5px;
+  color: #66758f;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.examTopline b {
+  min-height: 24px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #fff2d9;
+  color: #f59e0b;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.examList dl {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 14px;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f6f9fd;
+}
+
+.examList dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.examList dt,
+.examList dd {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.examList dt {
+  color: #66758f;
+}
+
+.examList dd {
+  color: #092452;
+  text-align: right;
+}
+
+.examActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 1280px) {
+  .pageGrid {
+    grid-template-columns: 1fr;
+  }
+}

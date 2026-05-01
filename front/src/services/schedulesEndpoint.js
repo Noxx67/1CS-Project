@@ -1,14 +1,4 @@
-import api from '../api/axios.js';
-import { TEMP_FRONTEND_PREVIEW_MODE } from '../config/previewMode.js';
-
 const STORAGE_KEY = 'preview_schedule_sessions_v1';
-const LEGACY_SEEDED_SESSION_IDS = new Set([
-  'session-algorithmic',
-  'session-analyse',
-  'session-algebre',
-  'session-isi',
-  'session-acsi',
-]);
 
 export const SCHEDULES_ENDPOINTS = {
   sessions: 'schedules/sessions/',
@@ -346,65 +336,70 @@ function matchesScheduleFilters(session, filters = {}) {
 }
 
 export async function fetchScheduleMetadata() {
-  const emptyMetadata = createEmptyScheduleMetadata();
+  return createEmptyScheduleMetadata();
+}
+
+function readStoredScheduleSessions() {
   try {
-    const response = await api.get(SCHEDULES_ENDPOINTS.users);
-    const users = Array.isArray(response.data?.results) ? response.data.results : response.data;
-    const teachers = (users || []).filter(u => u.role === 'TEACHER').map(u => ({
-      id: u.id,
-      name: `${u.first_name} ${u.last_name}`.trim()
-    }));
-    return {
-      ...emptyMetadata,
-      teachers: normalizeTeacherList(teachers),
-    };
-  } catch (error) {
-    console.error('Failed to load metadata', error);
-    return emptyMetadata;
+    const storedValue = window.localStorage.getItem(STORAGE_KEY);
+    const parsedSessions = JSON.parse(storedValue || '[]');
+
+    return Array.isArray(parsedSessions) ? parsedSessions.map(normalizeScheduleSessionPayload) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredScheduleSessions(sessions = []) {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions.map(normalizeScheduleSessionPayload)));
+  } catch {
+    // Local storage can be unavailable in restricted browser modes; the visible page should still stay usable.
   }
 }
 
 export async function fetchScheduleSessions(filters = {}) {
-  const params = new URLSearchParams();
+  const filteredSessions = readStoredScheduleSessions().filter((session) => matchesScheduleFilters(session, filters));
 
-  ['day', 'year', 'specialty', 'section'].forEach((filterName) => {
-    const filterValue = String(filters[filterName] || '').trim();
-
-    if (!filterValue) {
-      return;
-    }
-
-    params.append(filterName, filterValue);
-  });
-
-  const endpoint = params.toString()
-    ? `${SCHEDULES_ENDPOINTS.sessions}?${params.toString()}`
-    : SCHEDULES_ENDPOINTS.sessions;
-  const response = await api.get(endpoint);
-  const responseSessions = Array.isArray(response.data?.results) ? response.data.results : response.data;
-
-  return sortSessionsByTime((responseSessions || []).map((session) => normalizeScheduleSessionPayload(session)));
+  return sortSessionsByTime(filteredSessions);
 }
 
 export async function fetchScheduleSessionById(sessionId) {
-  const response = await api.get(SCHEDULES_ENDPOINTS.sessionDetail(sessionId));
-  return normalizeScheduleSessionPayload(response.data);
+  return readStoredScheduleSessions().find((session) => session.id === String(sessionId)) || null;
 }
 
 export async function createScheduleSession(scheduleSession) {
-  const payloadData = serializeScheduleSessionPayload(scheduleSession);
-  const response = await api.post(SCHEDULES_ENDPOINTS.sessions, payloadData);
-  return normalizeScheduleSessionPayload(response.data);
+  const nextSession = normalizeScheduleSessionPayload({
+    ...scheduleSession,
+    id: scheduleSession.id || buildPreviewSessionId(),
+  });
+  const nextSessions = [...readStoredScheduleSessions(), nextSession];
+
+  writeStoredScheduleSessions(nextSessions);
+  return nextSession;
 }
 
 export async function updateScheduleSession(sessionId, nextSession, initialSession = null) {
-  const patchPayload = buildScheduleSessionPatchPayload(initialSession || createEmptyScheduleSession(), nextSession);
-  const response = await api.patch(SCHEDULES_ENDPOINTS.sessionDetail(sessionId), patchPayload);
-  return normalizeScheduleSessionPayload(response.data);
+  const normalizedSessionId = String(sessionId || '');
+  const currentSessions = readStoredScheduleSessions();
+  const currentSession = currentSessions.find((session) => session.id === normalizedSessionId);
+  const patchPayload = buildScheduleSessionPatchPayload(initialSession || currentSession || createEmptyScheduleSession(), nextSession);
+  const updatedSession = normalizeScheduleSessionPayload({
+    ...(currentSession || {}),
+    ...patchPayload,
+    ...nextSession,
+    id: normalizedSessionId || nextSession.id || buildPreviewSessionId(),
+  });
+  const nextSessions = currentSession
+    ? currentSessions.map((session) => (session.id === normalizedSessionId ? updatedSession : session))
+    : [...currentSessions, updatedSession];
+
+  writeStoredScheduleSessions(nextSessions);
+  return updatedSession;
 }
 
 export async function deleteScheduleSession(sessionId) {
-  await api.delete(SCHEDULES_ENDPOINTS.sessionDetail(sessionId));
+  writeStoredScheduleSessions(readStoredScheduleSessions().filter((session) => session.id !== String(sessionId)));
 }
 
 /**
@@ -413,8 +408,13 @@ export async function deleteScheduleSession(sessionId) {
  * Returns { instance_id, session_id, date, status, students[] }
  */
 export async function startSessionAttendance(sessionId) {
-  const response = await api.post(SCHEDULES_ENDPOINTS.startAttendance(sessionId));
-  return response.data;
+  return {
+    instance_id: `preview-instance-${sessionId}`,
+    session_id: sessionId,
+    date: new Date().toISOString().slice(0, 10),
+    status: 'active',
+    students: [],
+  };
 }
 
 /**
@@ -422,18 +422,17 @@ export async function startSessionAttendance(sessionId) {
  * status: 'present' | 'absent' | 'unmarked'
  */
 export async function updateAttendanceRecord(recordId, status) {
-  const response = await api.patch(SCHEDULES_ENDPOINTS.attendanceDetail(recordId), { status });
-  return response.data;
+  return { id: recordId, status };
 }
 
 /**
  * Submit and close a SessionInstance (set status='completed', save note).
  */
 export async function submitAttendanceInstance(instanceId, teacherNote = '') {
-  const response = await api.patch(SCHEDULES_ENDPOINTS.instanceDetail(instanceId), {
+  return {
+    id: instanceId,
     status: 'completed',
     teacher_note: teacherNote,
-  });
-  return response.data;
+  };
 }
 
