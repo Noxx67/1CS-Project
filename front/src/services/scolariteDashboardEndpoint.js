@@ -201,13 +201,13 @@ export async function fetchScolariteDashboardOverview() {
   });
 }
 
-export async function runScolariteDashboardAction(actionUrl) {
+export async function runScolariteDashboardAction(actionUrl, data = {}) {
   const normalizedActionUrl = normalizeText(actionUrl);
 
   if (!normalizedActionUrl) {
     throw new Error('Action endpoint is required.');
   }
 
-  const response = await api.post(normalizedActionUrl);
+  const response = await api.post(normalizedActionUrl, data);
   return response?.data ?? response;
 }

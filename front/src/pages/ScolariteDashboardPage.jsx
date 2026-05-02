@@ -87,19 +87,17 @@ function MetricCard({ card, metric, loading }) {
   return (
     <article className={styles.metricCard} aria-busy={loading}>
       <div className={styles.metricCopy}>
-        <span className={styles.metricLabel}>{metric?.label || card.label}</span>
         <strong className={`${styles.metricValue} ${card.tone === 'red' ? styles.metricValueDanger : ''}`}>
           {loading ? '-' : formatMetricValue(metric)}
         </strong>
+        <span className={styles.metricLabel}>{metric?.label || card.label}</span>
         {metric?.helper ? (
           <span className={styles.metricHelper}>{metric.helper}</span>
         ) : null}
         {metric?.trendLabel ? (
-          <div className={`${styles.metricTrend} ${metric.trendTone === 'danger' ? styles.metricTrendDanger : ''}`}>
-            <span className={styles.trendArrow}>{metric.trendTone === 'danger' ? '↓' : '↑'}</span>
-            <strong>{metric.trendLabel}</strong>
-            <small>vs yesterday</small>
-          </div>
+          <span className={`${styles.metricTrend} ${metric.trendTone === 'danger' ? styles.metricTrendDanger : ''}`}>
+            {metric.trendLabel}
+          </span>
         ) : null}
       </div>
       <span className={`${styles.metricIcon} ${toneClass}`}>
@@ -230,13 +228,13 @@ export default function ScolariteDashboardPage() {
         <section className={styles.mainGrid}>
           <article className={`${styles.panel} ${styles.recentPanel}`}>
             <div className={styles.panelHeader}>
-              <div className={styles.panelTitleBox}>
+              <div>
                 <h2>Recent absences</h2>
                 <p>Latest records captured across departments, with current justification status and direct review access.</p>
               </div>
-              <button type="button" className={styles.viewAllLink} onClick={() => {}}>
+              <button type="button" className={styles.textButton} disabled>
                 View all absences
-                <span aria-hidden="true">→</span>
+                <span aria-hidden="true">-&gt;</span>
               </button>
             </div>
 
@@ -264,11 +262,7 @@ export default function ScolariteDashboardPage() {
                   ) : (
                     visibleRecentAbsences.map((record) => (
                       <tr key={record.id || `${record.studentName}-${record.date}-${record.subject}`}>
-                        <td>
-                          <div className={styles.studentNameCell}>
-                            {record.studentName || '-'}
-                          </div>
-                        </td>
+                        <td>{record.studentName || '-'}</td>
                         <td>{record.department || '-'}</td>
                         <td>{record.subject || '-'}</td>
                         <td>{record.date || '-'}</td>
@@ -279,16 +273,11 @@ export default function ScolariteDashboardPage() {
                         </td>
                         <td>
                           {record.detailUrl ? (
-                            <a 
-                              className={styles.viewButtonTable} 
-                              href={record.detailUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
+                            <a className={styles.viewButton} href={record.detailUrl}>
                               View
                             </a>
                           ) : (
-                            <button type="button" className={styles.viewButtonTable} disabled>
+                            <button type="button" className={styles.viewButton} disabled>
                               View
                             </button>
                           )}
@@ -303,7 +292,7 @@ export default function ScolariteDashboardPage() {
 
           <article className={styles.panel}>
             <div className={styles.panelHeader}>
-              <div className={styles.panelTitleBox}>
+              <div>
                 <h2>Justifications to review</h2>
               </div>
             </div>
@@ -325,17 +314,24 @@ export default function ScolariteDashboardPage() {
                       </div>
                       <div className={styles.justificationContent}>
                         <div className={styles.justificationTopline}>
-                          <div className={styles.justificationMainInfo}>
-                            <strong>{justification.studentName || '-'}</strong>
-                            <span className={styles.justificationReason}>{justification.subject || '-'}</span>
-                          </div>
-                          <span className={styles.justificationTime}>{justification.submittedAtLabel || '-'}</span>
+                          <strong>{justification.studentName || '-'}</strong>
+                          <span>{justification.submittedAtLabel || '-'}</span>
                         </div>
-                        
-                        <div className={styles.justificationActionsRow}>
+                        <p>{justification.subject || '-'}</p>
+                        {justification.fileUrl && (
+                          <a
+                            href={justification.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ fontSize: '0.8rem', color: '#3b82f6', textDecoration: 'underline', marginBottom: '0.5rem', display: 'inline-block' }}
+                          >
+                            View File
+                          </a>
+                        )}
+                        <div className={styles.justificationActions}>
                           <button
                             type="button"
-                            className={styles.approveButtonUI}
+                            className={styles.approveButton}
                             disabled={!justification.approveUrl || activeAction === approveActionId}
                             onClick={() => handleJustificationAction(justification, 'approve')}
                           >
@@ -343,7 +339,7 @@ export default function ScolariteDashboardPage() {
                           </button>
                           <button
                             type="button"
-                            className={styles.rejectButtonUI}
+                            className={styles.rejectButton}
                             disabled={!justification.rejectUrl || activeAction === rejectActionId}
                             onClick={() => handleJustificationAction(justification, 'reject')}
                           >
@@ -373,16 +369,14 @@ export default function ScolariteDashboardPage() {
               <ul className={styles.departmentList}>
                 {visibleDepartments.map((department) => (
                   <li key={department.id || department.label} className={styles.departmentItem}>
-                    <span className={styles.departmentLabel}>{department.label || '-'} — {department.fullName || ''}</span>
-                    <div className={styles.departmentStats}>
-                      <span className={styles.departmentTrack}>
-                        <span
-                          className={styles.departmentFill}
-                          style={{ width: `${Math.max(0, Math.min(100, department.percent))}%` }}
-                        />
-                      </span>
-                      <strong>{department.percentLabel || `${department.percent}%`}</strong>
-                    </div>
+                    <span className={styles.departmentLabel}>{department.label || '-'}</span>
+                    <span className={styles.departmentTrack}>
+                      <span
+                        className={styles.departmentFill}
+                        style={{ width: `${Math.max(0, Math.min(100, department.percent))}%` }}
+                      />
+                    </span>
+                    <strong>{department.percentLabel || `${department.percent}%`}</strong>
                   </li>
                 ))}
               </ul>
@@ -399,27 +393,22 @@ export default function ScolariteDashboardPage() {
             ) : visibleMakeupSessions.length === 0 ? (
               <EmptyState>No upcoming makeup sessions available.</EmptyState>
             ) : (
-              <div className={styles.timelineWrapper}>
-                <ul className={styles.sessionTimeline}>
-                  {visibleMakeupSessions.map((session) => (
-                    <li key={session.id || `${session.title}-${session.date}`} className={styles.timelineItem}>
-                      <div className={styles.timelineMarker}>
-                        <span className={styles.markerDot} />
-                        <span className={styles.markerLine} />
-                      </div>
-                      <div className={styles.timelineContent}>
-                        <div className={styles.sessionHeader}>
-                          <strong>{session.title || '-'}</strong>
-                          {session.department ? <span className={styles.sessionTag}>{session.department}</span> : null}
-                        </div>
-                        <p className={styles.sessionMeta}>
-                          {session.date} — Room {session.room || '-'}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul className={styles.sessionList}>
+                {visibleMakeupSessions.map((session) => (
+                  <li key={session.id || `${session.title}-${session.date}`} className={styles.sessionItem}>
+                    <span className={styles.sessionDot} aria-hidden="true" />
+                    <div className={styles.sessionContent}>
+                      <strong>
+                        {session.title || '-'}
+                        {session.department ? <span>{session.department}</span> : null}
+                      </strong>
+                      <p>
+                        {[session.date, session.room].filter(Boolean).join(' - ') || '-'}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             )}
           </article>
         </section>
