@@ -6,6 +6,7 @@ import {
   deleteScheduleSession,
   createEmptyScheduleMetadata,
 } from '../services/schedulesEndpoint';
+import { usersService } from '../services/usersService';
 
 const SchedulesContext = createContext(null);
 
@@ -46,7 +47,21 @@ export function SchedulesProvider({ children }) {
     sessions,
     loading,
     error,
-    loadMetadata: useCallback(async () => metadata, [metadata]),
+    loadMetadata: useCallback(async () => {
+      const baseMetadata = createEmptyScheduleMetadata();
+      try {
+        const response = await usersService.getAllUsers({ role: 'TEACHER' });
+        if (response && response.users) {
+          baseMetadata.teachers = response.users.map(user => ({
+            id: String(user.id),
+            name: user.full_name || `${user.first_name} ${user.last_name}`.trim()
+          }));
+        }
+      } catch (err) {
+        console.error('Failed to load teachers for schedule metadata', err);
+      }
+      return baseMetadata;
+    }, []),
     loadSessions,
     createSession,
     updateSession,

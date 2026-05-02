@@ -226,7 +226,7 @@ export default function SchedulesPage() {
       }
     }
 
-    if (!contextMetadata) {
+    if (!contextMetadata || !contextMetadata.teachers || contextMetadata.teachers.length === 0) {
       initialize();
     } else {
       setMetadata(contextMetadata);
