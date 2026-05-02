@@ -12,15 +12,15 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   }
 
   if (!user) {
-    // return <Navigate to="/" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   if (shouldForcePasswordReset(user) && location.pathname !== '/ResetPassword') {
-    // return <Navigate to="/ResetPassword" replace />;
+    return <Navigate to="/ResetPassword" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // return <Navigate to={getRoleHomePath(user)} replace />;
+    return <Navigate to={getRoleHomePath(user)} replace />;
   }
 
   return children;

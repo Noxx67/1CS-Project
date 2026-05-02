@@ -1,7 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import styles from "./Rattrapage.module.css";
+import { useAuth } from "../context/AuthContext";
+
 
 export default function Rattrapages() {
+    const { user, logout } = useAuth();
     const [viewMode, setViewMode] = useState("list");
 
     const availableMakeups = [
@@ -121,14 +124,22 @@ export default function Rattrapages() {
                         </svg>
                         <span className={styles["settingtext"]}>System Settings</span>
                     </a>
+                    <button onClick={user?.logout || (() => {})} className={styles["nav-item"]} style={{ border: "none", background: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit" }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        <span className={styles["settingtext"]}>Logout</span>
+                    </button>
                 </div>
                 <div className={styles["user-profile"]}>
                     <div className={styles["user-avatar"]}>
-                        <img src="/Icons/Teacher Avatar.png" alt="Dr. Ahmed Yelles" />
+                        <img src={user?.profile_picture || "/Icons/studentPicture.png"} alt={user?.name || "Student"} />
                     </div>
                     <div className={styles["user-info"]}>
-                        <span className={styles["user-name"]}>Dr. Ahmed Yelles</span>
-                        <span className={styles["user-role"]}>Professor</span>
+                        <span className={styles["user-name"]}>{user?.name || "Student"}</span>
+                        <span className={styles["user-role"]}>Student</span>
                     </div>
                 </div>
             </aside>
@@ -174,7 +185,7 @@ export default function Rattrapages() {
                             </svg>
                             <span className={styles["notification-dot"]}></span>
                         </button>
-                        <button className={styles["logout-btn"]}>
+                        <button className={styles["logout-btn"]} onClick={logout}>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                                 <polyline points="16,17 21,12 16,7" />

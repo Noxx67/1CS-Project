@@ -1,6 +1,8 @@
-import styles from "./DashboardStudent.module.css"
-
-// SVG Icons
+import React, { useState, useEffect } from 'react';
+import styles from "./DashboardStudent.module.css";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 function DashboardIcon() {
     return (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -190,8 +192,8 @@ function CalendarAlertIcon() {
 
 // Navigation items
 const navItems = [
-    { icon: DashboardIcon, label: "Dashboard", active: false, path: "/DashboardStudent" },
-    { icon: AbsencesIcon, label: "Absences", active: true, path: "/StudentAbsencePage" },
+    { icon: DashboardIcon, label: "Dashboard", active: true, path: "/DashboardStudent" },
+    { icon: AbsencesIcon, label: "Absences", active: false, path: "/StudentAbsencePage" },
     { icon: FileTextIcon, label: "Justificatifs", active: false, indent: true, path: "/Justification" },
     { icon: RefreshIcon, label: "Rattrapages", active: false, path: "/Rattrapage" },
     { icon: CheckInIcon, label: "Check-in (Présence)", active: false, path: "/Check-in" },
@@ -238,6 +240,48 @@ const alerts = [
 const months = ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb"]
 
 export default function Dashboard() {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+    const [absences, setAbsences] = useState([]);
+
+    useEffect(() => {
+        const fetchAbsences = async () => {
+            try {
+                const response = await api.get('schedules/attendance/');
+                // Filter only absent records
+                const absentRecords = response.data.filter(record => record.status === 'absent' || record.justification_status);
+                setAbsences(absentRecords);
+            } catch (error) {
+                console.error("Error fetching absences:", error);
+            }
+        };
+        fetchAbsences();
+    }, []);
+
+    // Calculate stats dynamically
+    const justifiedCount = absences.filter(a => a.justification_status === 'JUSTIFIÉE').length;
+    const unjustifiedCount = absences.filter(a => !a.justification_status || a.justification_status === 'INJUSTIFIÉE').length;
+    const pendingCount = absences.filter(a => a.justification_status === 'EN ATTENTE').length;
+
+    const dynamicStats = [
+        { icon: TotalAbsenceIcon, value: absences.length < 10 ? `0${absences.length}` : absences.length, label: "Total Absences", type: "TOTAL", color: "blue" },
+        { icon: ValidatedIcon, value: justifiedCount < 10 ? `0${justifiedCount}` : justifiedCount, label: "Justified", type: "VALIDATED", color: "green" },
+        { icon: CriticalIcon, value: unjustifiedCount < 10 ? `0${unjustifiedCount}` : unjustifiedCount, label: "Unjustified", type: "CRITICAL", color: "red" },
+        { icon: InProgressIcon, value: pendingCount < 10 ? `0${pendingCount}` : pendingCount, label: "En attente", type: "IN PROGRESS", color: "orange" },
+    ];
+
+    // Map recent absences to match the frontend structure
+    const mappedRecentAbsences = absences.slice(0, 5).map(absence => ({
+        id: absence.id,
+        date: absence.date,
+        subject: absence.subject,
+        type: absence.type,
+        status: absence.justification_status === 'JUSTIFIÉE' ? 'justified' : 
+                absence.justification_status === 'EN ATTENTE' ? 'pending' : 'unjustified',
+        statusLabel: absence.justification_status === 'JUSTIFIÉE' ? 'Justifiée' : 
+                     absence.justification_status === 'EN ATTENTE' ? 'En attente' : 'Injustifiée'
+    }));
+
     return (
         <div className={styles["app-container"]}>
             {/* Sidebar */}
@@ -273,14 +317,18 @@ export default function Dashboard() {
                         <SettingsIcon className={styles["nav-icon"]} />
                         <span className={styles["settingtext"]}>System Settings</span>
                     </a>
+                    <button onClick={logout} className={styles["setting-item"]} style={{ border: "none", background: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit" }}>
+                        <LogoutIcon className={styles["nav-icon"]} />
+                        <span className={styles["settingtext"]}>Logout</span>
+                    </button>
                 </div>
 
                 <div className={styles["sidebar-footer"]}>
                     <div className={styles["user-profile"]}>
-                        <img src="/Icons/Teacher Avatar.png" alt="Dr. Ahmed Yelles" className={styles["user-avatar"]} />
+                        <img src={user?.profile_picture || "/Icons/studentPicture.png"} alt={user?.name} className={styles["user-avatar"]} />
                         <div className={styles["user-info"]}>
-                            <span className={styles["user-name"]}>Dr. Ahmed Yelles</span>
-                            <span className={styles["user-role"]}>Professor</span>
+                            <span className={styles["user-name"]}>{user?.name || "Student"}</span>
+                            <span className={styles["user-role"]}>Student</span>
                         </div>
                     </div>
                 </div>
@@ -294,7 +342,7 @@ export default function Dashboard() {
                         <button className={styles["icon-btn"]}>
                             <BellIcon />
                         </button>
-                        <button className={styles["icon-btn"]}>
+                        <button className={styles["icon-btn"]} onClick={logout}>
                             <LogoutIcon />
                         </button>
                     </div>
@@ -303,10 +351,10 @@ export default function Dashboard() {
                 {/* Welcome Section */}
                 <div className={styles["welcome-section"]}>
                     <div className={styles["welcome-text"]}>
-                        <h1>Hello, Amine</h1>
+                        <h1>Hello, {user?.first_name || user?.firstName || 'Student'}</h1>
                         <p>Here is your current attendance status for the current semester.</p>
                     </div>
-                    <button className={styles["submit-btn"]}>
+                    <button className={styles["submit-btn"]} onClick={() => navigate('/NewJustification')}>
                         <PlusIcon />
                         <span>Submit a Justification</span>
                     </button>
@@ -314,7 +362,7 @@ export default function Dashboard() {
 
                 {/* Stats Cards */}
                 <div className={styles["stats-grid"]}>
-                    {stats.map((stat, index) => (
+                    {dynamicStats.map((stat, index) => (
                         <div key={index} className={styles["stat-card"]}>
                             <div className={styles["stat-header"]}>
                                 <stat.icon className={`${styles["stat-icon"]} ${styles[stat.color]}`} />
@@ -383,23 +431,41 @@ export default function Dashboard() {
                             </tr>
                         </thead>
                         <tbody>
-                            {recentAbsences.map((absence, index) => (
-                                <tr key={index}>
-                                    <td className={styles["date-cell"]}>{absence.date}</td>
-                                    <td>{absence.subject}</td>
-                                    <td>{absence.type}</td>
-                                    <td>
-                                        <span className={`${styles["status-badge"]} ${styles[absence.status.toLowerCase()]}`}>
-                                            {absence.status}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button className={styles["action-btn"]}>
-                                            {absence.status === "Unjustified" ? <UploadIcon /> : <EyeIcon />}
-                                        </button>
+                            {mappedRecentAbsences.length > 0 ? (
+                                mappedRecentAbsences.map((absence, index) => (
+                                    <tr key={index}>
+                                        <td className={styles["date-cell"]}>{absence.date}</td>
+                                        <td>{absence.subject}</td>
+                                        <td>{absence.type}</td>
+                                        <td>
+                                            <span className={`${styles["status-badge"]} ${styles[absence.status]}`}>
+                                                {absence.statusLabel}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button 
+                                                className={styles["action-btn"]}
+                                                onClick={() => {
+                                                    if (absence.status === "Unjustified") {
+                                                        navigate(`/NewJustification?absenceId=${absence.id}`);
+                                                    } else {
+                                                        navigate('/Justification');
+                                                    }
+                                                }}
+                                                title={absence.status === "Unjustified" ? "Justifier" : "Voir justification"}
+                                            >
+                                                {absence.status === "Unjustified" ? <UploadIcon /> : <EyeIcon />}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
+                                        No recent absences.
                                     </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>

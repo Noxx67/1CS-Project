@@ -1,7 +1,7 @@
 import api from '../api/axios.js';
 import { readEndpointData } from './backendSupport.js';
 
-export const RECENT_ABSENCE_RECORDS_ENDPOINT = '/scolarite/recent-absence-records';
+export const RECENT_ABSENCE_RECORDS_ENDPOINT = '/schedules/scolarite/recent-absence-records';
 
 export async function fetchRecentAbsenceRecords() {
   return readEndpointData({

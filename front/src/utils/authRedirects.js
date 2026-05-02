@@ -16,6 +16,9 @@ export function getRoleHomePath(user) {
   if (role === 'SCOLARITE') {
     return '/scolarite/dashboard';
   }
+  if (role === 'STUDENT') {
+    return '/DashboardStudent';
+  }
 
   return '/wow';
 }

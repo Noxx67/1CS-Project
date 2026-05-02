@@ -318,6 +318,16 @@ export default function ScolariteDashboardPage() {
                           <span>{justification.submittedAtLabel || '-'}</span>
                         </div>
                         <p>{justification.subject || '-'}</p>
+                        {justification.fileUrl && (
+                          <a
+                            href={justification.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ fontSize: '0.8rem', color: '#3b82f6', textDecoration: 'underline', marginBottom: '0.5rem', display: 'inline-block' }}
+                          >
+                            View File
+                          </a>
+                        )}
                         <div className={styles.justificationActions}>
                           <button
                             type="button"

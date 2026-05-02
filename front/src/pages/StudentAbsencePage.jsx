@@ -1,5 +1,9 @@
-import { useState } from "react"
-import styles from "./studentAbsencePage.module.css"
+import React, { useState, useEffect } from "react";
+import styles from "./studentAbsencePage.module.css";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
+
 
 // Icons as SVG components
 function LayoutDashboard({ className }) {
@@ -126,6 +130,16 @@ function ChevronRight({ className }) {
     )
 }
 
+function LogOut({ className }) {
+    return (
+        <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+    )
+}
+
 // Navigation items data
 const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", active: false, path: "/DashboardStudent" },
@@ -136,54 +150,7 @@ const navItems = [
     { icon: Bell, label: "Notifications", active: false, badge: 3, path: "/Notifications" },
 ]
 
-// Absences data
-const absences = [
-    {
-        id: 1,
-        date: "12/10/2023",
-        time: "08:30 - 10:00",
-        module: "Systèmes d'Exploitation",
-        type: "TD",
-        room: "Salle 12",
-        status: "justified",
-    },
-    {
-        id: 2,
-        date: "10/10/2023",
-        time: "10:15 - 11:45",
-        module: "Génie Logiciel",
-        type: "Cours",
-        room: "Amphi A",
-        status: "unjustified",
-    },
-    {
-        id: 3,
-        date: "05/10/2023",
-        time: "13:00 - 14:30",
-        module: "Réseaux",
-        type: "TP",
-        room: "Labo 3",
-        status: "pending",
-    },
-    {
-        id: 4,
-        date: "28/09/2023",
-        time: "14:45 - 16:15",
-        module: "Architecture des Ordinateurs",
-        type: "Cours",
-        room: "Amphi B",
-        status: "justified",
-    },
-    {
-        id: 5,
-        date: "15/09/2023",
-        time: "08:30 - 10:00",
-        module: "Algorithmique Avancée",
-        type: "TD",
-        room: "Salle 15",
-        status: "unjustified",
-    },
-]
+// Render an absence directly from fetched records
 
 // Status configuration
 const statusConfig = {
@@ -212,7 +179,7 @@ function Image({ src, alt, width, height, className }) {
 }
 
 // Sidebar Component
-function Sidebar() {
+function Sidebar({ user }) {
     return (
         <aside className={styles["sidebar"]}>
             <div className={styles["sidebar-logo"]}>
@@ -252,21 +219,25 @@ function Sidebar() {
                     <Settings className={styles["nav-icon"]} />
                     <span className={styles["settingtext"]}>System Settings</span>
                 </a>
+                <button onClick={user?.logout} className={styles["setting-item"]} style={{ border: "none", background: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit" }}>
+                    <LogOut className={styles["nav-icon"]} />
+                    <span className={styles["settingtext"]}>Logout</span>
+                </button>
             </div>
 
             <div className={styles["sidebar-profile"]}>
                 <div className={styles["profile-avatar"]}>
                     <Image
-                        src="/Icons/Teacher Avatar.png"
-                        alt="Dr. Ahmed Yelles"
+                        src={user?.profile_picture || "/Icons/studentPicture.png"}
+                        alt={user?.name || "Student"}
                         width={40}
                         height={40}
                         className={styles["avatar-image"]}
                     />
                 </div>
                 <div>
-                    <p className={styles["profile-name"]}>Dr. Ahmed Yelles</p>
-                    <p className={styles["profile-role"]}>Professor</p>
+                    <p className={styles["profile-name"]}>{user?.name || "Student"}</p>
+                    <p className={styles["profile-role"]}>Student</p>
                 </div>
             </div>
         </aside>
@@ -274,7 +245,7 @@ function Sidebar() {
 }
 
 // Header Component
-function Header() {
+function Header({ user }) {
     return (
         <header className={styles["header"]}>
             <div className={styles["header-content"]}>
@@ -285,13 +256,13 @@ function Header() {
 
                 <div className={styles["user-profile"]}>
                     <div className={styles["user-info"]}>
-                        <p className={styles["user-name"]}>Amine B.</p>
-                        <p className={styles["user-role"]}>3ème Année SI</p>
+                        <p className={styles["user-name"]}>{user?.first_name || user?.firstName || 'Student'} {user?.last_name?.[0] || user?.lastName?.[0] || ''}.</p>
+                        <p className={styles["user-role"]}>{user?.promotion || 'Student'}</p>
                     </div>
                     <div className={styles["user-avatar"]}>
                         <Image
-                            src="/Icons/studentPicture.png"
-                            alt="Amine B."
+                            src={user?.profile_picture || "/Icons/studentPicture.png"}
+                            alt={user?.name || "Student"}
                             width={40}
                             height={40}
                             className={styles["avatar-image"]}
@@ -305,8 +276,11 @@ function Header() {
 }
 
 // Absences Table Component
-function AbsencesTable() {
-    const [currentPage, setCurrentPage] = useState(1)
+function AbsencesTable({ absences, onJustify }) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+    const paginatedAbsences = absences.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const totalPages = Math.max(1, Math.ceil(absences.length / itemsPerPage));
 
     return (
         <div className={styles["table-container"]}>
@@ -351,48 +325,66 @@ function AbsencesTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {absences.map((absence) => (
-                            <tr key={absence.id}>
-                                <td>
-                                    <p className={styles["cell-primary"]}>{absence.date}</p>
-                                    <p className={styles["cell-secondary"]}>{absence.time}</p>
-                                </td>
-                                <td>
-                                    <p className={styles["cell-primary"]}>{absence.module}</p>
-                                </td>
-                                <td>
-                                    <p className={styles["cell-primary"]}>{absence.type}</p>
-                                    <p className={styles["cell-secondary"]}>{absence.room}</p>
-                                </td>
-                                <td>
-                                    <span className={`${styles["status-badge"]} ${statusConfig[absence.status].className}`}>
-                                        {statusConfig[absence.status].label}
-                                    </span>
-                                </td>
-                                <td className={styles["text-center"]}>
-                                    {absence.status === "unjustified" ? (
-                                        <button className={styles["action-btn"]}>
-                                            Justifier
+                        {paginatedAbsences.length > 0 ? (
+                            paginatedAbsences.map((absence) => (
+                                <tr key={absence.id}>
+                                    <td>
+                                        <p className={styles["cell-primary"]}>{absence.date}</p>
+                                        <p className={styles["cell-secondary"]}>{absence.time}</p>
+                                    </td>
+                                    <td>
+                                        <p className={styles["cell-primary"]}>{absence.subject}</p>
+                                    </td>
+                                    <td>
+                                        <p className={styles["cell-primary"]}>{absence.type}</p>
+                                        <p className={styles["cell-secondary"]}>{absence.room}</p>
+                                    </td>
+                                    <td>
+                                        <span className={`${styles["status-badge"]} ${
+                                            absence.justification_status === 'JUSTIFIÉE' ? statusConfig["justified"].className :
+                                            absence.justification_status === 'EN ATTENTE' ? statusConfig["pending"].className :
+                                            statusConfig["unjustified"].className
+                                        }`}>
+                                            {absence.justification_status === 'JUSTIFIÉE' ? 'Justifiée' : 
+                                             absence.justification_status === 'EN ATTENTE' ? 'En attente' : 
+                                             'Injustifiée'}
+                                        </span>
+                                    </td>
+                                    <td className={styles["text-center"]}>
+                                        <button 
+                                            className={styles["action-btn"]}
+                                            onClick={() => onJustify(absence.id)}
+                                            disabled={!!absence.justification_status}
+                                            style={{ 
+                                                opacity: !!absence.justification_status ? 0.5 : 1, 
+                                                cursor: !!absence.justification_status ? 'not-allowed' : 'pointer' 
+                                            }}
+                                        >
+                                            {absence.justification_status ? 'Déjà soumis' : 'Justifier'}
                                         </button>
-                                    ) : (
-                                        <span className={styles["no-action"]}>Aucune action</span>
-                                    )}
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className={styles["text-center"]} style={{ padding: "20px" }}>
+                                    Aucune absence enregistrée.
                                 </td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
             </div>
 
             <div className={styles["pagination"]}>
                 <p className={styles["pagination-info"]}>
-                    Affichage de 1 à 5 sur 12 absences
+                    Affichage de {Math.min((currentPage - 1) * itemsPerPage + 1, absences.length)} à {Math.min(currentPage * itemsPerPage, absences.length)} sur {absences.length} absences
                 </p>
                 <div className={styles["pagination-controls"]}>
                     <button className={styles["pagination-btn"]} onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}>
                         <ChevronLeft className={styles["pagination-icon"]} />
                     </button>
-                    {[1, 2, 3].map((page) => (
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                         <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
@@ -401,7 +393,7 @@ function AbsencesTable() {
                             {page}
                         </button>
                     ))}
-                    <button className={styles["pagination-btn"]} onClick={() => setCurrentPage(prev => Math.min(3, prev + 1))}>
+                    <button className={styles["pagination-btn"]} onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}>
                         <ChevronRight className={styles["pagination-icon"]} />
                     </button>
                 </div>
@@ -410,15 +402,31 @@ function AbsencesTable() {
     )
 }
 
-// Main Page Component
 export default function StudentAbsencePage() {
+    const { user } = useAuth();
+    const navigate = useNavigate();
+    const [absences, setAbsences] = useState([]);
+
+    useEffect(() => {
+        const fetchAbsences = async () => {
+            try {
+                const response = await api.get('schedules/attendance/');
+                const absentRecords = response.data.filter(record => record.status === 'absent' || record.justification_status);
+                setAbsences(absentRecords);
+            } catch (error) {
+                console.error("Error fetching absences:", error);
+            }
+        };
+        fetchAbsences();
+    }, []);
+
     return (
         <div className={styles["page-container"]}>
-            <Sidebar />
+            <Sidebar user={user} />
             <div className={styles["main-content"]}>
-                <Header />
+                <Header user={user} />
                 <main className={styles["content-area"]}>
-                    <AbsencesTable />
+                    <AbsencesTable absences={absences} onJustify={(absenceId) => navigate(`/NewJustification?absenceId=${absenceId}`)} />
                 </main>
             </div>
         </div>

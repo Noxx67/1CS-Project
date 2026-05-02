@@ -2,7 +2,7 @@ import api from '../api/axios.js';
 import { readEndpointData } from './backendSupport.js';
 
 export const SCOLARITE_JUSTIFICATIONS_ENDPOINTS = {
-  overview: 'scolarite/justifications/',
+  overview: 'schedules/justifications/overview/',
 };
 
 function normalizeText(value) {
@@ -66,34 +66,20 @@ export function normalizeJustificationDocument(payload = {}) {
   const status = normalizeText(payload.status || payload.review_status || payload.reviewStatus);
 
   return {
-    id: normalizeText(payload.id || payload.document_id || payload.documentId),
-    studentName: normalizeText(
-      payload.student_name
-        || payload.studentName
-        || payload.student?.full_name
-        || payload.student?.name,
-    ),
-    studentCode: normalizeText(
-      payload.student_code
-        || payload.studentCode
-        || payload.registration_number
-        || payload.registrationNumber
-        || payload.student?.registration_number,
-    ),
-    avatarUrl: normalizeText(payload.avatar_url || payload.avatarUrl || payload.student?.profile_picture),
-    absenceDate: normalizeText(payload.absence_date || payload.absenceDate || payload.date),
-    documentTitle: normalizeText(payload.document_title || payload.documentTitle || payload.document_type || payload.documentType || payload.title),
-    documentMeta: normalizeText(
-      payload.document_meta
-        || payload.documentMeta
-        || [payload.file_type || payload.fileType, payload.file_size || payload.fileSize].filter(Boolean).join(' - '),
-    ),
-    reason: normalizeText(payload.reason || payload.description),
+    id: normalizeText(payload.id),
+    studentName: normalizeText(payload.student_name),
+    studentCode: normalizeText(payload.student?.registration_number || 'N/A'),
+    avatarUrl: normalizeText(payload.student?.profile_picture),
+    absenceDate: normalizeText(payload.absence_details?.date),
+    documentTitle: normalizeText(payload.justification_type),
+    documentMeta: normalizeText(payload.absence_details?.subject),
+    reason: normalizeText(payload.student_comment || payload.reason),
+    scholariteComment: normalizeText(payload.scholarite_comment),
     status,
-    statusLabel: normalizeText(payload.status_label || payload.statusLabel || status),
+    statusLabel: normalizeText(status),
     statusTone: normalizeStatusTone(status, payload.status_tone || payload.statusTone),
-    documentType: normalizeText(payload.document_type || payload.documentType || payload.type),
-    detailUrl: normalizeText(payload.detail_url || payload.detailUrl || payload.url),
+    documentType: normalizeText(payload.justification_type),
+    detailUrl: normalizeText(payload.file),
   };
 }
 

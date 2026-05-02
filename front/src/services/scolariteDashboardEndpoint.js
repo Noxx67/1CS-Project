@@ -2,7 +2,7 @@ import api from '../api/axios.js';
 import { readEndpointData } from './backendSupport.js';
 
 export const SCOLARITE_DASHBOARD_ENDPOINTS = {
-  overview: 'scolarite/dashboard/overview/',
+  overview: 'schedules/scolarite/dashboard/overview/',
 };
 
 function normalizeText(value) {
@@ -106,6 +106,7 @@ function normalizeJustification(payload = {}) {
     ),
     approveUrl: normalizeText(payload.approve_url || payload.approveUrl),
     rejectUrl: normalizeText(payload.reject_url || payload.rejectUrl),
+    fileUrl: normalizeText(payload.file_url || payload.fileUrl),
   };
 }
 
@@ -200,13 +201,13 @@ export async function fetchScolariteDashboardOverview() {
   });
 }
 
-export async function runScolariteDashboardAction(actionUrl) {
+export async function runScolariteDashboardAction(actionUrl, data = {}) {
   const normalizedActionUrl = normalizeText(actionUrl);
 
   if (!normalizedActionUrl) {
     throw new Error('Action endpoint is required.');
   }
 
-  const response = await api.post(normalizedActionUrl);
+  const response = await api.post(normalizedActionUrl, data);
   return response?.data ?? response;
 }

@@ -1,88 +1,400 @@
 .metricGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }
 
 .toolbar {
   display: flex;
+  justify-content: flex-start;
   gap: 12px;
-  margin-bottom: 20px;
-}
-
-.toolbar svg,
-.documentCell svg {
-  width: 15px;
-  height: 15px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  margin-bottom: 24px;
 }
 
 .filtersPanel {
   display: grid;
-  grid-template-columns: 1.2fr minmax(170px, 1fr) minmax(170px, 1fr) minmax(170px, 1fr) auto;
+  grid-template-columns: repeat(4, 1fr) auto;
   gap: 16px;
-  align-items: end;
-  margin-bottom: 14px;
+  align-items: flex-end;
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 28px;
 }
 
 .clearButton {
-  min-height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #e1e6ef;
-  border-radius: 8px;
-  padding: 0 16px;
   background: #ffffff;
-  color: #092452;
-  font-size: 12px;
-  font-weight: 800;
+  border: 1px solid #e2e8f0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #64748b;
   cursor: pointer;
+  transition: all 0.2s;
+  height: 44px;
 }
 
-.documentsTable {
-  min-width: 820px;
+.clearButton:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.documentsTable th {
+  padding-left: 16px;
 }
 
 .documentCell {
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  column-gap: 12px;
+  display: flex;
   align-items: center;
+  gap: 12px;
 }
 
 .documentCell span {
-  grid-row: 1 / span 2;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
+  background: #eff6ff;
+  color: #3b82f6;
   border-radius: 8px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  background: #e8f2ff;
-  color: #245a95;
 }
 
 .documentCell strong {
-  color: #092452;
-  font-size: 12px;
-  font-weight: 800;
+  display: block;
+  font-size: 0.875rem;
+  color: #1e293b;
 }
 
 .documentCell small {
-  margin-top: 4px;
-  color: #66758f;
-  font-size: 11px;
-  font-weight: 600;
+  display: block;
+  font-size: 0.75rem;
+  color: #64748b;
 }
 
-@media (max-width: 1120px) {
-  .metricGrid,
-  .filtersPanel {
-    grid-template-columns: 1fr;
-  }
+.openButton {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.openButton:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* Review Mode Styles */
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.reviewHeaderActions {
+  display: flex;
+  gap: 12px;
+}
+
+.reviewGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+}
+
+.reviewQueueSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.queueInfo {
+  margin-bottom: 16px;
+}
+
+.queueInfo h3 {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+
+.queueInfo p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
+.justificationReviewCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.reviewCardHeader {
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.studentInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.reviewAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #1d4ed8;
+}
+
+.studentDetails strong {
+  display: block;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.studentDetails span {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.reviewBadges {
+  display: flex;
+  gap: 8px;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badgeBlue { background: #eff6ff; color: #1d4ed8; }
+.badgeYellow { background: #fef3c7; color: #92400e; }
+
+.reviewCardBody {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+}
+
+.reasonBox h4, .documentBox h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.reasonBox p {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #475569;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  margin: 0;
+}
+
+.documentFileCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fileInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fileIcon {
+  width: 40px;
+  height: 40px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e293b;
+}
+
+.fileName {
+  flex: 1;
+  min-width: 0;
+}
+
+.fileName strong {
+  display: block;
+  font-size: 0.875rem;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileName span {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.viewLink {
+  color: #3b82f6;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reviewCardFooter {
+  padding: 20px 24px;
+  background: #fcfcfd;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.footerActions {
+  display: flex;
+  gap: 12px;
+}
+
+.reviewApproveBtn {
+  background: #d1fae5;
+  color: #065f46;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.reviewRejectBtn {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.commentInput {
+  flex: 1;
+  height: 44px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 16px;
+  font-size: 0.875rem;
+}
+
+/* Sidebar Styles */
+.summaryPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.summarySection h3 {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+.summaryStatCard {
+  background: #1e293b;
+  padding: 16px;
+  border-radius: 12px;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.summaryStatCard h4 {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.summaryStatCard strong {
+  font-size: 1.5rem;
+  display: block;
+}
+
+.summaryStatCard p {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.distributionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.distLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: #475569;
+}
+
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.distValue {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.guidanceCard {
+  background: #eff6ff;
+  border: 1px dashed #3b82f6;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.guidanceCard p {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: #1d4ed8;
+  margin: 0;
 }

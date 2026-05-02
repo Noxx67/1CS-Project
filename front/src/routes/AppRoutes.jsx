@@ -17,6 +17,7 @@ import { TeacherPortalProvider } from '../context/TeacherPortalContext';
 import Rattrapages from '../pages/Rattrapage.jsx';
 const TeacherGroupsPage = lazy(() => import('../pages/TeacherGroupsPage'));
 const LiveAttendancePage1 = lazy(() => import('../pages/LiveAttendancePage1').then(m => ({ default: m.LiveAttendancePage1 })));
+const TeacherSessionsPage = lazy(() => import('../pages/TeacherSessionsPage'));
 const TeacherFeaturePlaceholderPage = lazy(() => import('../pages/TeacherFeaturePlaceholderPage'));
 const TeacherSettingsPage = lazy(() => import('../pages/TeacherSettingsPage'));
 const ScolariteDashboardPage = lazy(() => import('../pages/ScolariteDashboardPage'));
@@ -68,22 +69,13 @@ export default function AppRoutes() {
         )}
       >
         <Route index element={<Navigate to="dashboard" replace />} />
-        {/* Wrap dashboard + attendance in ONE shared TeacherPortalProvider so they share context state */}
+        {/* Wrap dashboard, attendance, and sessions in ONE shared TeacherPortalProvider */}
         <Route element={<TeacherPortalProvider><Outlet /></TeacherPortalProvider>}>
           <Route path="dashboard" element={<TeacherDashboardPage />} />
           <Route path="attendance" element={<LiveAttendancePage1 />} />
+          <Route path="sessions" element={<TeacherSessionsPage />} />
         </Route>
         <Route path="groups" element={<TeacherGroupsPage />} />
-        <Route
-          path="sessions"
-          element={(
-            <TeacherFeaturePlaceholderPage
-              eyebrow={t('teacherPlaceholders.flow')}
-              title={t('teacherPlaceholders.sessions')}
-              endpoint="/teacher/sessions/"
-            />
-          )}
-        />
         <Route path="settings" element={<TeacherSettingsPage />} />
       </Route>
 
@@ -132,12 +124,54 @@ export default function AppRoutes() {
           </ProtectedRoute>
         )}
       />
-      <Route path="/DashboardStudent" element={<DashboardStudent />} />
-      <Route path="/StudentAbsencePage" element={<StudentAbsencePage />} />
-      <Route path="/Justification" element={<Justification />} />
-      <Route path="/NewJustification" element={<NewJustification />} />
-      <Route path="/Rattrapage" element={<Rattrapage />} />
-      <Route path="/StudentProfile" element={<StudentProfile />} />
+      <Route
+        path="/DashboardStudent"
+        element={(
+          <ProtectedRoute allowedRoles={['STUDENT']}>
+            <DashboardStudent />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/StudentAbsencePage"
+        element={(
+          <ProtectedRoute allowedRoles={['STUDENT']}>
+            <StudentAbsencePage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/Justification"
+        element={(
+          <ProtectedRoute allowedRoles={['STUDENT']}>
+            <Justification />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/NewJustification"
+        element={(
+          <ProtectedRoute allowedRoles={['STUDENT']}>
+            <NewJustification />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/Rattrapage"
+        element={(
+          <ProtectedRoute allowedRoles={['STUDENT']}>
+            <Rattrapage />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/StudentProfile"
+        element={(
+          <ProtectedRoute allowedRoles={['STUDENT']}>
+            <StudentProfile />
+          </ProtectedRoute>
+        )}
+      />
       <Route path="/wow" element={<Wowzers />} />
       <Route path="/dumbahh" element={<WrongInfoPage />} />
       <Route

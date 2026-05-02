@@ -32,6 +32,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     registration_number = serializers.CharField(required=False, write_only=True)
     year                = serializers.IntegerField(required=False, write_only=True)
     speciality          = serializers.CharField(required=False, write_only=True)
+    group               = serializers.CharField(required=False, write_only=True)
     # Champs profil enseignant
     field               = serializers.CharField(required=False, write_only=True)
     department          = serializers.CharField(required=False, write_only=True)
@@ -41,7 +42,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         fields = [
             'email', 'first_name', 'last_name', 'role', 'password', 'phone',
             # Student
-            'registration_number', 'year', 'speciality',
+            'registration_number', 'year', 'speciality', 'group',
             # Teacher
             'field', 'department',
         ]
@@ -99,6 +100,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
             'registration_number': validated_data.pop('registration_number', None),
             'year':                validated_data.pop('year', None),
             'speciality':          validated_data.pop('speciality', None),
+            'group':               validated_data.pop('group', None),
         }
         teacher_data = {
             'field':      validated_data.pop('field', None),
@@ -109,6 +111,9 @@ class CreateUserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(password=password, **validated_data)
 
         if user.role == User.Role.STUDENT:
+            # Default group is G1 if not specified
+            if not student_data.get('group'):
+                student_data['group'] = 'G1'
             StudentProfile.objects.create(user=user, **student_data)
 
         if user.role == User.Role.TEACHER:

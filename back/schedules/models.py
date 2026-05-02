@@ -22,6 +22,17 @@ class Session(models.Model):
     def __str__(self):
         return f"{self.title} ({self.session_type}) - {self.teacher.full_name}"
 
+    def get_numeric_year(self):
+        """Map promotion names like 1CS, 2CP to absolute years 1-5."""
+        import re
+        raw_year = str(self.year or '').upper()
+        if 'CS' in raw_year:
+            match = re.search(r'(\d+)', raw_year)
+            return int(match.group(1)) + 2 if match else None
+        else:
+            match = re.search(r'(\d+)', raw_year)
+            return int(match.group(1)) if match else None
+
 class SessionInstance(models.Model):
     STATUS_CHOICES = [
         ('upcoming', 'Upcoming'),
@@ -72,3 +83,31 @@ class AbsenceCounter(models.Model):
 
     def __str__(self):
         return f"{self.student.full_name} - {self.session.title}: {self.absence_count} absences"
+
+class Justification(models.Model):
+    TYPE_CHOICES = [
+        ('MEDICAL', 'Médical'),
+        ('TRANSPORT', 'Transport'),
+        ('FAMILY', 'Famille'),
+        ('OTHER', 'Autre'),
+    ]
+    STATUS_CHOICES = [
+        ('EN ATTENTE', 'En attente'),
+        ('JUSTIFIÉE', 'Justifiée'),
+        ('INJUSTIFIÉE', 'Injustifiée'),
+    ]
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='justifications')
+    attendance_record = models.OneToOneField(AttendanceRecord, on_delete=models.CASCADE, related_name='justification')
+    justification_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    file = models.FileField(upload_to='justifications/')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='EN ATTENTE')
+    submission_date = models.DateTimeField(auto_now_add=True)
+    student_comment = models.TextField(blank=True, null=True)
+    scholarite_comment = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Justificatif'
+        verbose_name_plural = 'Justificatifs'
+
+    def __str__(self):
+        return f"Justificatif - {self.student.full_name} - {self.attendance_record}"

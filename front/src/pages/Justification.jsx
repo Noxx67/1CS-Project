@@ -1,5 +1,8 @@
-import { useState } from "react"
-import styles from "./Justification.module.css"
+import React, { useState, useEffect } from "react";
+import styles from "./Justification.module.css";
+import { useAuth } from "../context/AuthContext";
+import api from "../api/axios";
+
 
 const justificationsData = [
     {
@@ -49,8 +52,37 @@ const justificationsData = [
 ]
 
 export default function JustificationsPage() {
-    const [activeFilter, setActiveFilter] = useState("Tous")
-    const [currentPage, setCurrentPage] = useState(1)
+    const { user, logout } = useAuth();
+    const [justifications, setJustifications] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [activeFilter, setActiveFilter] = useState("Tous");
+    const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        const fetchJustifications = async () => {
+            try {
+                const response = await api.get('schedules/justifications/');
+                setJustifications(response.data);
+            } catch (error) {
+                console.error("Error fetching justifications:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchJustifications();
+    }, []);
+
+    const filteredJustifications = justifications.filter(item => {
+        if (activeFilter === "Tous") return true;
+        return item.status.toLowerCase() === activeFilter.toLowerCase();
+    });
+
+    const stats = {
+        total: justifications.length,
+        accepted: justifications.filter(j => j.status === 'JUSTIFIÉE').length,
+        pending: justifications.filter(j => j.status === 'EN ATTENTE').length,
+        rejected: justifications.filter(j => j.status === 'INJUSTIFIÉE').length,
+    };
 
     const filters = ["Tous", "Justifiée", "En attente", "Injustifiée"]
 
@@ -110,7 +142,7 @@ export default function JustificationsPage() {
                         <span>Dashboard</span>
                     </a>
 
-                    <a href="/StudentAbsencePage" className={`${styles.navItem} ${styles.active}`}>
+                    <a href="/StudentAbsencePage" className={styles.navItem}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                             <line x1="16" y1="2" x2="16" y2="6" />
@@ -120,7 +152,7 @@ export default function JustificationsPage() {
                         <span>Absences</span>
                     </a>
 
-                    <a href="/NewJustification" className={styles.navItem}>
+                    <a href="/Justification" className={`${styles.navItem} ${styles.active}`}>
                         <span className={styles.justificationItem}>Justificatifs</span>
                     </a>
 
@@ -156,14 +188,22 @@ export default function JustificationsPage() {
                         </svg>
                         <span>System Settings</span>
                     </a>
+                    <button onClick={user?.logout || (() => {})} className={`${styles.navItem} ${styles.settings}`} style={{ border: "none", background: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit" }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        <span>Logout</span>
+                    </button>
                 </div>
 
                 <div className={styles.sidebarFooter}>
                     <div className={styles.userProfile}>
-                        <img src="/Icons/Teacher Avatar.png" alt="Dr. Ahmed Yelles" className={styles.userAvatar} />
+                        <img src={user?.profile_picture || "/Icons/studentPicture.png"} alt={user?.name || "Student"} className={styles.userAvatar} />
                         <div className={styles.userInfo}>
-                            <span className={styles.userName}>Dr. Ahmed Yelles</span>
-                            <span className={styles.userRole}>Professor</span>
+                            <span className={styles.userName}>{user?.name || "Student"}</span>
+                            <span className={styles.userRole}>Student</span>
                         </div>
                     </div>
                 </div>
@@ -188,7 +228,7 @@ export default function JustificationsPage() {
                             </svg>
                             <span className={styles.notificationBadge}></span>
                         </button>
-                        <button className={styles.logoutBtn}>
+                        <button className={styles.logoutBtn} onClick={logout}>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                                 <polyline points="16,17 21,12 16,7" />
@@ -228,28 +268,28 @@ export default function JustificationsPage() {
                         <div className={styles.statCard}>
                             <span className={styles.statLabel}>TOTAL SOUMIS</span>
                             <div className={styles.statValue}>
-                                <span className={styles.statNumber}>12</span>
+                                <span className={styles.statNumber}>{String(stats.total).padStart(2, '0')}</span>
                                 <img src="/Icons/soumisIcon.png" alt="soumis-picture" />
                             </div>
                         </div>
                         <div className={styles.statCard}>
                             <span className={styles.statLabel}>ACCEPTÉS</span>
                             <div className={styles.statValue}>
-                                <span className={styles.statNumber}>09</span>
+                                <span className={styles.statNumber}>{String(stats.accepted).padStart(2, '0')}</span>
                                 <img src="/Icons/acceptIcon.png" alt="acceptes-picture" />
                             </div>
                         </div>
                         <div className={styles.statCard}>
                             <span className={styles.statLabel}>EN ATTENTE</span>
                             <div className={styles.statValue}>
-                                <span className={styles.statNumber}>02</span>
+                                <span className={styles.statNumber}>{String(stats.pending).padStart(2, '0')}</span>
                                 <img src="/Icons/enattent.png" alt="en-attente-picture" />
                             </div>
                         </div>
                         <div className={styles.statCard}>
                             <span className={styles.statLabel}>REFUSÉS</span>
                             <div className={styles.statValue}>
-                                <span className={styles.statNumber}>01</span>
+                                <span className={styles.statNumber}>{String(stats.rejected).padStart(2, '0')}</span>
                                 <img src="/Icons/refuser.png" alt="refuser-picture" />
                             </div>
                         </div>
@@ -297,25 +337,29 @@ export default function JustificationsPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {justificationsData.map((item) => (
+                                {filteredJustifications.length > 0 ? filteredJustifications.map((item) => (
                                     <tr key={item.id}>
                                         <td>
                                             <div className={styles["date-cell"]}>
-                                                <span className={styles["date-main"]}>{item.dateSubmission}</span>
-                                                <span className={styles["date-time"]}>{item.timeSubmission}</span>
+                                                <span className={styles["date-main"]}>{new Date(item.submission_date).toLocaleDateString()}</span>
+                                                <span className={styles["date-time"]}>{new Date(item.submission_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                             </div>
                                         </td>
                                         <td>
                                             <div className={styles["absence-cell"]}>
-                                                <span className={styles["absence-course"]}>{item.absenceCourse}</span>
-                                                <span className={styles["absence-date"]}>{item.absenceDate}</span>
+                                                <span className={styles["absence-course"]}>{item.absence_details?.subject}</span>
+                                                <span className={styles["absence-date"]}>{item.absence_details?.date} ({item.absence_details?.time})</span>
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={styles["motif-badge"]}>{item.motif}</span>
+                                            <span className={styles["motif-badge"]}>{item.justification_type}</span>
                                         </td>
                                         <td>
-                                            <div className={styles["file-icon"]}>{getFileIcon(item.fileType)}</div>
+                                            <div className={styles["file-icon"]}>
+                                                <a href={item.file} target="_blank" rel="noopener noreferrer">
+                                                    {getFileIcon(item.file.endsWith('.pdf') ? 'pdf' : 'image')}
+                                                </a>
+                                            </div>
                                         </td>
                                         <td>
                                             <span className={`${styles["status-badge"]} ${getStatusClass(item.status)}`}>
@@ -323,7 +367,7 @@ export default function JustificationsPage() {
                                             </span>
                                         </td>
                                         <td>
-                                            <span className={styles["comment-text"]}>{item.comment}</span>
+                                            <span className={styles["comment-text"]}>{item.scholarite_comment || "--"}</span>
                                         </td>
                                         <td>
                                             <button className={styles["row-action"]}>
@@ -333,7 +377,11 @@ export default function JustificationsPage() {
                                             </button>
                                         </td>
                                     </tr>
-                                ))}
+                                )) : (
+                                    <tr>
+                                        <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>Aucun justificatif trouvé.</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
 
