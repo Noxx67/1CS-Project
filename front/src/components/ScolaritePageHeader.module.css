@@ -1,322 +1,267 @@
 .header {
-  min-height: 72px;
-  display: grid;
-  grid-template-columns: minmax(180px, 260px) minmax(260px, 1fr) auto;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 28px;
-  border-bottom: 1px solid #eef0f4;
+  height: 80px;
   background: #ffffff;
+  border-bottom: 1px dashed #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
 }
 
 .titleBlock h1 {
-  margin: 0;
-  color: #1a2340;
-  font-size: 1.32rem;
-  line-height: 1.1;
+  font-size: 1.25rem;
   font-weight: 800;
+  color: #1e293b;
+  margin: 0;
 }
 
 .titleBlock p {
-  margin: 6px 0 0;
-  color: #9aa0b4;
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 2px 0 0;
+  font-weight: 500;
 }
 
 .searchField {
-  width: min(100%, 620px);
-  min-height: 40px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 14px;
-  border: 1px solid #e8eaf0;
-  border-radius: 10px;
-  background: #f5f6fa;
-}
-
-.searchField input {
   flex: 1;
-  min-width: 0;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: #444;
-  font-size: 13.5px;
-}
-
-.searchField input::placeholder {
-  color: #7f8ca3;
-}
-
-.searchIcon,
-.notificationButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  max-width: 500px;
+  position: relative;
+  margin: 0 40px;
 }
 
 .searchIcon {
-  width: 16px;
-  height: 16px;
-  color: #9aa0b4;
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
 }
 
-.searchIcon svg,
-.notificationButton svg {
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.searchField input {
+  width: 100%;
+  height: 44px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0 16px 0 48px;
+  font-size: 0.875rem;
+  color: #334155;
+  transition: all 0.2s;
+}
+
+.searchField input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .headerActions {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
+  position: relative;
 }
 
 .notificationButton {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  border: 1px solid #e8eaf0;
-  border-radius: 10px;
-  background: #f5f6fa;
-  color: #1a2340;
+  width: 44px;
+  height: 44px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
   cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
 }
 
 .notificationButton:hover {
-  background: #eaecf5;
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.notificationButton svg {
+  width: 22px;
+  height: 22px;
 }
 
 .notificationBadge {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #ef3f4f;
+  top: -6px;
+  right: -6px;
+  background: #ef4444;
   color: #ffffff;
-  border: 2px solid #ffffff;
-  font-size: 9px;
+  font-size: 0.625rem;
   font-weight: 800;
-  line-height: 1;
-}
-
-.notificationPanel {
-  position: absolute;
-  top: calc(100% + 12px);
-  right: 0;
-  z-index: 20;
-  width: min(380px, calc(100vw - 36px));
-  max-height: 430px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
   display: flex;
-  flex-direction: column;
-  border: 1px solid #e5eaf2;
-  border-radius: 14px;
-  background: #ffffff;
-  box-shadow: 0 18px 45px rgba(20, 34, 66, 0.16);
-  overflow: hidden;
-}
-
-.notificationPanelHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  border-bottom: 1px solid #eef0f4;
-}
-
-.notificationPanelHeader h2 {
-  margin: 0;
-  color: #1a2340;
-  font-size: 14px;
-  font-weight: 800;
-}
-
-.notificationPanelButton,
-.notificationActions button {
-  border: 0;
-  background: transparent;
-  color: #245a95;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.notificationPanelButton:disabled {
-  color: #9aa0b4;
-  cursor: default;
-}
-
-.notificationList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  overflow-y: auto;
-}
-
-.notificationItem {
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 10px;
-  padding: 14px 16px;
-  border-bottom: 1px solid #f5f7fc;
-}
-
-.notificationItem:last-child {
-  border-bottom: 0;
-}
-
-.notificationItemRead {
-  opacity: 0.68;
-}
-
-.notificationIcon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #f5f6fa;
-  font-size: 16px;
-}
-
-.notificationContent {
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-}
-
-.notificationContent strong,
-.notificationContent span,
-.notificationContent small {
-  display: block;
-}
-
-.notificationContent strong {
-  color: #1a2340;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.notificationContent span {
-  margin-top: 4px;
-  color: #66758f;
-  font-size: 12px;
-  line-height: 1.35;
-  font-weight: 600;
-}
-
-.notificationContent small {
-  margin-top: 6px;
-  color: #9aa0b4;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.notificationActions {
-  grid-column: 2;
-  display: flex;
-  gap: 12px;
-}
-
-.notificationEmpty {
-  margin: 0;
-  padding: 22px 16px;
-  color: #66758f;
-  font-size: 12px;
-  font-weight: 700;
-  text-align: center;
+  padding: 0 4px;
+  border: 2px solid #ffffff;
 }
 
 .accountMenu {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 0;
+  gap: 12px;
+  padding: 4px;
+  padding-right: 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.accountMenu:hover {
+  background: #f8fafc;
 }
 
 .accountAvatar {
   width: 36px;
   height: 36px;
+  background: #1e293b;
+  color: #ffffff;
   border-radius: 50%;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  background: #1a2340;
-  color: #ffffff;
-  font-size: 0.76rem;
+  font-size: 0.8125rem;
   font-weight: 800;
 }
 
 .accountText {
-  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.accountName {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.accountRole {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.accountChevron {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid #94a3b8;
+  border-bottom: 2px solid #94a3b8;
+  transform: rotate(45deg);
+  margin-left: 4px;
+  margin-top: -4px;
+}
+
+/* Notifications Panel */
+.notificationPanel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 380px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.notificationPanelHeader {
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notificationPanelHeader h2 {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+
+.notificationPanelButton {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.notificationList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notificationItem {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  gap: 12px;
+}
+
+.notificationItem:last-child {
+  border-bottom: none;
+}
+
+.notificationContent {
+  flex: 1;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.accountName {
-  max-width: 190px;
-  color: #1a2340;
-  font-size: 13px;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.notificationContent strong {
+  font-size: 0.8125rem;
+  color: #1e293b;
 }
 
-.accountRole {
-  max-width: 190px;
-  color: #9aa0b4;
-  font-size: 11px;
-  line-height: 1.1;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.notificationContent span {
+  font-size: 0.75rem;
+  color: #64748b;
 }
 
-.accountChevron {
-  width: 6px;
-  height: 6px;
-  border-right: 1px solid currentColor;
-  border-bottom: 1px solid currentColor;
-  color: #66758f;
-  transform: translateY(-2px) rotate(45deg);
+.notificationContent small {
+  font-size: 0.6875rem;
+  color: #94a3b8;
+  margin-top: 4px;
 }
 
-@media (max-width: 980px) {
-  .header {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 18px;
+@media (max-width: 768px) {
+  .searchField {
+    display: none;
   }
-
-  .headerActions {
-    justify-content: space-between;
-  }
-}
-
-@media (max-width: 680px) {
-  .accountName {
-    max-width: 140px;
+  
+  .accountText {
+    display: none;
   }
 }

@@ -4,6 +4,7 @@ import {
   createEmptyJustificationsOverview,
   fetchJustificationsOverview,
 } from '../services/scolariteJustificationsEndpoint';
+import { runScolariteDashboardAction } from '../services/scolariteDashboardEndpoint';
 import { exportTableToCsv } from '../utils/exportTableToCsv';
 import dashboardStyles from './ScolariteDashboardPage.module.css';
 import studentStyles from './ScolariteStudentsPage.module.css';
@@ -112,6 +113,16 @@ export default function ScolariteJustificationsPage() {
       setError(requestError.response?.data?.error || requestError.message || 'Unable to load justifications.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleAction(justificationId, type) {
+    const actionUrl = `schedules/justifications/${justificationId}/${type}/`;
+    try {
+      await runScolariteDashboardAction(actionUrl);
+      loadJustifications();
+    } catch (err) {
+      setError('Failed to update justification status.');
     }
   }
 
@@ -291,11 +302,39 @@ export default function ScolariteJustificationsPage() {
                       </span>
                     </td>
                     <td>
-                      {document.detailUrl ? (
-                        <a className={dashboardStyles.viewButton} href={document.detailUrl}>Open</a>
-                      ) : (
-                        <button type="button" className={dashboardStyles.viewButton} disabled>Open</button>
-                      )}
+                      <div className={styles.actionGroup}>
+                        {document.detailUrl ? (
+                          <a 
+                            className={dashboardStyles.viewButton} 
+                            href={document.detailUrl.startsWith('http') ? document.detailUrl : `http://127.0.0.1:8000${document.detailUrl}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                          >
+                            View File
+                          </a>
+                        ) : (
+                          <button type="button" className={dashboardStyles.viewButton} disabled>No File</button>
+                        )}
+                        
+                        {document.status === 'EN ATTENTE' && (
+                          <>
+                            <button 
+                              type="button" 
+                              className={styles.approveButton}
+                              onClick={() => handleAction(document.id, 'approve')}
+                            >
+                              Approve
+                            </button>
+                            <button 
+                              type="button" 
+                              className={styles.rejectButton}
+                              onClick={() => handleAction(document.id, 'reject')}
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

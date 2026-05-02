@@ -11,7 +11,7 @@ from .serializers import (
     UserSerializer, CreateUserSerializer,
     LoginSerializer, ChangePasswordSerializer, UpdateUserSerializer
 )
-from .permissions import IsAdmin
+from .permissions import IsAdmin, IsAdminOrScolarite, IsAdminOrScolariteReadOnly
  
  
 # ============================================================
@@ -196,7 +196,7 @@ class UserListCreateView(APIView):
     """
     Admin peut voir tous les utilisateurs et en créer de nouveaux.
     """
-    permission_classes = [IsAuthenticated, IsAdmin]
+    permission_classes = [IsAuthenticated, IsAdminOrScolariteReadOnly]
  
     def get(self, request):
         """Retourne la liste de tous les utilisateurs."""

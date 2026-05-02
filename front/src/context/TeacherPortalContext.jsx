@@ -93,17 +93,22 @@ export function TeacherPortalProvider({ children }) {
    * Optimistically updates local state, then persists to backend.
    */
   const markAttendance = useCallback(async (recordId, newStatus) => {
+    let previousStatus = 'unmarked';
+    
     // Optimistic update
-    setStudents(prev =>
-      prev.map(s => s.record_id === recordId ? { ...s, status: newStatus } : s)
-    );
+    setStudents(prev => {
+      const student = prev.find(s => s.record_id === recordId);
+      if (student) previousStatus = student.status;
+      return prev.map(s => s.record_id === recordId ? { ...s, status: newStatus } : s);
+    });
+
     try {
       await updateAttendanceRecord(recordId, newStatus);
     } catch (err) {
       console.error('Failed to update attendance record', err);
-      // Revert on failure
+      // Revert to previous status on failure
       setStudents(prev =>
-        prev.map(s => s.record_id === recordId ? { ...s, status: 'unmarked' } : s)
+        prev.map(s => s.record_id === recordId ? { ...s, status: previousStatus } : s)
       );
       throw err;
     }

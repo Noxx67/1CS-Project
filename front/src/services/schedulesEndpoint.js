@@ -1,3 +1,5 @@
+import api from '../api/axios.js';
+
 const STORAGE_KEY = 'preview_schedule_sessions_v1';
 
 export const SCHEDULES_ENDPOINTS = {
@@ -279,13 +281,20 @@ export function normalizeScheduleSessionPayload(payload = {}) {
 function serializeScheduleSessionPayload(scheduleSession) {
   const normalizedSession = normalizeScheduleSessionPayload(scheduleSession);
 
+  // Django IntegerField rejects empty strings — must send null or a number
+  const rawSection = normalizedSession.section;
+  const sectionInt = rawSection ? parseInt(rawSection, 10) : null;
+
+  // teacher must be a positive integer; guard against 0 / NaN
+  const teacherInt = Number(normalizedSession.responsibleTeacherId) || null;
+
   return {
     title: normalizedSession.sessionName,
     session_type: normalizedSession.sessionType,
-    teacher: Number(normalizedSession.responsibleTeacherId) || null,
+    teacher: teacherInt,
     year: normalizedSession.year,
-    section: normalizedSession.section,
-    specialty: normalizedSession.specialty,
+    section: Number.isFinite(sectionInt) ? sectionInt : null,
+    specialty: normalizedSession.specialty || 'N/A',
     assigned_groups: sortGroups(normalizedSession.assignedGroups),
     day: normalizedSession.day,
     start_time: normalizedSession.startTime,
@@ -358,81 +367,106 @@ function writeStoredScheduleSessions(sessions = []) {
   }
 }
 
+/**
+ * Fetch sessions from the real backend API.
+ * Falls back to localStorage preview data if the API call fails.
+ */
 export async function fetchScheduleSessions(filters = {}) {
-  const filteredSessions = readStoredScheduleSessions().filter((session) => matchesScheduleFilters(session, filters));
+  try {
+    const params = {};
+    if (filters.day) params.day = filters.day;
+    if (filters.year) params.year = filters.year;
+    if (filters.specialty) params.specialty = filters.specialty;
+    if (filters.section) params.section = filters.section;
 
-  return sortSessionsByTime(filteredSessions);
+    const response = await api.get('schedules/sessions/', { params });
+    const rawSessions = Array.isArray(response.data)
+      ? response.data
+      : Array.isArray(response.data?.results)
+        ? response.data.results
+        : [];
+
+    const normalized = rawSessions.map(normalizeScheduleSessionPayload);
+    // Also persist locally so offline/preview data stays warm
+    writeStoredScheduleSessions(normalized);
+    return sortSessionsByTime(normalized);
+  } catch {
+    // Fallback to local preview data
+    const filteredSessions = readStoredScheduleSessions().filter((session) => matchesScheduleFilters(session, filters));
+    return sortSessionsByTime(filteredSessions);
+  }
 }
 
 export async function fetchScheduleSessionById(sessionId) {
-  return readStoredScheduleSessions().find((session) => session.id === String(sessionId)) || null;
+  try {
+    const response = await api.get(SCHEDULES_ENDPOINTS.sessionDetail(sessionId));
+    return normalizeScheduleSessionPayload(response.data);
+  } catch {
+    return readStoredScheduleSessions().find((session) => session.id === String(sessionId)) || null;
+  }
 }
 
 export async function createScheduleSession(scheduleSession) {
-  const nextSession = normalizeScheduleSessionPayload({
-    ...scheduleSession,
-    id: scheduleSession.id || buildPreviewSessionId(),
-  });
-  const nextSessions = [...readStoredScheduleSessions(), nextSession];
+  // Use the shared serializer to avoid field-type bugs (e.g. section as empty string)
+  const serialized = serializeScheduleSessionPayload(scheduleSession);
 
+  const response = await api.post('schedules/sessions/', serialized);
+  const nextSession = normalizeScheduleSessionPayload(response.data);
+
+  // Keep local store warm
+  const nextSessions = [...readStoredScheduleSessions(), nextSession];
   writeStoredScheduleSessions(nextSessions);
   return nextSession;
 }
 
 export async function updateScheduleSession(sessionId, nextSession, initialSession = null) {
   const normalizedSessionId = String(sessionId || '');
-  const currentSessions = readStoredScheduleSessions();
-  const currentSession = currentSessions.find((session) => session.id === normalizedSessionId);
-  const patchPayload = buildScheduleSessionPatchPayload(initialSession || currentSession || createEmptyScheduleSession(), nextSession);
-  const updatedSession = normalizeScheduleSessionPayload({
-    ...(currentSession || {}),
-    ...patchPayload,
-    ...nextSession,
-    id: normalizedSessionId || nextSession.id || buildPreviewSessionId(),
-  });
-  const nextSessions = currentSession
-    ? currentSessions.map((session) => (session.id === normalizedSessionId ? updatedSession : session))
-    : [...currentSessions, updatedSession];
+  const serialized = serializeScheduleSessionPayload(nextSession);
+  const response = await api.patch(SCHEDULES_ENDPOINTS.sessionDetail(normalizedSessionId), serialized);
+  const updatedSession = normalizeScheduleSessionPayload(response.data);
 
+  // Refresh local store
+  const currentSessions = readStoredScheduleSessions();
+  const nextSessions = currentSessions.some((s) => s.id === normalizedSessionId)
+    ? currentSessions.map((s) => (s.id === normalizedSessionId ? updatedSession : s))
+    : [...currentSessions, updatedSession];
   writeStoredScheduleSessions(nextSessions);
   return updatedSession;
 }
 
 export async function deleteScheduleSession(sessionId) {
+  await api.delete(SCHEDULES_ENDPOINTS.sessionDetail(sessionId));
   writeStoredScheduleSessions(readStoredScheduleSessions().filter((session) => session.id !== String(sessionId)));
 }
 
 /**
  * Start a live attendance session for the given session ID.
- * Creates/gets a SessionInstance for today and pre-creates AttendanceRecord rows.
+ * Calls POST /api/schedules/sessions/<id>/start_attendance/
  * Returns { instance_id, session_id, date, status, students[] }
  */
 export async function startSessionAttendance(sessionId) {
-  return {
-    instance_id: `preview-instance-${sessionId}`,
-    session_id: sessionId,
-    date: new Date().toISOString().slice(0, 10),
-    status: 'active',
-    students: [],
-  };
+  const response = await api.post(SCHEDULES_ENDPOINTS.startAttendance(sessionId));
+  return response.data;
 }
 
 /**
- * Update a single AttendanceRecord's status.
+ * Update a single AttendanceRecord's status via PATCH.
  * status: 'present' | 'absent' | 'unmarked'
  */
 export async function updateAttendanceRecord(recordId, status) {
-  return { id: recordId, status };
+  // Use the new dedicated update-status action for better reliability
+  const response = await api.post(`schedules/attendance/${recordId}/update-status/`, { status });
+  return response.data;
 }
 
 /**
- * Submit and close a SessionInstance (set status='completed', save note).
+ * Submit and close a SessionInstance (set status='completed', save note) via PATCH.
  */
 export async function submitAttendanceInstance(instanceId, teacherNote = '') {
-  return {
-    id: instanceId,
+  const response = await api.patch(SCHEDULES_ENDPOINTS.instanceDetail(instanceId), {
     status: 'completed',
     teacher_note: teacherNote,
-  };
+  });
+  return response.data;
 }
 

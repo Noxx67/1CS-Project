@@ -1,16 +1,80 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./NewJustification.module.css";
+import { useAuth } from "../context/AuthContext";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import api from "../api/axios";
+import { useNotifications } from "../context/NotificationsContext";
+
 
 export default function NewJustification() {
+    const { user, logout } = useAuth();
+    const { addNotification } = useNotifications();
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const [absences, setAbsences] = useState([]);
+    const [history, setHistory] = useState([]);
+    const [loading, setLoading] = useState(false);
+    
+    const initialAbsenceId = searchParams.get('absenceId') || "";
+
     const [formData, setFormData] = useState({
-        absence: "",
+        absence: initialAbsenceId,
         reason: "",
-        startDate: "",
-        endDate: "",
         description: "",
     });
     const [dragActive, setDragActive] = useState(false);
     const [uploadedFile, setUploadedFile] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Fetch absences that need justification
+                const absResponse = await api.get('schedules/attendance/');
+                // Filter only absent records that don't have a justification yet
+                const unjustified = absResponse.data.filter(r => r.status === 'absent');
+                setAbsences(unjustified);
+
+                // Fetch recent justifications history
+                const histResponse = await api.get('schedules/justifications/');
+                setHistory(histResponse.data.slice(0, 5));
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+        fetchData();
+    }, []);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!formData.absence || !formData.reason || !uploadedFile) {
+            addNotification("Veuillez remplir tous les champs obligatoires et joindre un fichier.", "error");
+            return;
+        }
+
+        setLoading(true);
+        const data = new FormData();
+        data.append('attendance_record', formData.absence);
+        data.append('justification_type', formData.reason.toUpperCase());
+        data.append('file', uploadedFile);
+        if (formData.description) {
+            data.append('student_comment', formData.description);
+        }
+
+        try {
+            await api.post('schedules/justifications/', data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            addNotification("Justificatif soumis avec succès !", "success");
+            navigate('/Justification');
+        } catch (error) {
+            console.error("Error submitting justification:", error);
+            addNotification(error.response?.data?.error || "Erreur lors de la soumission.", "error");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleDrag = (e) => {
         e.preventDefault();
@@ -80,12 +144,12 @@ export default function NewJustification() {
                         <span>Dashboard</span>
                     </a>
 
-                    <a href="/StudentAbsencePage" className={`${styles["nav-item"]} ${styles["active"]}`}>
+                    <a href="/StudentAbsencePage" className={styles["nav-item"]}>
                         <img src="/Icons/absence.png" alt="absence-icon" />
                         <span>Absences</span>
                     </a>
 
-                    <a href="/NewJustification" className={styles["nav-item"]}>
+                    <a href="/Justification" className={`${styles["nav-item"]} ${styles["active"]}`}>
                         <span className={styles["justification-item"]}>Justificatifs</span>
                     </a>
 
@@ -118,15 +182,23 @@ export default function NewJustification() {
                         </svg>
                         <span>System Settings</span>
                     </a>
+                    <button onClick={user?.logout || (() => {})} className={`${styles["nav-item"]} ${styles["settings"]}`} style={{ border: "none", background: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit" }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        <span>Logout</span>
+                    </button>
                 </div>
                 <div className={styles["sidebar-footer"]}>
                     <div className={styles["user-profile"]}>
                         <div className={styles["user-avatar"]}>
-                            <img src="/Icons/Teacher Avatar.png" alt="User" />
+                            <img src={user?.profile_picture || "/Icons/studentPicture.png"} alt={user?.name || "Student"} />
                         </div>
                         <div className={styles["user-info"]}>
-                            <span className={styles["user-name"]}>Dr. Ahmed Yelles</span>
-                            <span className={styles["user-role"]}>Professor</span>
+                            <span className={styles["user-name"]}>{user?.name || "Student"}</span>
+                            <span className={styles["user-role"]}>Student</span>
                         </div>
                     </div>
                 </div>
@@ -144,7 +216,7 @@ export default function NewJustification() {
                             </svg>
                             <span className={styles["notification-badge"]}></span>
                         </button>
-                        <button className={styles["logout-btn"]}>
+                        <button className={styles["logout-btn"]} onClick={logout}>
                             <img src="/Icons/logoutIcon.png" alt="" />
                         </button>
                     </div>
@@ -178,11 +250,14 @@ export default function NewJustification() {
                                         className={styles["form-select"]}
                                         value={formData.absence}
                                         onChange={(e) => setFormData({ ...formData, absence: e.target.value })}
+                                        required
                                     >
                                         <option value="">Choose an unjustified session...</option>
-                                        <option value="1">Algorithmique Avancée - 14/10/23</option>
-                                        <option value="2">Architecture des Ordinateurs - 21/10/23</option>
-                                        <option value="3">Probabilités & Statistiques - 03/11/23</option>
+                                        {absences.map(abs => (
+                                            <option key={abs.id} value={abs.id}>
+                                                {abs.subject} - {abs.date}
+                                            </option>
+                                        ))}
                                     </select>
                                     <svg className={styles["select-arrow"]} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <polyline points="6,9 12,15 18,9" />
@@ -211,33 +286,6 @@ export default function NewJustification() {
                             </div>
                         </div>
 
-                        <div className={styles["form-row"]}>
-                            <div className={styles["form-group"]}>
-                                <label className={styles["form-label"]}>START DATE</label>
-                                <div className={styles["input-wrapper"]}>
-                                    <input
-                                        type="date"
-                                        className={styles["form-input"]}
-                                        placeholder="mm/dd/yyyy"
-                                        value={formData.startDate}
-                                        onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className={styles["form-group"]}>
-                                <label className={styles["form-label"]}>END DATE (OPTIONAL)</label>
-                                <div className={styles["input-wrapper"]}>
-                                    <input
-                                        type="date"
-                                        className={styles["form-input"]}
-                                        placeholder="mm/dd/yyyy"
-                                        value={formData.endDate}
-                                        onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-                        </div>
 
                         <div className={`${styles["form-group"]} ${styles["full-width"]}`}>
                             <label className={styles["form-label"]}>DETAILED DESCRIPTION</label>
@@ -293,9 +341,9 @@ export default function NewJustification() {
                         </div>
 
                         <div className={styles["form-actions"]}>
-                            <button type="button" className={`${styles["btn"]} ${styles["btn-cancel"]}`}>Cancel</button>
-                            <button type="submit" className={`${styles["btn"]} ${styles["btn-submit"]}`}>
-                                Submit Justification
+                            <button type="button" className={`${styles["btn"]} ${styles["btn-cancel"]}`} onClick={() => navigate(-1)}>Cancel</button>
+                            <button type="submit" className={`${styles["btn"]} ${styles["btn-submit"]}`} disabled={loading} onClick={handleSubmit}>
+                                {loading ? "Submitting..." : "Submit Justification"}
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <line x1="5" y1="12" x2="19" y2="12" />
                                     <polyline points="12,5 19,12 12,19" />
@@ -311,7 +359,7 @@ export default function NewJustification() {
                             <a href="#" className={styles["view-all-link"]}>View all</a>
                         </div>
                         <div className={styles["history-list"]}>
-                            {recentHistory.map((item) => (
+                            {history.length > 0 ? history.map((item) => (
                                 <div key={item.id} className={styles["history-item"]}>
                                     <div className={styles["history-icon"]}>
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -320,14 +368,16 @@ export default function NewJustification() {
                                         </svg>
                                     </div>
                                     <div className={styles["history-info"]}>
-                                        <span className={styles["history-name"]}>{item.title}</span>
-                                        <span className={styles["history-date"]}>Submitted on {item.date}</span>
+                                        <span className={styles["history-name"]}>{item.absence_details?.subject || "Justification"}</span>
+                                        <span className={styles["history-date"]}>Submitted on {new Date(item.submission_date).toLocaleDateString()}</span>
                                     </div>
-                                    <span className={`${styles["status-badge"]} ${styles[item.status.toLowerCase()]}`}>
+                                    <span className={`${styles["status-badge"]} ${styles[(item.status || "PENDING").toLowerCase().replace(' ', '-')]}`}>
                                         {item.status}
                                     </span>
                                 </div>
-                            ))}
+                            )) : (
+                                <p className={styles["upload-subtext"]} style={{ textAlign: "center", padding: "20px" }}>No history found.</p>
+                            )}
                         </div>
                     </div>
                 </div>

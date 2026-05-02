@@ -257,14 +257,7 @@ export default function ScolariteStudentsPage() {
               <p>Manage student profiles, view their attendance history, and track their overall absence status.</p>
             </div>
             <div className={styles.panelActions}>
-              <button type="button" className={styles.secondaryButton} onClick={exportStudents}>
-                <Icon name="export" />
-                Export List
-              </button>
-              <button type="button" className={styles.primaryButton} onClick={() => setViewMode('create')}>
-                <Icon name="add" />
-                Add Student
-              </button>
+              {/* Actions restricted for Scolarite */}
             </div>
           </div>
 
@@ -343,16 +336,8 @@ export default function ScolariteStudentsPage() {
                       </span>
                     </td>
                     <td>
-                      <button
-                        type="button"
-                        className={dashboardStyles.viewButton}
-                        onClick={() => {
-                          setSelectedStudentId(student.id);
-                          setViewMode('profile');
-                        }}
-                      >
-                        Profile
-                      </button>
+                      {/* Profile action disabled for Scolarite */}
+                      -
                     </td>
                   </tr>
                 ))}

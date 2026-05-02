@@ -2,7 +2,7 @@ import api from '../api/axios.js';
 import { readEndpointData } from './backendSupport.js';
 
 export const SCOLARITE_DASHBOARD_ENDPOINTS = {
-  overview: 'scolarite/dashboard/overview/',
+  overview: 'schedules/scolarite/dashboard/overview/',
 };
 
 function normalizeText(value) {
@@ -106,6 +106,7 @@ function normalizeJustification(payload = {}) {
     ),
     approveUrl: normalizeText(payload.approve_url || payload.approveUrl),
     rejectUrl: normalizeText(payload.reject_url || payload.rejectUrl),
+    fileUrl: normalizeText(payload.file_url || payload.fileUrl),
   };
 }
 

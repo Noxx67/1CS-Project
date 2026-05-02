@@ -11,7 +11,7 @@ export function ResetPassword() {
 
     const navigate = useNavigate();
 
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
 
     const [oldPassword, setOldPassword] = useState('');
     const [password, setPassword] = useState('');
@@ -47,18 +47,17 @@ export function ResetPassword() {
                 localStorage.setItem('access_token', response.data.access);
                 localStorage.setItem('refresh_token', response.data.refresh);
 
-                if (response.data.user) {
-                  const storedUser = JSON.parse(localStorage.getItem('user_info') || '{}');
-                  localStorage.setItem('user_info', JSON.stringify({
+                const storedUser = JSON.parse(localStorage.getItem('user_info') || '{}');
+                const updatedUser = {
                     ...storedUser,
                     must_change_password: false,
-                  }));
-                }
+                };
+                localStorage.setItem('user_info', JSON.stringify(updatedUser));
 
-                navigate(getRoleHomePath({
-                    ...user,
-                    must_change_password: false,
-                }));
+                // Update context
+                updateUser(updatedUser);
+
+                navigate(getRoleHomePath(updatedUser));
             }
         } catch (error) {
             console.error("Password change error:", error.response?.data || error.message);

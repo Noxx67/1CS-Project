@@ -1,19 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './StudentProfile.module.css';
+import { useAuth } from '../context/AuthContext';
 
 export default function StudentProfile() {
+    const { user } = useAuth();
     const [formData, setFormData] = useState({
-        lastName: 'Rahmani',
-        firstName: 'Amine',
-        studentId: '202131045291',
-        email: 'a.rahmani@esi-sba.dz',
-        major: 'Computer Engineering',
-        level: '1st Year Upper Cycle',
-        academicYear: '2023 - 2024',
+        lastName: user?.last_name || user?.lastName || '',
+        firstName: user?.first_name || user?.firstName || '',
+        studentId: user?.registration_number || '',
+        email: user?.email || '',
+        major: user?.speciality || 'N/A',
+        level: user?.promotion || 'Student',
+        academicYear: user?.year || 'N/A',
         currentPassword: '••••••••',
         newPassword: '',
         confirmPassword: ''
     });
+
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                lastName: user?.last_name || user?.lastName || '',
+                firstName: user?.first_name || user?.firstName || '',
+                studentId: user?.registration_number || '',
+                email: user?.email || '',
+                major: user?.speciality || 'N/A',
+                level: user?.promotion || 'Student',
+                academicYear: user?.year || 'N/A',
+            }));
+        }
+    }, [user]);
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -80,16 +97,24 @@ export default function StudentProfile() {
                     </svg>
                     <span>System Settings</span>
                 </a>
+                <button onClick={user?.logout || (() => {})} className={styles["settings"]} style={{ border: "none", background: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit" }}>
+                    <svg className={styles["nav-icon"]} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    <span>Logout</span>
+                </button>
                 <div className={styles["sidebar-footer"]}>
 
 
                     <div className={styles["user-profile"]}>
                         <div className={styles["user-avatar"]}>
-                            <img src="/Icons/Teacher Avatar.png" alt="Dr. Ahmed Yelles" />
+                            <img src={user?.profile_picture || "/Icons/studentPicture.png"} alt={user?.name || "Student"} />
                         </div>
                         <div className={styles["user-info"]}>
-                            <span className={styles["user-name"]}>Dr. Ahmed Yelles</span>
-                            <span className={styles["user-role"]}>Professor</span>
+                            <span className={styles["user-name"]}>{user?.name || "Student"}</span>
+                            <span className={styles["user-role"]}>Student</span>
                         </div>
                     </div>
                 </div>
@@ -138,12 +163,12 @@ export default function StudentProfile() {
                                 </button>
                             </div>
                             <div className={styles["profile-details"]}>
-                                <h2 className={styles["profile-name"]}>Amine Rahmani</h2>
-                                <p className={styles["profile-subtitle"]}>Student in 1st Year Upper Cycle (1CS)</p>
+                                <h2 className={styles["profile-name"]}>{user?.first_name || user?.firstName} {user?.last_name || user?.lastName}</h2>
+                                <p className={styles["profile-subtitle"]}>Student in {user?.promotion || 'Unknown'}</p>
                                 <div className={styles["profile-badges"]}>
                                     <span className={`${styles["badge"]} ${styles["badge-id"]}`}>
                                         <img src="/Icons/Icon (10).png" alt="icon" />
-                                        202131045291
+                                        {user?.registration_number || 'N/A'}
                                     </span>
                                     <span className={`${styles["badge"]} ${styles["badge-status"]}`}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
