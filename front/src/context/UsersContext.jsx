@@ -34,6 +34,20 @@ function getPromotionFromYear(year) {
   return YEAR_TO_PROMOTION[String(year || '')] || '';
 }
 
+function formatUsersError(error, fallback) {
+  const payload = error?.response?.data?.error ?? error?.response?.data?.detail ?? error?.message;
+  if (typeof payload === 'string') return payload;
+  if (Array.isArray(payload)) return payload.join(', ');
+  if (payload && typeof payload === 'object') {
+    try {
+      return JSON.stringify(payload);
+    } catch {
+      return fallback;
+    }
+  }
+  return fallback;
+}
+
 function normalizeRole(role) {
   return String(role || '').toLowerCase();
 }
@@ -179,7 +193,7 @@ export function UsersProvider({ children }) {
       setUsers(normalizedUsers);
       return normalizedUsers;
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to fetch users';
+      const errorMessage = formatUsersError(err, 'Failed to fetch users');
       setError(errorMessage);
       console.error('Fetch All Users Error:', errorMessage);
       throw err;

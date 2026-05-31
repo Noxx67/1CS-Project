@@ -86,7 +86,7 @@ function buildAcademicYear(student) {
   return student.year ? `${student.year}` : '';
 }
 
-export default function ScolariteStudentProfilePage({ studentId, onBack }) {
+export default function ScolariteStudentProfilePage({ studentId, studentRecord = null, onBack }) {
   const { users, fetchAllUsers, updateUser, deleteUser } = useUsers();
   const photoInputRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -104,10 +104,13 @@ export default function ScolariteStudentProfilePage({ studentId, onBack }) {
     }
   }, [fetchAllUsers, users.length]);
 
-  const student = useMemo(
-    () => users.find((user) => String(user.id) === String(studentId)),
-    [studentId, users],
-  );
+  const student = useMemo(() => {
+    if (studentRecord && String(studentRecord.id) === String(studentId)) {
+      return studentRecord;
+    }
+
+    return users.find((user) => String(user.id) === String(studentId));
+  }, [studentId, studentRecord, users]);
 
   useEffect(() => {
     if (!student) {

@@ -1,0 +1,59 @@
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+  color: inherit;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.icon svg {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.sizeXs {
+  width: 14px;
+  height: 14px;
+}
+
+.sizeXs svg {
+  width: 14px;
+  height: 14px;
+}
+
+.sizeSm {
+  width: 16px;
+  height: 16px;
+}
+
+.sizeSm svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sizeMd {
+  width: 18px;
+  height: 18px;
+}
+
+.sizeMd svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sizeLg {
+  width: 20px;
+  height: 20px;
+}
+
+.sizeLg svg {
+  width: 20px;
+  height: 20px;
+}

@@ -1,7 +1,8 @@
+/* Scolarité design tokens (aligned with dashboard / students pages) */
 .metricGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
 }
 
 .toolbar {
@@ -16,32 +17,29 @@
   grid-template-columns: repeat(4, 1fr) auto;
   gap: 16px;
   align-items: flex-end;
-  background: #f8fafc;
+  background: #f5f7fc;
   padding: 20px;
   border-radius: 12px;
+  border: 1px solid #e5eaf2;
   margin-bottom: 28px;
 }
 
 .clearButton {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e1e6ef;
   padding: 10px 16px;
   border-radius: 8px;
   font-size: 0.8125rem;
-  font-weight: 700;
-  color: #64748b;
+  font-weight: 800;
+  color: #092452;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s ease, border-color 0.2s ease;
   height: 44px;
 }
 
 .clearButton:hover {
-  background: #f1f5f9;
-  color: #1e293b;
-}
-
-.documentsTable th {
-  padding-left: 16px;
+  background: #f5f7fc;
+  border-color: #c8d2e3;
 }
 
 .documentCell {
@@ -50,13 +48,14 @@
   gap: 12px;
 }
 
-.documentCell span {
+.tableDocIcon {
   width: 40px;
   height: 40px;
-  background: #eff6ff;
-  color: #3b82f6;
-  border-radius: 8px;
-  display: flex;
+  background: #e8f2ff;
+  color: #245a95;
+  border-radius: 10px;
+  border: 1px solid #dce9f6;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
@@ -64,49 +63,92 @@
 .documentCell strong {
   display: block;
   font-size: 0.875rem;
-  color: #1e293b;
+  color: #1a2340;
 }
 
 .documentCell small {
   display: block;
   font-size: 0.75rem;
-  color: #64748b;
+  color: #9aa0b4;
 }
 
 .openButton {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e1e6ef;
   padding: 6px 16px;
   border-radius: 8px;
   font-size: 0.8125rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-weight: 800;
+  color: #092452;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .openButton:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: #f5f7fc;
+  border-color: #092452;
+  color: #092452;
 }
 
-/* Review Mode Styles */
-.reviewHeader {
+/* —— Review page —— */
+
+.reviewPageIntro {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
+  gap: 24px;
+  margin-bottom: 28px;
 }
 
-.reviewHeaderActions {
+.reviewPageIntro h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #092452;
+  letter-spacing: -0.02em;
+}
+
+.reviewPageIntro p {
+  margin: 8px 0 0;
+  max-width: 640px;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: #66758f;
+  font-weight: 500;
+}
+
+.reviewHeaderPills {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.headerPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #092452;
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  border: none;
+  white-space: nowrap;
+}
+
+.headerPillMuted {
+  background: #edf2f8;
+  color: #092452;
+  border: 1px solid #e5eaf2;
 }
 
 .reviewGrid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: 24px;
+  align-items: start;
 }
 
 .reviewQueueSection {
@@ -115,125 +157,256 @@
   gap: 20px;
 }
 
-.queueInfo {
-  margin-bottom: 16px;
+.queueHeaderRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .queueInfo h3 {
   font-size: 1.125rem;
   font-weight: 800;
-  color: #1e293b;
+  color: #092452;
   margin: 0;
 }
 
-.queueInfo p {
+.queueMeta {
   font-size: 0.875rem;
-  color: #64748b;
-  margin: 4px 0 0;
+  color: #66758f;
+  margin: 6px 0 0;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.queueMeta strong {
+  color: #092452;
+  font-weight: 800;
+}
+
+.filterQueueBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #e1e6ef;
+  background: #ffffff;
+  color: #092452;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filterQueueBtn:hover {
+  background: #f5f7fc;
+  border-color: #092452;
+  box-shadow: 0 2px 8px rgba(9, 36, 82, 0.06);
+}
+
+.queueFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #e5eaf2;
+  border-radius: 12px;
+}
+
+.queueFilters label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #66758f;
+}
+
+.queueFilters select {
+  min-width: 160px;
+  height: 40px;
+  border: 1px solid #e1e6ef;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 0.875rem;
+  color: #092452;
+  background: #fff;
+}
+
+.emptyQueue {
+  font-size: 0.875rem;
+  color: #66758f;
+  padding: 32px 24px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px dashed #e1e6ef;
+  margin: 0;
+  text-align: center;
 }
 
 .justificationReviewCard {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
+  border: 1px solid #e5eaf2;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
 }
 
 .reviewCardHeader {
-  padding: 24px;
+  padding: 22px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #f1f5f9;
+  gap: 16px;
+  border-bottom: 1px solid #f0f2f8;
 }
 
 .studentInfo {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
+  min-width: 0;
 }
 
 .reviewAvatar {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   object-fit: cover;
-  background: #dbeafe;
+  background: #dcecff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  color: #1d4ed8;
+  font-size: 1rem;
+  color: #315c8d;
+  flex-shrink: 0;
 }
 
 .studentDetails strong {
   display: block;
   font-size: 1rem;
-  color: #1e293b;
+  font-weight: 800;
+  color: #1a2340;
 }
 
 .studentDetails span {
   font-size: 0.8125rem;
-  color: #94a3b8;
+  color: #9aa0b4;
+  margin-top: 2px;
+  font-weight: 500;
 }
 
 .reviewBadges {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+  justify-content: flex-end;
 }
 
 .badge {
-  padding: 4px 12px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 700;
-  display: flex;
+  font-weight: 800;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 
-.badgeBlue { background: #eff6ff; color: #1d4ed8; }
-.badgeYellow { background: #fef3c7; color: #92400e; }
+.badgeIcon {
+  opacity: 0.95;
+}
+
+.badgeDate {
+  background: #e8f2ff;
+  color: #245a95;
+}
+
+.badgeSubmitted {
+  background: #edf2f8;
+  color: #53647f;
+}
+
+.badgeMedical {
+  background: #fff0d6;
+  color: #b97000;
+}
+
+.badgeTransport {
+  background: #e9f5ff;
+  color: #4b8ad8;
+}
+
+.badgeAdministrative {
+  background: #fff1cf;
+  color: #b97000;
+}
+
+.badgeNeutral {
+  background: #edf2f8;
+  color: #53647f;
+}
 
 .reviewCardBody {
-  padding: 24px;
+  padding: 20px 24px 24px;
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 24px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
 }
 
-.reasonBox h4, .documentBox h4 {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: #94a3b8;
-  letter-spacing: 0.05em;
-  margin-bottom: 12px;
+.panelLabel {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #9aa0b4;
+  margin-bottom: 8px;
 }
 
-.reasonBox p {
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: #475569;
-  background: #f8fafc;
-  padding: 16px;
-  border-radius: 12px;
-  margin: 0;
-}
-
-.documentFileCard {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 16px;
+.reasonPanel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  min-height: 148px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e5eaf2;
+  background: #f5f7fc;
 }
 
-.fileInfo {
+.panelText {
+  margin: 0;
+  flex: 1;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: #53647f;
+}
+
+.attachmentPanel {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 148px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #dce9f6;
+  background: linear-gradient(180deg, #e8f2ff 0%, #edf4fc 100%);
+}
+
+.noFileLink {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #b97000;
+}
+
+.fileRow {
+  display: flex;
+  align-items: flex-start;
   gap: 12px;
 }
 
@@ -241,12 +414,13 @@
   width: 40px;
   height: 40px;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1px solid #dce9f6;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1e293b;
+  color: #245a95;
+  flex-shrink: 0;
 }
 
 .fileName {
@@ -257,116 +431,227 @@
 .fileName strong {
   display: block;
   font-size: 0.875rem;
-  color: #1e293b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 800;
+  color: #092452;
+  word-break: break-word;
 }
 
-.fileName span {
+.fileMetaLine {
+  display: block;
+  margin-top: 6px;
   font-size: 0.75rem;
-  color: #64748b;
+  line-height: 1.45;
+  font-weight: 600;
+  color: #66758f;
 }
 
 .viewLink {
-  color: #3b82f6;
+  color: #245a95;
   font-size: 0.8125rem;
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  transition: color 0.2s ease, gap 0.2s ease;
+}
+
+.viewLink:hover {
+  color: #092452;
+  gap: 8px;
+}
+
+.linkIcon {
+  transition: transform 0.2s ease;
+}
+
+.viewLink:hover .linkIcon {
+  transform: translate(1px, -1px);
+}
+
+.actionIcon {
+  transition: transform 0.2s ease;
+}
+
+.filterQueueBtn:hover .actionIcon,
+.sidebarActionBtn:hover .actionIcon {
+  transform: translateY(-1px);
 }
 
 .reviewCardFooter {
-  padding: 20px 24px;
-  background: #fcfcfd;
-  border-top: 1px solid #f1f5f9;
+  padding: 18px 24px;
+  background: #f5f7fc;
+  border-top: 1px solid #f0f2f8;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .footerActions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .reviewApproveBtn {
-  background: #d1fae5;
-  color: #065f46;
+  background: #d6f5df;
+  color: #168447;
   border: none;
   padding: 10px 24px;
-  border-radius: 10px;
-  font-weight: 700;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 800;
   cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.reviewApproveBtn:hover {
+  background: #c4efd4;
+  color: #09824c;
 }
 
 .reviewRejectBtn {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: #ffe0e3;
+  color: #db2636;
   border: none;
   padding: 10px 24px;
-  border-radius: 10px;
-  font-weight: 700;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 800;
   cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.reviewRejectBtn:hover {
+  background: #ffd0d5;
+  color: #d61f31;
 }
 
 .commentInput {
   flex: 1;
+  min-width: 0;
   height: 44px;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border: 1px solid #e1e6ef;
+  border-radius: 8px;
   padding: 0 16px;
   font-size: 0.875rem;
+  color: #1a2340;
 }
 
-/* Sidebar Styles */
+.detailDecisionSection {
+  padding: 20px 24px 24px;
+  border-top: 1px solid #f0f2f8;
+  background: #fafbfd;
+}
+
+.detailDecisionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.detailDecisionHeader h3 {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: #1a2340;
+}
+
+.detailDecisionMeta {
+  margin: 0 0 14px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #9aa0b4;
+}
+
+.detailCommentBox {
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e5eaf2;
+  background: #ffffff;
+}
+
+.studentDetails span + span {
+  display: block;
+  margin-top: 2px;
+}
+
+.commentInput:focus {
+  outline: none;
+  border-color: #092452;
+  box-shadow: 0 0 0 3px rgba(9, 36, 82, 0.08);
+}
+
+.decisionBadge {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+/* Sidebar */
+
 .summaryPanel {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 22px;
 }
 
 .summarySection h3 {
   font-size: 0.875rem;
   font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 16px;
+  color: #092452;
+  margin: 0 0 14px;
 }
 
 .summaryStatCard {
-  background: #1e293b;
-  padding: 16px;
-  border-radius: 12px;
+  background: linear-gradient(180deg, #10285f 0%, #092452 100%);
+  padding: 16px 18px;
+  border-radius: 14px;
   color: #ffffff;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 12px rgba(9, 36, 82, 0.12);
+}
+
+.summaryStatCard:last-child {
+  margin-bottom: 0;
 }
 
 .summaryStatCard h4 {
   font-size: 0.75rem;
-  color: #94a3b8;
-  margin-bottom: 4px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.62);
+  margin: 0 0 6px;
 }
 
 .summaryStatCard strong {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 800;
   display: block;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .summaryStatCard p {
   font-size: 0.75rem;
-  color: #94a3b8;
-  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 6px 0 0;
+  font-weight: 500;
 }
 
 .distributionItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+}
+
+.distributionItem:last-child {
+  margin-bottom: 0;
 }
 
 .distLabel {
@@ -374,27 +659,155 @@
   align-items: center;
   gap: 8px;
   font-size: 0.8125rem;
-  color: #475569;
+  color: #66758f;
+  font-weight: 600;
 }
-
-.dot { width: 8px; height: 8px; border-radius: 50%; }
 
 .distValue {
   font-size: 0.8125rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-weight: 800;
+  color: #092452;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.queueStudentRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f2f8;
+}
+
+.queueStudentRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.queueStudentName {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: #1a2340;
+}
+
+.queueStatusPill {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.queueStatusReady {
+  background: #d9f4e6;
+  color: #09824c;
+}
+
+.queueStatusNeedsNote {
+  background: #fff1cf;
+  color: #b97000;
 }
 
 .guidanceCard {
-  background: #eff6ff;
-  border: 1px dashed #3b82f6;
+  background: #f5f7fc;
+  border: 1px solid #e5eaf2;
   padding: 16px;
   border-radius: 12px;
 }
 
-.guidanceCard p {
-  font-size: 0.8125rem;
-  line-height: 1.6;
-  color: #1d4ed8;
+.guidanceList {
   margin: 0;
+  padding-left: 18px;
+  color: #66758f;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  font-weight: 500;
+}
+
+.guidanceList li + li {
+  margin-top: 8px;
+}
+
+.sidebarActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.sidebarActionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #092452;
+  border-radius: 8px;
+  background: #092452;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sidebarActionBtn:hover {
+  background: #0d2f66;
+  box-shadow: 0 4px 14px rgba(9, 36, 82, 0.2);
+}
+
+.sidebarActionBtn:active {
+  transform: translateY(1px);
+}
+
+.sidebarActionBtnSecondary {
+  background: #ffffff;
+  color: #092452;
+  border-color: #e1e6ef;
+}
+
+.sidebarActionBtnSecondary:hover {
+  background: #f5f7fc;
+  border-color: #092452;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #66758f;
+  font-size: 0.875rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.backLink:hover {
+  color: #092452;
+}
+
+@media (max-width: 1100px) {
+  .reviewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .reviewCardBody {
+    grid-template-columns: 1fr;
+  }
+
+  .reviewPageIntro {
+    flex-direction: column;
+  }
 }
