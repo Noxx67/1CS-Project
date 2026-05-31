@@ -100,7 +100,7 @@ class JustificationSerializer(serializers.ModelSerializer):
         model = Justification
         fields = [
             'id', 'student', 'student_name', 'attendance_record', 'absence_details',
-            'justification_type', 'file', 'status', 'submission_date', 
+            'justification_type', 'file', 'status', 'submission_date',
             'student_comment', 'scholarite_comment'
         ]
         read_only_fields = ['student', 'status', 'submission_date', 'scholarite_comment']

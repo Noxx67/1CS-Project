@@ -3,6 +3,7 @@ import ScolaritePageHeader from '../components/ScolaritePageHeader';
 import UserManagementPage from '../components/UserManagementPage';
 import { useAbsenceRecords } from '../context/AbsenceRecordsContext';
 import { useUsers } from '../context/UsersContext';
+
 import { exportTableToCsv } from '../utils/exportTableToCsv';
 import ScolariteStudentProfilePage from './ScolariteStudentProfilePage';
 import dashboardStyles from './ScolariteDashboardPage.module.css';
@@ -53,6 +54,24 @@ function matchesSearch(values, searchQuery) {
 
   return values.some((value) => String(value || '').toLowerCase().includes(normalizedQuery));
 }
+
+function formatPageError(error) {
+  if (!error) return '';
+  if (typeof error === 'string') return error;
+  if (typeof error === 'object') {
+    if (typeof error.detail === 'string') return error.detail;
+    if (Array.isArray(error.detail)) return error.detail.join(', ');
+    if (typeof error.message === 'string') return error.message;
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return 'Something went wrong.';
+    }
+  }
+  return String(error);
+}
+
+
 
 function Icon({ name }) {
   if (name === 'export') {
@@ -121,6 +140,7 @@ export default function ScolariteStudentsPage() {
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState('directory');
   const [selectedStudentId, setSelectedStudentId] = useState('');
+  const [selectedStudentRecord, setSelectedStudentRecord] = useState(null);
 
   const absenceRecords = absenceRecordsContext?.absenceRecords || [];
 
@@ -128,19 +148,25 @@ export default function ScolariteStudentsPage() {
     fetchAllUsers({ role: 'STUDENT' }).catch(() => {});
   }, [fetchAllUsers]);
 
+  const directoryStudents = useMemo(() => {
+    return (Array.isArray(users) ? users : []).filter(
+      (user) => String(user?.role || '').toLowerCase() === 'student',
+    );
+  }, [users]);
+
   const students = useMemo(
-    () => users
-      .filter((user) => String(user.role || '').toLowerCase() === 'student')
-      .map((student) => {
-        const absenceCount = getAbsenceCount(absenceRecords, student);
-        return {
-          ...student,
-          absenceCount,
-          attendanceStatus: getStudentStatus(absenceCount),
-        };
-      }),
-    [absenceRecords, users],
+    () => directoryStudents.map((student) => {
+      const absenceCount = getAbsenceCount(absenceRecords, student);
+      return {
+        ...student,
+        absenceCount,
+        attendanceStatus: getStudentStatus(absenceCount),
+      };
+    }),
+    [absenceRecords, directoryStudents],
   );
+
+  const showTableLoading = isLoading;
 
   const departments = useMemo(() => [...new Set(students.map((student) => student.department).filter(Boolean))], [students]);
   const levels = useMemo(() => [...new Set(students.map((student) => student.promotion || student.year).filter(Boolean))], [students]);
@@ -197,6 +223,18 @@ export default function ScolariteStudentsPage() {
     setStatusFilter('');
   }
 
+  function openStudentProfile(student) {
+    setSelectedStudentRecord(student);
+    setSelectedStudentId(student.id);
+    setViewMode('profile');
+  }
+
+  function closeStudentProfile() {
+    setSelectedStudentRecord(null);
+    setSelectedStudentId('');
+    setViewMode('directory');
+  }
+
   const paginationPages = useMemo(() => {
     const visiblePages = new Set([1, pageCount, currentPage - 1, currentPage, currentPage + 1]);
     return Array.from(visiblePages)
@@ -219,14 +257,8 @@ export default function ScolariteStudentsPage() {
     return (
       <ScolariteStudentProfilePage
         studentId={selectedStudentId}
-        onCloseFormView={() => {
-          setSelectedStudentId('');
-          setViewMode('directory');
-        }}
-        onBack={() => {
-          setSelectedStudentId('');
-          setViewMode('directory');
-        }}
+        studentRecord={selectedStudentRecord}
+        onBack={closeStudentProfile}
       />
     );
   }
@@ -241,11 +273,11 @@ export default function ScolariteStudentsPage() {
       />
 
       <main className={dashboardStyles.content}>
-        {error ? <div className={dashboardStyles.errorBanner}>{error}</div> : null}
+        {error ? <div className={dashboardStyles.errorBanner}>{formatPageError(error)}</div> : null}
 
         <section className={dashboardStyles.metricsGrid}>
           <MetricCard label="Total Enrolled" value={students.length} helper="Across all departments" tone="blue" />
-          <MetricCard label="Perfect Attendance" value={perfectAttendanceCount} helper="0 absences this semester" tone="success" />
+          <MetricCard label="Perfect Attendance" value={perfectAttendanceCount} helper="0 absences this semester" tone="sky" />
           <MetricCard label="At Risk (Warning)" value={warningCount} helper="2-3 absences recorded" tone="orange" />
           <MetricCard label="Critical Status" value={criticalCount} helper=">3 absences recorded" tone="red" />
         </section>
@@ -290,9 +322,12 @@ export default function ScolariteStudentsPage() {
                 {['Good', 'Warning', 'Critical'].map((status) => <option key={status} value={status}>{status}</option>)}
               </select>
             </label>
-            <button type="button" className={styles.clearButton} onClick={clearFilters}>
-              Clear Filters
-            </button>
+            <div className={styles.filterAction}>
+              <span className={styles.filterActionLabel} aria-hidden="true">Actions</span>
+              <button type="button" className={styles.clearButton} onClick={clearFilters}>
+                Clear Filters
+              </button>
+            </div>
           </section>
 
           <div className={dashboardStyles.tableWrap}>
@@ -308,7 +343,7 @@ export default function ScolariteStudentsPage() {
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
+                {showTableLoading ? (
                   <tr><td colSpan={6} className={dashboardStyles.tableState}>Loading students...</td></tr>
                 ) : pagedStudents.length === 0 ? (
                   <tr><td colSpan={6} className={dashboardStyles.tableState}>No students match the current filters.</td></tr>
@@ -336,8 +371,13 @@ export default function ScolariteStudentsPage() {
                       </span>
                     </td>
                     <td>
-                      {/* Profile action disabled for Scolarite */}
-                      -
+                      <button
+                        type="button"
+                        className={styles.profileButton}
+                        onClick={() => openStudentProfile(student)}
+                      >
+                        Profile
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -78,7 +78,7 @@ export default function ScolaritePageHeader({
   const displayName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Academic Office Service';
   const roleLabel = t(`roles.${String(user?.role || '').toUpperCase()}`, user?.role || 'Scolarite');
   const unreadCount = notifications.filter((notification) => !notification.read).length;
-  const notificationBadgeCount = unreadCount || notificationCount;
+  const notificationBadgeCount = unreadCount;
 
   useEffect(() => {
     if (!notificationsOpen) {
