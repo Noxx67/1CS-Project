@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import styles from "./Justification.module.css";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
+import StudentSidebar from "../components/StudentSidebar";
+import StudentHeader from "../components/StudentHeader";
+
 
 
 const justificationsData = [
@@ -117,127 +120,11 @@ export default function JustificationsPage() {
 
     return (
         <div className={styles.appContainer}>
-            {/* Sidebar */}
-            <aside className={styles.sidebar}>
-                <div className={styles.sidebarHeader}>
-                    <div className={styles.logo}>
-                        <div className={styles.logoIcon}>
-                            <img src="/images/logo.png" alt="esi-logo" className={styles.logoImage} />
-                        </div>
-                        <div className={styles.logoText}>
-                            <h1>ESI SBA</h1>
-                            <p>ABSENCE PORTAL</p>
-                        </div>
-                    </div>
-                </div>
-
-                <nav className={styles.sidebarNav}>
-                    <a href="/DashboardStudent" className={styles.navItem}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="3" y="3" width="7" height="7" />
-                            <rect x="14" y="3" width="7" height="7" />
-                            <rect x="14" y="14" width="7" height="7" />
-                            <rect x="3" y="14" width="7" height="7" />
-                        </svg>
-                        <span>Dashboard</span>
-                    </a>
-
-                    <a href="/StudentAbsencePage" className={styles.navItem}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
-                        </svg>
-                        <span>Absences</span>
-                    </a>
-
-                    <a href="/Justification" className={`${styles.navItem} ${styles.active}`}>
-                        <span className={styles.justificationItem}>Justificatifs</span>
-                    </a>
-
-                    <a href="/Rattrapage" className={styles.navItem}>
-                        <img src="/Icons/rattrapageIcon.png" alt="Rattrapage-icon" />
-                        <span>Rattrapages</span>
-                    </a>
-
-                    <a href="/Check-in" className={styles.navItem}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                        </svg>
-                        <span>Check-in (Présence)</span>
-                    </a>
-
-                    <a href="/Notifications" className={styles.navItem}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                        </svg>
-                        <span>Notifications</span>
-                    </a>
-                </nav>
-
-                <div className={styles.sidebarFooterSection}>
-                    <a href="/SystemSettings" className={`${styles.navItem} ${styles.settings}`}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="3" />
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                        </svg>
-                        <span>System Settings</span>
-                    </a>
-                    <button onClick={user?.logout || (() => {})} className={`${styles.navItem} ${styles.settings}`} style={{ border: "none", background: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit" }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                            <polyline points="16 17 21 12 16 7" />
-                            <line x1="21" y1="12" x2="9" y2="12" />
-                        </svg>
-                        <span>Logout</span>
-                    </button>
-                </div>
-
-                <div className={styles.sidebarFooter}>
-                    <div className={styles.userProfile}>
-                        <img src={user?.profile_picture || "/Icons/studentPicture.png"} alt={user?.name || "Student"} className={styles.userAvatar} />
-                        <div className={styles.userInfo}>
-                            <span className={styles.userName}>{user?.name || "Student"}</span>
-                            <span className={styles.userRole}>Student</span>
-                        </div>
-                    </div>
-                </div>
-            </aside>
+            <StudentSidebar />
 
             {/* Main Content */}
             <main className={styles.mainContent}>
-                {/* Top Bar */}
-                <header className={styles.topBar}>
-                    <div className={styles.searchBar}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="11" cy="11" r="8" />
-                            <path d="M21 21l-4.35-4.35" />
-                        </svg>
-                        <input type="text" placeholder="Rechercher un justificatif..." />
-                    </div>
-                    <div className={styles.topBarActions}>
-                        <button className={styles.notificationBtn}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                            </svg>
-                            <span className={styles.notificationBadge}></span>
-                        </button>
-                        <button className={styles.logoutBtn} onClick={logout}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                <polyline points="16,17 21,12 16,7" />
-                                <line x1="21" y1="12" x2="9" y2="12" />
-                            </svg>
-                            <span>Déconnexion</span>
-                        </button>
-                    </div>
-                </header>
+                <StudentHeader />
 
                 {/* Page Content */}
                 <div className={styles.pageContent}>

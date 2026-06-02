@@ -3,6 +3,9 @@ import styles from "./studentAbsencePage.module.css";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import StudentSidebar from "../components/StudentSidebar";
+import StudentHeader from "../components/StudentHeader";
+
 
 
 // Icons as SVG components
@@ -178,103 +181,6 @@ function Image({ src, alt, width, height, className }) {
     return <img src={src} alt={alt} width={width} height={height} className={className} />
 }
 
-// Sidebar Component
-function Sidebar({ user }) {
-    return (
-        <aside className={styles["sidebar"]}>
-            <div className={styles["sidebar-logo"]}>
-                <div className={styles["logo-circle"]}>
-                    <Image
-                        src="/images/logo.png"
-                        alt="ESI SBA Logo"
-                        width={32}
-                        height={32}
-                        className={styles["logo-image"]}
-                    />
-                </div>
-                <div>
-                    <h1 className={styles["logo-title"]}>ESI SBA</h1>
-                    <p className={styles["logo-subtitle"]}>Absence Portal</p>
-                </div>
-            </div>
-
-            <nav className={styles["sidebar-nav"]}>
-                {navItems.map((item, index) => (
-                    <a
-                        key={index}
-                        href={item.path}
-                        className={`${styles["nav-item"]} ${item.active ? styles["nav-item-active"] : ""}`}
-                    >
-                        <item.icon className={styles["nav-icon"]} />
-                        <span className={styles["nav-label"]}>{item.label}</span>
-                        {item.badge && (
-                            <span className={styles["nav-badge"]}>{item.badge}</span>
-                        )}
-                    </a>
-                ))}
-            </nav>
-
-            <div className={styles["sidebar-settings"]}>
-                <a href="#" className={styles["setting-item"]}>
-                    <Settings className={styles["nav-icon"]} />
-                    <span className={styles["settingtext"]}>System Settings</span>
-                </a>
-                <button onClick={user?.logout} className={styles["setting-item"]} style={{ border: "none", background: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit" }}>
-                    <LogOut className={styles["nav-icon"]} />
-                    <span className={styles["settingtext"]}>Logout</span>
-                </button>
-            </div>
-
-            <div className={styles["sidebar-profile"]}>
-                <div className={styles["profile-avatar"]}>
-                    <Image
-                        src={user?.profile_picture || "/Icons/studentPicture.png"}
-                        alt={user?.name || "Student"}
-                        width={40}
-                        height={40}
-                        className={styles["avatar-image"]}
-                    />
-                </div>
-                <div>
-                    <p className={styles["profile-name"]}>{user?.name || "Student"}</p>
-                    <p className={styles["profile-role"]}>Student</p>
-                </div>
-            </div>
-        </aside>
-    )
-}
-
-// Header Component
-function Header({ user }) {
-    return (
-        <header className={styles["header"]}>
-            <div className={styles["header-content"]}>
-                <button className={styles["notification-btn"]}>
-                    <Bell className={styles["notification-icon"]} />
-                    <span className={styles["notification-dot"]}></span>
-                </button>
-
-                <div className={styles["user-profile"]}>
-                    <div className={styles["user-info"]}>
-                        <p className={styles["user-name"]}>{user?.first_name || user?.firstName || 'Student'} {user?.last_name?.[0] || user?.lastName?.[0] || ''}.</p>
-                        <p className={styles["user-role"]}>{user?.promotion || 'Student'}</p>
-                    </div>
-                    <div className={styles["user-avatar"]}>
-                        <Image
-                            src={user?.profile_picture || "/Icons/studentPicture.png"}
-                            alt={user?.name || "Student"}
-                            width={40}
-                            height={40}
-                            className={styles["avatar-image"]}
-                        />
-                    </div>
-                    <ChevronDown className={styles["chevron-icon"]} />
-                </div>
-            </div>
-        </header>
-    )
-}
-
 // Absences Table Component
 function AbsencesTable({ absences, onJustify }) {
     const [currentPage, setCurrentPage] = useState(1);
@@ -422,9 +328,9 @@ export default function StudentAbsencePage() {
 
     return (
         <div className={styles["page-container"]}>
-            <Sidebar user={user} />
+            <StudentSidebar />
             <div className={styles["main-content"]}>
-                <Header user={user} />
+                <StudentHeader />
                 <main className={styles["content-area"]}>
                     <AbsencesTable absences={absences} onJustify={(absenceId) => navigate(`/NewJustification?absenceId=${absenceId}`)} />
                 </main>
