@@ -99,6 +99,7 @@
 .users-page-body,
 .create-page-body {
   gap: 28px;
+  overflow-y: auto;
 }
 
 .users-search-panel {

@@ -37,18 +37,6 @@ const navItems = [
       </svg>
     ),
   },
-  {
-    to: '/teacher/groups',
-    labelKey: 'teacherSidebar.groups',
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4 18.5V11.5" />
-        <path d="M10 18.5V6.5" />
-        <path d="M16 18.5V13.5" />
-        <path d="M22 18.5V8.5" />
-      </svg>
-    ),
-  },
 ];
 
 function getInitials(fullName) {

@@ -25,11 +25,10 @@ export function createEmptySystemSettings() {
       profilePhotoUrl: '',
     },
     generalConfiguration: {
-      academicYear: '',
-      activeExamSession: '',
-      justificationDeadlineHours: '',
-      absenceAlertOperator: '>',
-      absenceAlertThreshold: '',
+      absenceConfirmationDay: 'Thursday',
+      absenceConfirmationTimeOfDay: '18:00',
+      absenceAlertTime: '48',
+      maxAbsencesBeforeExclusion: '3',
     },
     notificationTemplates: {
       selectedKey: 'student-warning',
@@ -130,6 +129,7 @@ export async function changeSystemSettingsPassword({ currentPassword, newPasswor
     request: () => api.post(SYSTEM_SETTINGS_ENDPOINTS.changePassword, {
       old_password: oldPassword,
       new_password: nextPassword,
+      confirm_password: nextPassword,
     }),
   });
 }

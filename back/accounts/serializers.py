@@ -162,7 +162,62 @@ class ChangePasswordSerializer(serializers.Serializer):
 # ============================================================
 class UpdateUserSerializer(serializers.ModelSerializer):
     """Permet à l'admin de modifier les informations d'un utilisateur."""
+    # Champs profil étudiant
+    registration_number = serializers.CharField(required=False, write_only=True)
+    year                = serializers.IntegerField(required=False, write_only=True)
+    speciality          = serializers.CharField(required=False, write_only=True)
+    group               = serializers.CharField(required=False, write_only=True)
+    # Champs profil enseignant
+    field               = serializers.CharField(required=False, write_only=True)
+    department          = serializers.CharField(required=False, write_only=True)
+
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'role', 'phone', 'is_active']
+        fields = [
+            'first_name', 'last_name', 'email', 'role', 'phone', 'is_active',
+            'registration_number', 'year', 'speciality', 'group',
+            'field', 'department'
+        ]
         extra_kwargs = {'email': {'required': False}}
+
+    def update(self, instance, validated_data):
+        # Extraire les données des profils
+        student_data = {
+            'registration_number': validated_data.pop('registration_number', None),
+            'year':                validated_data.pop('year', None),
+            'speciality':          validated_data.pop('speciality', None),
+            'group':               validated_data.pop('group', None),
+        }
+        teacher_data = {
+            'field':      validated_data.pop('field', None),
+            'department': validated_data.pop('department', None),
+        }
+
+        # Mettre à jour l'utilisateur
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Mettre à jour le profil étudiant
+        if instance.role == User.Role.STUDENT and hasattr(instance, 'student_profile'):
+            profile = instance.student_profile
+            if student_data['registration_number'] is not None:
+                profile.registration_number = student_data['registration_number']
+            if student_data['year'] is not None:
+                profile.year = student_data['year']
+            if student_data['speciality'] is not None:
+                profile.speciality = student_data['speciality']
+            if student_data['group'] is not None:
+                profile.group = student_data['group']
+            profile.save()
+
+        # Mettre à jour le profil enseignant
+        if instance.role == User.Role.TEACHER and hasattr(instance, 'teacher_profile'):
+            profile = instance.teacher_profile
+            if teacher_data['field'] is not None:
+                profile.field = teacher_data['field']
+            if teacher_data['department'] is not None:
+                profile.department = teacher_data['department']
+            profile.save()
+
+        return instance

@@ -6,9 +6,18 @@ const navItems = [
   { id: 'dashboard', icon: '\u25A6', labelKey: 'nav.dashboard' },
   { id: 'users', icon: '\u{1F465}', labelKey: 'nav.users' },
   { id: 'schedules', icon: '\u{1F4C5}', labelKey: 'nav.schedules' },
-  { id: 'activity', icon: '\u{1F570}', labelKey: 'nav.activity' },
   { id: 'settings', icon: '\u2699', labelKey: 'nav.settings' },
 ];
+
+function getInitials(name) {
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+
+  return parts[0]?.slice(0, 2).toUpperCase() || 'AD';
+}
 
 export default function Sidebar({ activePage, onNavigate }) {
   const { user, logout } = useAuth();
@@ -30,7 +39,7 @@ export default function Sidebar({ activePage, onNavigate }) {
     ? navItems
     : navItems.filter((item) => item.id !== 'users' && item.id !== 'activity' && item.id !== 'settings');
   const fallbackUserName = user
-    ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
+    ? user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim()
     : '';
   const displayUserName = adminDisplayName || fallbackUserName || t('sidebar.guest');
   const displayUserAlt = displayUserName || t('sidebar.guest');
@@ -73,7 +82,7 @@ export default function Sidebar({ activePage, onNavigate }) {
               />
             ) : (
               <span className="user-avatar-fallback" aria-hidden="true">
-                {'\u{1F464}'}
+                {getInitials(displayUserName)}
               </span>
             );
           })()}

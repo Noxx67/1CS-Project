@@ -5,6 +5,7 @@ import { useAppPreferences } from '../context/AppPreferencesContext';
 import UserEditPage from '../pages/UserEditPage';
 import { getStudentDepartmentFromPromotion } from '../utils/studentDepartment';
 import { exportUsersToCsv } from '../utils/exportUsersToCsv';
+import { buildUserEmail } from '../utils/userEmail';
 import './UserManagementPage.css';
 
 const roleOptions = [
@@ -376,6 +377,7 @@ function getRequiredFieldLabels(t) {
     promotion: t('userManagement.fieldLabels.promotion'),
     specialty: t('userManagement.fieldLabels.specialty'),
     department: t('userManagement.fieldLabels.department'),
+    group: t('userManagement.fieldLabels.group', 'Group'),
   };
 }
 
@@ -390,6 +392,7 @@ function getRequiredFieldNames(role, values, isEditing) {
       ...commonFields,
       'registrationNumber',
       'promotion',
+      'group',
       ...(studentHasSpecialty(values.promotion) ? ['specialty'] : []),
     ];
   }
@@ -455,6 +458,10 @@ function validateFormFields(role, values, isEditing, users = [], editingUser = n
     }
   }
 
+  if (normalizedRole === 'student' && !isCompletedValue(values.group)) {
+    errors.group = t('userManagement.groupRequired', 'Group is required');
+  }
+
   console.log('Validation complete. Errors found:', Object.keys(errors).length > 0 ? errors : 'NONE');
   return errors;
 }
@@ -470,6 +477,7 @@ function buildFormValuesFromUser(user) {
       phone: user.phone || '',
       registrationNumber: user.idNumber || '',
       promotion,
+      group: user.group || '',
       specialty: studentHasSpecialty(promotion)
         ? normalizeSpecialty(user.specialty || user.specialization)
         : '',
@@ -776,6 +784,7 @@ export default function UserManagementPage({
 
       if (!isEditing) {
         userData.password = formValues.password.trim();
+        userData.email = buildUserEmail(formValues.firstName.trim(), formValues.lastName.trim());
       } else {
         userData.email = editingUser?.email || '';
       }
@@ -785,6 +794,7 @@ export default function UserManagementPage({
       if (normalizedRole === 'student') {
         userData.registration_number = formValues.registrationNumber.trim();
         userData.promotion = formValues.promotion;
+        userData.group = formValues.group?.trim() || '';
         userData.year = getYearValueFromPromotion(formValues.promotion);
         userData.department = getStudentDepartmentFromPromotion(formValues.promotion);
         
@@ -1019,6 +1029,19 @@ export default function UserManagementPage({
             ))}
           </select>
           {renderFieldError('specialty')}
+        </label>
+        <label className="create-field">
+          <span className="create-field-label">{t('userManagement.group', 'Group')}</span>
+          <input
+            type="text"
+            name="group"
+            className={getFieldClass('group')}
+            placeholder="e.g. G1"
+            value={formValues.group || ''}
+            onChange={handleFieldChange}
+            aria-invalid={Boolean(formErrors.group)}
+          />
+          {renderFieldError('group')}
         </label>
       </>
     );
@@ -1292,15 +1315,13 @@ export default function UserManagementPage({
                   <th>{t('userManagement.userInfo')}</th>
                   <th>{t('userManagement.idNumber')}</th>
                   <th>{t('userManagement.role')}</th>
-                  <th>{t('userManagement.department')}</th>
-                  <th>{t('userManagement.status')}</th>
                   <th>{t('userManagement.actions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedUsers.length === 0 ? (
                   <tr>
-                    <td className="users-empty" colSpan={6}>
+                    <td className="users-empty" colSpan={4}>
                       {emptyUsersMessage}
                     </td>
                   </tr>
@@ -1330,13 +1351,6 @@ export default function UserManagementPage({
                       <td>
                         <span className={`users-role users-role--${user.role}`}>
                           {formatLabel(user.role, t)}
-                        </span>
-                      </td>
-                      <td className="users-department">{user.department || '-'}</td>
-                      <td>
-                        <span className={`users-status users-status--${user.accountStatus}`}>
-                          <span className="users-status-dot" />
-                          {formatLabel(user.accountStatus, t)}
                         </span>
                       </td>
                       <td>

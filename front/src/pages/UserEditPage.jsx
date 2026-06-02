@@ -89,7 +89,7 @@ export default function UserEditPage({
   if (typeof profileImage === 'string' && profileImage.startsWith('/')) {
     profileImage = `http://127.0.0.1:8000${profileImage}`;
   }
-  const generatedEmail = buildUserEmail(
+  const displayEmail = user.email || buildUserEmail(
     formValues.firstName || user.firstName || '',
     formValues.lastName || user.lastName || ''
   );
@@ -166,7 +166,7 @@ export default function UserEditPage({
             </div>
 
             <h2 className={styles.profileName}>{displayName}</h2>
-            <p className={styles.profileEmail}>{generatedEmail || t('userEdit.noEmailAssigned')}</p>
+            <p className={styles.profileEmail}>{displayEmail || t('userEdit.noEmailAssigned')}</p>
             <span className={styles.memberSince}>{memberSince}</span>
             <div className={styles.profileDivider} />
 
@@ -228,7 +228,7 @@ export default function UserEditPage({
                 <div className={styles.lockedField}>
                   <input
                     type="email"
-                    value={generatedEmail || ''}
+                    value={displayEmail || ''}
                     disabled
                     className={`${styles.input} ${styles.inputDisabled}`}
                   />
@@ -338,6 +338,20 @@ export default function UserEditPage({
                   ))}
                 </select>
                 {renderFieldError('specialty')}
+              </label>
+
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>{t('userManagement.group', 'Group')}</span>
+                <input
+                  type="text"
+                  name="group"
+                  className={getInputClass('group')}
+                  placeholder="e.g. G1"
+                  value={formValues.group || ''}
+                  onChange={onFieldChange}
+                  aria-invalid={Boolean(formErrors.group)}
+                />
+                {renderFieldError('group')}
               </label>
             </div>
           ) : isTeacher ? (

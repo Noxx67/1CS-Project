@@ -402,9 +402,11 @@ export default function SystemSettingsPage() {
 
   const selectedTemplate = settingsState.notificationTemplates.templates[selectedTemplateKey]
     || settingsState.notificationTemplates.templates[NOTIFICATION_TAB_IDS[0]];
-  const justificationDeadlineValue = Number(settingsState.generalConfiguration.justificationDeadlineHours || 0);
   const resourceSummaryFallback = '--';
-  const displayPhotoUrl = settingsState.adminAccount.profilePhotoUrl || adminPhotoUrl;
+  let displayPhotoUrl = settingsState.adminAccount.profilePhotoUrl || adminPhotoUrl;
+  if (typeof displayPhotoUrl === 'string' && displayPhotoUrl.startsWith('/')) {
+    displayPhotoUrl = `http://127.0.0.1:8000${displayPhotoUrl}`;
+  }
   const examSessionOptions = [
     t('settings.semester1'),
     t('settings.semester2'),
@@ -525,15 +527,7 @@ export default function SystemSettingsPage() {
                   />
                 </label>
 
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>{t('settings.jobTitle')}</span>
-                  <input
-                    type="text"
-                    className={styles.input}
-                    value={settingsState.adminAccount.jobTitle}
-                    onChange={(event) => updateAdminAccountField('jobTitle', event.target.value)}
-                  />
-                </label>
+
 
                 <label className={styles.field}>
                   <span className={styles.fieldLabel}>{t('settings.preferredLanguage')}</span>
@@ -579,68 +573,41 @@ export default function SystemSettingsPage() {
 
             <div className={styles.sectionBody}>
               <div className={styles.fieldGrid}>
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>{t('settings.academicYear')}</span>
-                  <AcademicYearPicker
-                    value={settingsState.generalConfiguration.academicYear}
-                    onChange={(nextValue) => updateGeneralConfigurationField('academicYear', nextValue)}
-                    label={t('settings.selectAcademicYear')}
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>{t('settings.activeExamSession')}</span>
-                  <select
-                    className={styles.select}
-                    value={settingsState.generalConfiguration.activeExamSession}
-                    onChange={(event) => updateGeneralConfigurationField('activeExamSession', event.target.value)}
-                  >
-                    <option value="">{t('settings.selectExamSession')}</option>
-                    {examSessionOptions.map((examSession) => (
-                      <option key={examSession} value={examSession}>
-                        {examSession}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
                 <div className={styles.field}>
-                  <span className={styles.fieldLabel}>{t('settings.justificationDeadline')}</span>
-                  <span className={styles.fieldHint}>{t('settings.justificationDeadlineHint')}</span>
-                  <div className={styles.deadlineGrid}>
+                  <span className={styles.fieldLabel}>{t('settings.absenceConfirmationSchedule', 'Absence Confirmation Schedule')}</span>
+                  <span className={styles.fieldHint}>{t('settings.absenceConfirmationScheduleHint', 'Recurring weekly schedule to auto-confirm pending absences.')}</span>
+                  <div className={styles.metricShellWide} style={{ gap: '12px' }}>
+                    <select
+                      className={styles.select}
+                      value={settingsState.generalConfiguration.absenceConfirmationDay || 'Thursday'}
+                      onChange={(event) => updateGeneralConfigurationField('absenceConfirmationDay', event.target.value)}
+                      style={{ flex: 1 }}
+                    >
+                      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                        <option key={day} value={day}>{day}</option>
+                      ))}
+                    </select>
                     <input
-                      type="range"
-                      min="0"
-                      max="72"
-                      step="1"
-                      className={styles.rangeInput}
-                      value={justificationDeadlineValue}
-                      onChange={(event) => updateGeneralConfigurationField('justificationDeadlineHours', event.target.value)}
+                      type="time"
+                      className={styles.input}
+                      value={settingsState.generalConfiguration.absenceConfirmationTimeOfDay || '18:00'}
+                      onChange={(event) => updateGeneralConfigurationField('absenceConfirmationTimeOfDay', event.target.value)}
+                      style={{ flex: 1 }}
                     />
-                    <div className={styles.metricShell}>
-                      <input
-                        type="number"
-                        className={`${styles.metricInput} ${styles.metricInputReadonly}`}
-                        value={settingsState.generalConfiguration.justificationDeadlineHours}
-                        readOnly
-                      />
-                      <span className={styles.metricLabel}>{t('settings.hours')}</span>
-                    </div>
                   </div>
                 </div>
 
                 <div className={styles.field}>
-                  <span className={styles.fieldLabel}>{t('settings.absenceAlertThreshold')}</span>
-                  <span className={styles.fieldHint}>{t('settings.absenceAlertThresholdHint')}</span>
+                  <span className={styles.fieldLabel}>{t('settings.maxAbsences', 'Max Absences Before Exclusion')}</span>
+                  <span className={styles.fieldHint}>{t('settings.maxAbsencesHint', 'Number of absences before a student is excluded.')}</span>
                   <div className={styles.metricShellWide}>
-                    <span className={styles.operatorBadge} aria-hidden="true">{'>'}</span>
                     <input
                       type="number"
                       className={styles.metricInput}
-                      value={settingsState.generalConfiguration.absenceAlertThreshold}
-                      onChange={(event) => updateGeneralConfigurationField('absenceAlertThreshold', event.target.value)}
+                      value={settingsState.generalConfiguration.maxAbsencesBeforeExclusion || 0}
+                      onChange={(event) => updateGeneralConfigurationField('maxAbsencesBeforeExclusion', event.target.value)}
                     />
-                    <span className={styles.metricLabel}>{t('settings.absences')}</span>
+                    <span className={styles.metricLabel}>{t('settings.absences', 'Absences')}</span>
                   </div>
                 </div>
               </div>

@@ -9,25 +9,32 @@ export default function UserPasswordPlaceholderDialog({
   currentPasswordLabel,
   newPasswordLabel,
   newPasswordPlaceholder,
+  confirmPasswordLabel,
+  confirmPasswordPlaceholder,
   submitLabel,
   closeLabel,
   closeAriaLabel,
   requiredMessage,
+  passwordMismatchMessage,
   submitErrorMessage,
 }) {
   const { t } = useAppPreferences();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const resolvedTitle = title || t('userEdit.changePassword');
   const resolvedCurrentPasswordLabel = currentPasswordLabel || t('userEdit.currentPassword');
   const resolvedNewPasswordLabel = newPasswordLabel || t('userEdit.newPassword');
   const resolvedNewPasswordPlaceholder = newPasswordPlaceholder || t('userEdit.newPasswordPlaceholder');
+  const resolvedConfirmPasswordLabel = confirmPasswordLabel || t('settings.confirmPassword', 'Confirm New Password');
+  const resolvedConfirmPasswordPlaceholder = confirmPasswordPlaceholder || t('settings.confirmPasswordPlaceholder', 'Re-enter the new password');
   const resolvedSubmitLabel = submitLabel || t('settings.changePassword');
   const resolvedCloseLabel = closeLabel || t('common.close');
   const resolvedCloseAriaLabel = closeAriaLabel || t('userEdit.closeDialog');
   const resolvedRequiredMessage = requiredMessage || t('settings.passwordRequired', t('teacherSettings.passwordRequired'));
+  const resolvedPasswordMismatchMessage = passwordMismatchMessage || t('settings.passwordMismatch', 'Passwords do not match.');
   const resolvedSubmitErrorMessage = submitErrorMessage || t('settings.passwordChangeFailed', t('teacherSettings.passwordChangeFailed'));
   const hasSubmitAction = typeof onSubmit === 'function';
 
@@ -39,8 +46,13 @@ export default function UserPasswordPlaceholderDialog({
       return;
     }
 
-    if (!currentPassword.trim() || !newPassword.trim()) {
+    if (!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
       setErrorMessage(resolvedRequiredMessage);
+      return;
+    }
+
+    if (newPassword.trim() !== confirmPassword.trim()) {
+      setErrorMessage(resolvedPasswordMismatchMessage);
       return;
     }
 
@@ -50,6 +62,7 @@ export default function UserPasswordPlaceholderDialog({
       await onSubmit({
         currentPassword,
         newPassword,
+        confirmPassword,
       });
       onClose();
     } catch (submitError) {
@@ -101,6 +114,18 @@ export default function UserPasswordPlaceholderDialog({
                 className={`${styles.input} ${styles.inputActive}`}
                 value={newPassword}
                 onChange={(event) => setNewPassword(event.target.value)}
+                autoComplete="new-password"
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>{resolvedConfirmPasswordLabel}</span>
+              <input
+                type="password"
+                placeholder={resolvedConfirmPasswordPlaceholder}
+                className={`${styles.input} ${styles.inputActive}`}
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
                 autoComplete="new-password"
               />
             </label>

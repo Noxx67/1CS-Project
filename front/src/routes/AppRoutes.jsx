@@ -15,7 +15,7 @@ const ScolariteShell = lazy(() => import('../pages/ScolariteShell'));
 const TeacherDashboardPage = lazy(() => import('../pages/TeacherDashboardPage'));
 import { TeacherPortalProvider } from '../context/TeacherPortalContext';
 import Rattrapages from '../pages/Rattrapage.jsx';
-const TeacherGroupsPage = lazy(() => import('../pages/TeacherGroupsPage'));
+
 const LiveAttendancePage1 = lazy(() => import('../pages/LiveAttendancePage1').then(m => ({ default: m.LiveAttendancePage1 })));
 const TeacherSessionsPage = lazy(() => import('../pages/TeacherSessionsPage'));
 const TeacherFeaturePlaceholderPage = lazy(() => import('../pages/TeacherFeaturePlaceholderPage'));
@@ -75,7 +75,7 @@ export default function AppRoutes() {
           <Route path="attendance" element={<LiveAttendancePage1 />} />
           <Route path="sessions" element={<TeacherSessionsPage />} />
         </Route>
-        <Route path="groups" element={<TeacherGroupsPage />} />
+
         <Route path="settings" element={<TeacherSettingsPage />} />
       </Route>
 

@@ -22,16 +22,15 @@ class SessionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if getattr(user, 'role', None) in ['ADMIN', 'SCOLARITE']:
-            return Session.objects.all()
+        queryset = Session.objects.all()
+
         if getattr(user, 'role', None) == 'TEACHER':
-            return Session.objects.filter(teacher=user)
-        # If student, filter by their profile year, specialty, and group
-        if getattr(user, 'role', None) == 'STUDENT':
+            queryset = queryset.filter(teacher=user)
+        elif getattr(user, 'role', None) == 'STUDENT':
             try:
                 profile = user.student_profile
                 from django.db.models import Q
-                base_qs = Session.objects.filter(
+                base_qs = queryset.filter(
                     year=str(profile.year)
                 ).filter(
                     Q(specialty=profile.speciality) | Q(specialty='N/A') | Q(specialty__isnull=True) | Q(specialty='')
@@ -40,11 +39,29 @@ class SessionViewSet(viewsets.ModelViewSet):
                     s.id for s in base_qs
                     if not s.assigned_groups or profile.group in s.assigned_groups
                 ]
-                return Session.objects.filter(id__in=valid_ids)
+                queryset = queryset.filter(id__in=valid_ids)
             except Exception:
                 return Session.objects.none()
 
-        return Session.objects.all()
+        # Apply frontend filters
+        day = self.request.query_params.get('day')
+        year = self.request.query_params.get('year')
+        specialty = self.request.query_params.get('specialty')
+        section = self.request.query_params.get('section')
+
+        if day:
+            queryset = queryset.filter(day__iexact=day)
+        if year:
+            queryset = queryset.filter(year__iexact=year)
+        if specialty:
+            queryset = queryset.filter(specialty__iexact=specialty)
+        if section:
+            try:
+                queryset = queryset.filter(section=int(section))
+            except ValueError:
+                pass
+
+        return queryset
 
     @action(detail=True, methods=['get'], url_path='students')
     def students(self, request, pk=None):
