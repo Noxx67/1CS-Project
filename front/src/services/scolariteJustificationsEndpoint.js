@@ -371,6 +371,7 @@ export function normalizeJustificationDocument(payload = {}) {
 
   return {
     id: normalizeText(payload.id),
+    isExam: Boolean(payload.is_exam),
     studentName: normalizeText(
       payload.student_name
       || student.full_name

@@ -36,6 +36,16 @@ export default function StudentHeader() {
     return `${firstName}${initial}`;
   };
 
+  const getInitials = () => {
+    if (!user) return 'S';
+    const first = (user.first_name || user.firstName || '').trim();
+    const last = (user.last_name || user.lastName || '').trim();
+    const parts = `${first} ${last}`.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'S';
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  };
+
   return (
     <header className={styles.header}>
       <div className={styles.headerContent}>
@@ -50,11 +60,17 @@ export default function StudentHeader() {
             <p className={styles.userRole}>{user?.promotion || 'Student'}</p>
           </div>
           <div className={styles.userAvatar}>
-            <img
-              src={user?.profile_picture || "/Icons/studentPicture.png"}
-              alt={user?.name || "Student"}
-              className={styles.avatarImage}
-            />
+            {user?.profile_picture ? (
+              <img
+                src={user.profile_picture}
+                alt={user?.name || "Student"}
+                className={styles.avatarImage}
+              />
+            ) : (
+              <div className={styles.avatarPlaceholder} aria-hidden="true" style={{width:40,height:40,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'50%',background:'#e5e7eb',color:'#111827',fontWeight:700}}>
+                {getInitials()}
+              </div>
+            )}
           </div>
           <ChevronDown className={styles.chevronIcon} />
         </div>

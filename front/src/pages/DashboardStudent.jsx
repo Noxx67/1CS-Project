@@ -198,7 +198,7 @@ const navItems = [
     { icon: DashboardIcon, label: "Dashboard", active: true, path: "/DashboardStudent" },
     { icon: AbsencesIcon, label: "Absences", active: false, path: "/StudentAbsencePage" },
     { icon: FileTextIcon, label: "Justificatifs", active: false, indent: true, path: "/Justification" },
-    { icon: RefreshIcon, label: "Rattrapages", active: false, path: "/Rattrapage" },
+    { icon: RefreshIcon, label: "Replacement", active: false, path: "/Rattrapage" },
     { icon: CheckInIcon, label: "Check-in (Présence)", active: false, path: "/Check-in" },
     { icon: BellIcon, label: "Notifications", active: false, badge: 3, path: "/Notifications" },
 ]

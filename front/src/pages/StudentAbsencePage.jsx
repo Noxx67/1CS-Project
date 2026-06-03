@@ -148,7 +148,7 @@ const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", active: false, path: "/DashboardStudent" },
     { icon: FileText, label: "Absences", active: true, path: "/StudentAbsencePage" },
     { icon: FileCheck, label: "Justificatifs", active: false, path: "/Justification" },
-    { icon: RotateCcw, label: "Rattrapages", active: false, path: "/Rattrapage" },
+    { icon: RotateCcw, label: "Replacement", active: false, path: "/Rattrapage" },
     { icon: UserCheck, label: "Check-in (Présence)", active: false, path: "/Check-in" },
     { icon: Bell, label: "Notifications", active: false, badge: 3, path: "/Notifications" },
 ]
@@ -259,7 +259,7 @@ function AbsencesTable({ absences, onJustify }) {
                                     <td className={styles["text-center"]}>
                                         <button 
                                             className={styles["action-btn"]}
-                                            onClick={() => onJustify(absence.id)}
+                                            onClick={() => onJustify(absence.id, absence.isExam)}
                                             disabled={!!absence.justification_status}
                                             style={{ 
                                                 opacity: !!absence.justification_status ? 0.5 : 1, 
@@ -318,7 +318,24 @@ export default function StudentAbsencePage() {
             try {
                 const response = await api.get('schedules/attendance/');
                 const absentRecords = response.data.filter(record => record.status === 'absent' || record.justification_status);
-                setAbsences(absentRecords);
+                
+                const examResponse = await api.get('schedules/exam-attendance/');
+                const examAbsentRecords = examResponse.data
+                    .filter(record => record.status === 'absent' || record.justification_status)
+                    .map(record => ({
+                        ...record,
+                        isExam: true,
+                        id: `exam-${record.id}` // Ensure unique ID for table key and form logic
+                    }));
+
+                const allAbsences = [...absentRecords, ...examAbsentRecords];
+                // Try to sort by date descending
+                allAbsences.sort((a, b) => {
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    return dateB - dateA;
+                });
+                setAbsences(allAbsences);
             } catch (error) {
                 console.error("Error fetching absences:", error);
             }
@@ -332,7 +349,7 @@ export default function StudentAbsencePage() {
             <div className={styles["main-content"]}>
                 <StudentHeader />
                 <main className={styles["content-area"]}>
-                    <AbsencesTable absences={absences} onJustify={(absenceId) => navigate(`/NewJustification?absenceId=${absenceId}`)} />
+                    <AbsencesTable absences={absences} onJustify={(absenceId, isExam) => navigate(`/NewJustification?absenceId=${absenceId}${isExam ? '&isExam=true' : ''}`)} />
                 </main>
             </div>
         </div>

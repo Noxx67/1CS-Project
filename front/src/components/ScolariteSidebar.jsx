@@ -17,34 +17,12 @@ const navItems = [
     ),
   },
   {
-    to: '/scolarite/today-absences',
-    label: "Today's Absences",
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M5 5l14 14" />
-        <path d="M7.5 5.5h8.6a2.4 2.4 0 0 1 2.4 2.4v8.6" />
-        <path d="M16.5 19H7.9a2.4 2.4 0 0 1-2.4-2.4V8" />
-      </svg>
-    ),
-  },
-  {
     to: '/scolarite/supporting-documents',
     label: 'Justification',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M4.5 7.5h5.2l1.6 2h8.2v7.8a2.2 2.2 0 0 1-2.2 2.2H6.7a2.2 2.2 0 0 1-2.2-2.2V7.5Z" />
         <path d="M4.5 7.5V6.8a2.2 2.2 0 0 1 2.2-2.2h2.6l1.6 2h6.4a2.2 2.2 0 0 1 2.2 2.2v.7" />
-      </svg>
-    ),
-  },
-  {
-    to: '/scolarite/makeup-sessions',
-    label: 'Makeup Sessions',
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="4" y="5" width="16" height="15" rx="2.3" />
-        <path d="M8 3.5v4M16 3.5v4M4 10h16M15.8 14.2h-3.6v3.6" />
-        <path d="M12.3 17.6a3.2 3.2 0 1 0 .5-4" />
       </svg>
     ),
   },
@@ -57,16 +35,6 @@ const navItems = [
         <path d="M3.8 18.5a5.2 5.2 0 0 1 10.4 0" />
         <circle cx="17.2" cy="9.2" r="2.2" />
         <path d="M15.2 17.8a4.2 4.2 0 0 1 5-1.9" />
-      </svg>
-    ),
-  },
-  {
-    to: '/scolarite/schedule-exams',
-    label: 'Schedule & Exams',
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="4.5" y="5" width="15" height="15" rx="2" />
-        <path d="M8 3.5v3M16 3.5v3M4.5 9.5h15M8 13h3M8 16h6" />
       </svg>
     ),
   },
@@ -137,6 +105,19 @@ export default function ScolariteSidebar() {
           <span className={styles.profileName}>{avatarLabel}</span>
           <span className={styles.profileRole}>{roleLabel}</span>
         </div>
+        <button
+          type="button"
+          className={styles.settingsButton}
+          onClick={() => navigate('/scolarite/profile')}
+          aria-label="Settings"
+          title="Settings"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="1" />
+            <circle cx="19" cy="12" r="1" />
+            <circle cx="5" cy="12" r="1" />
+          </svg>
+        </button>
         <button
           type="button"
           className={styles.logoutButton}

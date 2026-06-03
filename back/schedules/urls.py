@@ -7,7 +7,9 @@ from .views import (
     AbsenceCounterViewSet,
     JustificationViewSet,
     ScolariteDashboardOverviewView,
-    RecentAbsenceRecordsView
+    RecentAbsenceRecordsView,
+    ExamViewSet,
+    ExamAttendanceRecordViewSet
 )
 
 router = DefaultRouter()
@@ -16,9 +18,12 @@ router.register(r'instances', SessionInstanceViewSet, basename='sessioninstance'
 router.register(r'attendance', AttendanceRecordViewSet, basename='attendancerecord')
 router.register(r'counters', AbsenceCounterViewSet, basename='absencecounter')
 router.register(r'justifications', JustificationViewSet, basename='justification')
+router.register(r'exams', ExamViewSet, basename='exam')
+router.register(r'exam-attendance', ExamAttendanceRecordViewSet, basename='examattendancerecord')
 
 urlpatterns = [
     path('', include(router.urls)),
     path('scolarite/dashboard/overview/', ScolariteDashboardOverviewView.as_view(), name='scolarite-overview'),
     path('scolarite/recent-absence-records/', RecentAbsenceRecordsView.as_view(), name='scolarite-recent-absences'),
 ]
+

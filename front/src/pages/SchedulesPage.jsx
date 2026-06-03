@@ -154,7 +154,7 @@ export default function SchedulesPage() {
   const { t } = useAppPreferences();
   const { addNotification } = useNotifications();
   const { metadata: contextMetadata, sessions, loading: directoryLoading, error: contextError, loadMetadata, loadSessions, createSession, updateSession, deleteSession } = useSchedules();
-  
+
   const teacherSearchRef = useRef(null);
   const [metadata, setMetadata] = useState(createEmptyScheduleMetadata());
   const [filters, setFilters] = useState({
