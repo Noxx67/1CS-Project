@@ -45,7 +45,7 @@ function RotateCcw({ className }) {
       className={className}
       width="24"
       height="24"
-      alt="rattrapage icon"
+      alt="makeup sessions icon"
     />
   );
 }
@@ -72,8 +72,8 @@ function LogOut({ className }) {
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", paths: ["/DashboardStudent"] },
   { icon: FileText, label: "Absences", paths: ["/StudentAbsencePage"] },
-  { icon: FileCheck, label: "Justificatifs", paths: ["/Justification", "/NewJustification"] },
-  { icon: RotateCcw, label: "Replacement", paths: ["/Rattrapage"] },
+  { icon: FileCheck, label: "Justifications", paths: ["/Justification", "/NewJustification"] },
+  { icon: RotateCcw, label: "Makeup Sessions", paths: ["/Rattrapage"] },
 ];
 
 export default function StudentSidebar() {
@@ -85,6 +85,12 @@ export default function StudentSidebar() {
     e.preventDefault();
     navigate(path);
   };
+
+  const fullName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || user?.name || "Student";
+  let displayPhoto = user?.profile_picture || "/Icons/studentPicture.png";
+  if (typeof displayPhoto === 'string' && displayPhoto.startsWith('/media/')) {
+      displayPhoto = `http://127.0.0.1:8000${displayPhoto}`;
+  }
 
   return (
     <aside className={styles.sidebar}>
@@ -108,7 +114,7 @@ export default function StudentSidebar() {
         {navItems.map((item, index) => {
           const isActive = item.paths.some(path => location.pathname.toLowerCase() === path.toLowerCase());
           return (
-            <a
+             <a
               key={index}
               href={item.paths[0]}
               onClick={(e) => handleNavClick(e, item.paths[0])}
@@ -134,21 +140,15 @@ export default function StudentSidebar() {
 
       <div className={styles.sidebarProfile} onClick={() => navigate('/StudentProfile')} style={{ cursor: 'pointer' }}>
         <div className={styles.profileAvatar}>
-          {user?.profile_picture ? (
-            <img
-              src={user.profile_picture}
-              alt={(user?.first_name || user?.name) ? `${user?.first_name || ''} ${user?.last_name || ''}`.trim() : "Student"}
-              className={styles.avatarImage}
-            />
-          ) : (
-            <div style={{ width: 40, height: 40, borderRadius: 20, background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#111827' }}>
-              {((user?.first_name || user?.name) ? ((user?.first_name || '')[0] || '') : 'S').toUpperCase()}
-            </div>
-          )}
+          <img
+            src={displayPhoto}
+            alt={fullName}
+            className={styles.avatarImage}
+          />
         </div>
         <div>
-          <p className={styles.profileName}>{(user?.first_name || user?.name) ? `${user?.first_name || ''} ${user?.last_name || ''}`.trim() : "Student"}</p>
-          <p className={styles.profileRole}>{user?.promotion || user?.year || 'Student'}</p>
+          <p className={styles.profileName}>{fullName}</p>
+          <p className={styles.profileRole}>Student</p>
         </div>
       </div>
     </aside>
