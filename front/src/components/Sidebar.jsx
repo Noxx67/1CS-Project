@@ -6,6 +6,7 @@ const navItems = [
   { id: 'dashboard', icon: '\u25A6', labelKey: 'nav.dashboard' },
   { id: 'users', icon: '\u{1F465}', labelKey: 'nav.users' },
   { id: 'schedules', icon: '\u{1F4C5}', labelKey: 'nav.schedules' },
+  { id: 'exams', icon: '\u{1F4DD}', labelKey: 'nav.exams' },
   { id: 'settings', icon: '\u2699', labelKey: 'nav.settings' },
 ];
 

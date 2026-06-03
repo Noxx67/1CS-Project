@@ -37,6 +37,17 @@ const navItems = [
       </svg>
     ),
   },
+  {
+    to: '/teacher/exams',
+    labelKey: 'teacherSidebar.exams',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8 4.5h6l3.5 3.5v11.5H8a2.5 2.5 0 0 1-2.5-2.5v-10A2.5 2.5 0 0 1 8 4.5Z" />
+        <path d="M13.5 4.8V8.5H17" />
+        <path d="M9 13h6M9 16h4" />
+      </svg>
+    ),
+  },
 ];
 
 function getInitials(fullName) {

@@ -17,7 +17,6 @@ const SECTION_IDS = [
   'admin-account',
   'general-configuration',
   'notification-templates',
-  'make-up-exam-rattrapage',
 ];
 
 const NOTIFICATION_TAB_IDS = [
@@ -302,15 +301,7 @@ export default function SystemSettingsPage() {
     }));
   }
 
-  function updateAutomationField(fieldName, nextValue) {
-    setSettingsState((currentState) => ({
-      ...currentState,
-      makeUpExamAutomation: {
-        ...currentState.makeUpExamAutomation,
-        [fieldName]: nextValue,
-      },
-    }));
-  }
+  // makeUpExamAutomation removed — kept settingsState untouched for compatibility
 
   function handleLanguageChange(nextLanguage) {
     updateAdminAccountField('preferredLanguage', nextLanguage);
@@ -385,12 +376,6 @@ export default function SystemSettingsPage() {
       label: t('settings.notificationTemplates'),
       title: t('settings.notificationTemplates'),
       description: t('settings.notificationTemplatesDescription'),
-    },
-    {
-      id: 'make-up-exam-rattrapage',
-      label: t('settings.makeUpExamRattrapage'),
-      title: t('settings.makeUpExamRattrapageTitle'),
-      description: t('settings.makeUpExamRattrapageDescription'),
     },
   ];
 
@@ -679,64 +664,7 @@ export default function SystemSettingsPage() {
             </div>
           </section>
 
-          <section
-            id="make-up-exam-rattrapage"
-            ref={(node) => { sectionRefs.current['make-up-exam-rattrapage'] = node; }}
-            className={styles.sectionCard}
-          >
-            <div className={styles.sectionHeader}>
-              <h2 className={`${styles.sectionTitle} ${activeSectionId === 'make-up-exam-rattrapage' ? styles.sectionTitleActive : ''}`}>
-                {t('settings.makeUpExamRattrapageTitle')}
-              </h2>
-              <p className={styles.sectionDescription}>{t('settings.makeUpExamRattrapageDescription')}</p>
-            </div>
-
-            <div className={styles.sectionBody}>
-              <div className={styles.fieldStack}>
-                <label className={`${styles.field} ${styles.fieldWide}`}>
-                  <span className={styles.fieldLabel}>{t('settings.algorithmPriorityLogic')}</span>
-                  <select
-                    className={styles.select}
-                    value={settingsState.makeUpExamAutomation.algorithmPriorityLogic}
-                    onChange={(event) => updateAutomationField('algorithmPriorityLogic', event.target.value)}
-                  >
-                    <option value="">{t('settings.selectAlgorithmPriority')}</option>
-                    {settingsState.options.algorithmPriorities.map((priority) => (
-                      <option key={priority} value={priority}>
-                        {priority}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-
-              <div className={styles.resourceGrid}>
-                <article className={styles.resourceCard}>
-                  <div className={styles.resourceCopy}>
-                    <h3 className={styles.resourceTitle}>{t('settings.roomResources')}</h3>
-                    <p className={styles.resourceDescription}>
-                      {settingsState.makeUpExamAutomation.roomResourcesSummary || resourceSummaryFallback}
-                    </p>
-                  </div>
-                  <button type="button" className={styles.secondaryButton}>
-                    {t('settings.manageRooms')}
-                  </button>
-                </article>
-
-                <article className={styles.resourceCard}>
-                  <div className={styles.resourceCopy}>
-                    <h3 className={styles.resourceTitle}>{t('settings.teacherSchedules')}</h3>
-                    <p className={styles.resourceDescription}>
-                      {settingsState.makeUpExamAutomation.teacherSchedulesSummary || resourceSummaryFallback}
-                    </p>
-                  </div>
-                  <button type="button" className={styles.secondaryButton}>
-                    {t('settings.manageSchedules')}
-                  </button>
-                </article>
-              </div>
-            </div>
-          </section>
+          {/* Make-up exam (rattrapage) automation removed per request */}
         </div>
       </div>
 

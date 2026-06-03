@@ -73,7 +73,7 @@ const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", paths: ["/DashboardStudent"] },
   { icon: FileText, label: "Absences", paths: ["/StudentAbsencePage"] },
   { icon: FileCheck, label: "Justificatifs", paths: ["/Justification", "/NewJustification"] },
-  { icon: RotateCcw, label: "Rattrapages", paths: ["/Rattrapage"] },
+  { icon: RotateCcw, label: "Replacement", paths: ["/Rattrapage"] },
 ];
 
 export default function StudentSidebar() {
@@ -134,15 +134,21 @@ export default function StudentSidebar() {
 
       <div className={styles.sidebarProfile} onClick={() => navigate('/StudentProfile')} style={{ cursor: 'pointer' }}>
         <div className={styles.profileAvatar}>
-          <img
-            src={user?.profile_picture || "/Icons/studentPicture.png"}
-            alt={user?.name || "Student"}
-            className={styles.avatarImage}
-          />
+          {user?.profile_picture ? (
+            <img
+              src={user.profile_picture}
+              alt={(user?.first_name || user?.name) ? `${user?.first_name || ''} ${user?.last_name || ''}`.trim() : "Student"}
+              className={styles.avatarImage}
+            />
+          ) : (
+            <div style={{ width: 40, height: 40, borderRadius: 20, background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#111827' }}>
+              {((user?.first_name || user?.name) ? ((user?.first_name || '')[0] || '') : 'S').toUpperCase()}
+            </div>
+          )}
         </div>
         <div>
-          <p className={styles.profileName}>{user?.name || "Student"}</p>
-          <p className={styles.profileRole}>Student</p>
+          <p className={styles.profileName}>{(user?.first_name || user?.name) ? `${user?.first_name || ''} ${user?.last_name || ''}`.trim() : "Student"}</p>
+          <p className={styles.profileRole}>{user?.promotion || user?.year || 'Student'}</p>
         </div>
       </div>
     </aside>

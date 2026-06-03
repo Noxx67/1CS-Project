@@ -470,3 +470,60 @@ export async function submitAttendanceInstance(instanceId, teacherNote = '') {
   return response.data;
 }
 
+/**
+ * EXAM SERVICE ENDPOINTS
+ */
+export async function fetchExams(params = {}) {
+  const response = await api.get('schedules/exams/', { params });
+  return response.data;
+}
+
+export async function fetchMyExams() {
+  const response = await api.get('schedules/exams/my_exams/');
+  return response.data;
+}
+
+export async function createExam(examData) {
+  const response = await api.post('schedules/exams/', examData);
+  return response.data;
+}
+
+export async function updateExam(examId, examData) {
+  const response = await api.put(`schedules/exams/${examId}/`, examData);
+  return response.data;
+}
+
+export async function deleteExam(examId) {
+  const response = await api.delete(`schedules/exams/${examId}/`);
+  return response.data;
+}
+
+export async function startExamAttendance(examId, params = {}) {
+  const response = await api.get(`schedules/exams/${examId}/start_attendance/`, { params });
+  return response.data;
+}
+
+export async function updateExamAttendanceRecord(recordId, status) {
+  const response = await api.post(`schedules/exam-attendance/${recordId}/update-status/`, { status });
+  return response.data;
+}
+
+export async function fetchMyReplacementExams() {
+  const response = await api.get('schedules/exams/my_replacement_exams/');
+  return response.data;
+}
+
+export async function createReplacementExam(originalExamId, examData) {
+  const payload = {
+    ...examData,
+    is_replacement: true,
+    original_exam: originalExamId,
+  };
+  const response = await api.post('schedules/exams/', payload);
+  return response.data;
+}
+
+export async function fetchEligibleForReplacement(originalExamId) {
+  const response = await api.get(`schedules/exams/${originalExamId}/eligible_for_replacement/`);
+  return response.data;
+}

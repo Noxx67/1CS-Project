@@ -34,6 +34,8 @@ const Justification = lazy(() => import('../pages/Justification'));
 const NewJustification = lazy(() => import('../pages/NewJustification'));
 const Rattrapage = lazy(() => import('../pages/Rattrapage'));
 const StudentProfile = lazy(() => import('../pages/StudentProfile'));
+const TeacherExamAttendancePage = lazy(() => import('../pages/TeacherExamAttendancePage'));
+const ScolariteProfile = lazy(() => import('../pages/ScolariteProfile'));
 
 export default function AppRoutes() {
   const { t } = useAppPreferences();
@@ -74,6 +76,7 @@ export default function AppRoutes() {
           <Route path="dashboard" element={<TeacherDashboardPage />} />
           <Route path="attendance" element={<LiveAttendancePage1 />} />
           <Route path="sessions" element={<TeacherSessionsPage />} />
+          <Route path="exams" element={<TeacherExamAttendancePage />} />
         </Route>
 
         <Route path="settings" element={<TeacherSettingsPage />} />
@@ -104,6 +107,7 @@ export default function AppRoutes() {
             />
           )}
         />
+        <Route path="profile" element={<ScolariteProfile />} />
         <Route path="*" element={<Navigate to="dashboard" replace />} />
       </Route>
 

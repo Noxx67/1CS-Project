@@ -100,6 +100,12 @@ function JustificationReviewCard({
           </div>
         </div>
         <div className={styles.reviewBadges}>
+          {doc.isExam && (
+            <span className={`${styles.badge} ${styles.badgeAdministrative}`} style={{background: '#fee2e2', color: '#991b1b', border: '1px solid #f87171'}}>
+              <ScolariteIcon name="document" size="xs" className={styles.badgeIcon} />
+              EXAM
+            </span>
+          )}
           {doc.absenceDateDisplay ? (
             <span className={`${styles.badge} ${styles.badgeDate}`}>
               <ScolariteIcon name="calendar" size="xs" className={styles.badgeIcon} />
@@ -204,6 +210,12 @@ function JustificationDetailView({ doc, onBack }) {
               </div>
             </div>
             <div className={styles.reviewBadges}>
+              {doc.isExam && (
+                <span className={`${styles.badge} ${styles.badgeAdministrative}`} style={{background: '#fee2e2', color: '#991b1b', border: '1px solid #f87171'}}>
+                  <ScolariteIcon name="document" size="xs" className={styles.badgeIcon} />
+                  EXAM
+                </span>
+              )}
               {doc.absenceDateDisplay ? (
                 <span className={`${styles.badge} ${styles.badgeDate}`}>
                   <ScolariteIcon name="calendar" size="xs" className={styles.badgeIcon} />
@@ -830,7 +842,12 @@ export default function ScolariteJustificationsPage() {
                         </div>
                       </td>
                       <td>{doc.group || '—'}</td>
-                      <td>{doc.absenceDate}</td>
+                      <td>
+                        {doc.absenceDate}
+                        {doc.isExam && (
+                          <span style={{ display: 'inline-block', marginLeft: '8px', padding: '2px 6px', background: '#fee2e2', color: '#991b1b', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>EXAM</span>
+                        )}
+                      </td>
                       <td>
                         <div className={styles.documentCell}>
                           <span className={styles.tableDocIcon}>

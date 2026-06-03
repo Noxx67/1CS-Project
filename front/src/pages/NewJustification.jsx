@@ -33,9 +33,20 @@ export default function NewJustification() {
             try {
                 // Fetch absences that need justification
                 const absResponse = await api.get('schedules/attendance/');
-                // Filter only absent records that don't have a justification yet
                 const unjustified = absResponse.data.filter(r => r.status === 'absent');
-                setAbsences(unjustified);
+
+                const examResponse = await api.get('schedules/exam-attendance/');
+                const examUnjustified = examResponse.data
+                    .filter(r => r.status === 'absent')
+                    .map(r => ({
+                        ...r,
+                        isExam: true,
+                        id: `exam-${r.id}`,
+                        subject: `EXAM: ${r.subject}` 
+                    }));
+
+                const allUnjustified = [...unjustified, ...examUnjustified];
+                setAbsences(allUnjustified);
 
                 // Fetch recent justifications history
                 const histResponse = await api.get('schedules/justifications/');
@@ -56,7 +67,14 @@ export default function NewJustification() {
 
         setLoading(true);
         const data = new FormData();
-        data.append('attendance_record', formData.absence);
+        const selectedId = formData.absence.toString();
+        
+        if (selectedId.startsWith('exam-')) {
+            data.append('exam_attendance_record', selectedId.replace('exam-', ''));
+        } else {
+            data.append('attendance_record', selectedId);
+        }
+        
         data.append('justification_type', formData.reason.toUpperCase());
         data.append('file', uploadedFile);
         if (formData.description) {
@@ -273,7 +291,9 @@ export default function NewJustification() {
                                         </svg>
                                     </div>
                                     <div className={styles["history-info"]}>
-                                        <span className={styles["history-name"]}>{item.absence_details?.subject || "Justification"}</span>
+                                        <span className={styles["history-name"]}>
+                                            {item.is_exam ? `EXAM: ${item.absence_details?.subject || "Justification"}` : item.absence_details?.subject || "Justification"}
+                                        </span>
                                         <span className={styles["history-date"]}>Submitted on {new Date(item.submission_date).toLocaleDateString()}</span>
                                     </div>
                                     <span className={`${styles["status-badge"]} ${styles[(item.status || "PENDING").toLowerCase().replace(' ', '-')]}`}>
