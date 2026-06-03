@@ -96,6 +96,7 @@ function buildNormalizedPreviewUser(userId, userData, existingUser = null) {
     year: role === 'student' ? year : null,
     specialty: role === 'student' ? specialty : '',
     specialization: role === 'student' ? specialty : '',
+    group: role === 'student' ? (userData.group || existingUser?.group || '') : '',
     department: role === 'student' || role === 'teacher' ? department : '',
     is_active: existingUser?.is_active ?? true,
     must_change_password: existingUser?.must_change_password ?? (role !== 'admin'),
@@ -114,6 +115,7 @@ function buildLocalUserDetails(userData) {
     promotion: '',
     specialty: '',
     department: '',
+    group: '',
   };
 
   if (Object.prototype.hasOwnProperty.call(userData, 'avatarUrl')) {
@@ -127,6 +129,7 @@ function buildLocalUserDetails(userData) {
     localDetails.specialty = userData.speciality && userData.speciality !== 'N/A'
       ? userData.speciality
       : '';
+    localDetails.group = userData.group || '';
     return localDetails;
   }
 
@@ -160,6 +163,7 @@ function normalizeUserData(backendUser) {
     year: getNumericYearFromPromotion(promotion) || backendUser.year || null,
     specialty: localUserData.specialty || backendUser.speciality || '',
     specialization: localUserData.specialty || backendUser.speciality || '',
+    group: localUserData.group || backendUser.group || '',
     department: normalizedRole === 'student'
       ? (localUserData.department || backendUser.department || studentDepartment || '')
       : (localUserData.department || backendUser.department || backendUser.field || ''),
@@ -247,6 +251,7 @@ export function UsersProvider({ children }) {
         registration_number: userData.registration_number,
         year: userData.year,
         speciality: userData.speciality,
+        group: userData.group,
         field: userData.field,
         department: userData.department,
       });
@@ -295,6 +300,7 @@ export function UsersProvider({ children }) {
         year: userData.year,
         promotion: userData.promotion,
         speciality: userData.speciality,
+        group: userData.group,
         field: userData.field,
         department: userData.department,
         avatarUrl: userData.avatarUrl,

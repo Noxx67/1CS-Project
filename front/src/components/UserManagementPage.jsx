@@ -25,6 +25,7 @@ const PROMOTION_TO_YEAR = {
   '3CS': 5,
 };
 const ALGERIAN_PHONE_REGEX = /^(0\d{9}|\+213\d{9})$/;
+const groupOptions = ['G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8'];
 
 const initialFormState = {
   firstName: '',
@@ -34,6 +35,7 @@ const initialFormState = {
   registrationNumber: '',
   promotion: '',
   specialty: '',
+  group: '',
   department: '',
   profilePicture: '',
 };
@@ -1032,15 +1034,18 @@ export default function UserManagementPage({
         </label>
         <label className="create-field">
           <span className="create-field-label">{t('userManagement.group', 'Group')}</span>
-          <input
-            type="text"
+          <select
             name="group"
-            className={getFieldClass('group')}
-            placeholder="e.g. G1"
+            className={getFieldClass('group', 'create-input create-select')}
             value={formValues.group || ''}
             onChange={handleFieldChange}
             aria-invalid={Boolean(formErrors.group)}
-          />
+          >
+            <option value="">{t('userManagement.selectGroup', 'Select a group')}</option>
+            {groupOptions.map((g) => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
           {renderFieldError('group')}
         </label>
       </>

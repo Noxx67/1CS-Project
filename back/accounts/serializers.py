@@ -10,14 +10,52 @@ from .models import User, StudentProfile, TeacherProfile
 class UserSerializer(serializers.ModelSerializer):
     """Sérialise les informations d'un utilisateur pour l'affichage."""
     full_name = serializers.ReadOnlyField()
+    registration_number = serializers.SerializerMethodField()
+    year = serializers.SerializerMethodField()
+    speciality = serializers.SerializerMethodField()
+    group = serializers.SerializerMethodField()
+    field = serializers.SerializerMethodField()
+    department = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = [
             'id', 'email', 'first_name', 'last_name', 'full_name',
-            'role', 'phone', 'is_active', 'must_change_password', 'date_joined','profile_picture',
+            'role', 'phone', 'is_active', 'must_change_password', 'date_joined', 'profile_picture',
+            'registration_number', 'year', 'speciality', 'group',
+            'field', 'department',
         ]
         read_only_fields = ['id', 'date_joined', 'must_change_password']
+
+    def get_registration_number(self, obj):
+        if obj.role == User.Role.STUDENT and hasattr(obj, 'student_profile'):
+            return obj.student_profile.registration_number
+        return None
+
+    def get_year(self, obj):
+        if obj.role == User.Role.STUDENT and hasattr(obj, 'student_profile'):
+            return obj.student_profile.year
+        return None
+
+    def get_speciality(self, obj):
+        if obj.role == User.Role.STUDENT and hasattr(obj, 'student_profile'):
+            return obj.student_profile.speciality
+        return None
+
+    def get_group(self, obj):
+        if obj.role == User.Role.STUDENT and hasattr(obj, 'student_profile'):
+            return obj.student_profile.group
+        return None
+
+    def get_field(self, obj):
+        if obj.role == User.Role.TEACHER and hasattr(obj, 'teacher_profile'):
+            return obj.teacher_profile.field
+        return None
+
+    def get_department(self, obj):
+        if obj.role == User.Role.TEACHER and hasattr(obj, 'teacher_profile'):
+            return obj.teacher_profile.department
+        return None
 
 
 # ============================================================
@@ -95,12 +133,22 @@ class CreateUserSerializer(serializers.ModelSerializer):
         Crée l'utilisateur ET son profil spécifique.
         Le mot de passe est hashé automatiquement.
         """
+        import re
+
+        def normalize_group(g):
+            """Normalize group codes: 'g2', '2', ' G2 ' all become 'G2'."""
+            if not g:
+                return None
+            g = str(g).strip().upper()
+            m = re.match(r'^G?(\d+)$', g)
+            return f'G{m.group(1)}' if m else g
+
         # Extraire les données des profils spécifiques
         student_data = {
             'registration_number': validated_data.pop('registration_number', None),
             'year':                validated_data.pop('year', None),
             'speciality':          validated_data.pop('speciality', None),
-            'group':               validated_data.pop('group', None),
+            'group':               normalize_group(validated_data.pop('group', None)),
         }
         teacher_data = {
             'field':      validated_data.pop('field', None),
@@ -200,6 +248,16 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
         # Mettre à jour le profil étudiant
         if instance.role == User.Role.STUDENT and hasattr(instance, 'student_profile'):
+            import re
+
+            def normalize_group(g):
+                """Normalize group codes: 'g2', '2', ' G2 ' all become 'G2'."""
+                if not g:
+                    return None
+                g = str(g).strip().upper()
+                m = re.match(r'^G?(\d+)$', g)
+                return f'G{m.group(1)}' if m else g
+
             profile = instance.student_profile
             if student_data['registration_number'] is not None:
                 profile.registration_number = student_data['registration_number']
@@ -208,7 +266,8 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             if student_data['speciality'] is not None:
                 profile.speciality = student_data['speciality']
             if student_data['group'] is not None:
-                profile.group = student_data['group']
+                normalized = normalize_group(student_data['group'])
+                profile.group = normalized if normalized else profile.group
             profile.save()
 
         # Mettre à jour le profil enseignant
