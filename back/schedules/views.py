@@ -68,14 +68,27 @@ class SessionViewSet(viewsets.ModelViewSet):
         """Return all students whose group is in session.assigned_groups."""
         session = self.get_object()
         from accounts.models import StudentProfile
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
+        import re
 
         groups = session.assigned_groups or []
-        if groups:
-            profiles = StudentProfile.objects.filter(group__in=groups).select_related('user')
+        
+        def normalize_group(g):
+            g = str(g).strip().upper()
+            m = re.match(r'^G?(\d+)$', g)
+            return f'G{m.group(1)}' if m else g
+
+        normalized_groups = [normalize_group(g) for g in groups]
+        session_year_int = session.get_numeric_year()
+
+        if normalized_groups:
+            all_profiles = StudentProfile.objects.select_related('user')
+            profiles = [
+                p for p in all_profiles
+                if normalize_group(p.group or '') in normalized_groups
+                and (session_year_int is None or p.year == session_year_int)
+            ]
         else:
-            profiles = StudentProfile.objects.none()
+            profiles = []
 
         students_data = [
             {

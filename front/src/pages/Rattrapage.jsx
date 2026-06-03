@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import styles from "./Rattrapage.module.css";
 import { useAuth } from "../context/AuthContext";
+import StudentSidebar from "../components/StudentSidebar";
+import StudentHeader from "../components/StudentHeader";
+
 
 
 export default function Rattrapages() {
@@ -63,91 +66,14 @@ export default function Rattrapages() {
 
     return (
         <div className={styles["layout"]}>
-            {/* Sidebar */}
-            <aside className={styles["sidebar"]}>
-                <div className={styles["sidebar-content"]}>
-                    <div className={styles["logo"]}>
-                        <div className={styles["logo-icon"]}>
-                            <img src="/images/logo.png" alt="ESI SBA" width={40} height={40} />
-                        </div>
-                        <div className={styles["logo-text"]}>
-                            <span className={styles["logo-title"]}>ESI SBA</span>
-                            <span className={styles["logo-subtitle"]}>ABSENCE PORTAL</span>
-                        </div>
-                    </div>
-
-                    <nav className={styles["nav-menu"]}>
-                        <a href="/DashboardStudent" className={styles["nav-item"]}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="3" y="3" width="7" height="7" />
-                                <rect x="14" y="3" width="7" height="7" />
-                                <rect x="3" y="14" width="7" height="7" />
-                                <rect x="14" y="14" width="7" height="7" />
-                            </svg>
-                            <span>Dashboard</span>
-                        </a>
-
-                        <a href="/StudentAbsencePage" className={`${styles["nav-item"]} ${styles["active"]}`}>
-                            <img src="/Icons/absence.png" alt="absence icon" />
-                            <span>Absences</span>
-                        </a>
-
-                        <a href="/NewJustification" className={`${styles["nav-item"]} ${styles["nav-subitem"]}`}>
-                            <span>Justificatifs</span>
-                        </a>
-
-                        <a href="/Rattrapage" className={`${styles["nav-item"]} ${styles["active-subitem"]}`}>
-                            <img src="/Icons/rattrapageIcon.png" alt="rattrapage-icon" />
-                            <span>Rattrapages</span>
-                        </a>
-
-                        <a href="/Check-in" className={styles["nav-item"]}>
-                            <img src="/Icons/checkinIcon.png" alt="checkin icon" />
-                            <span>Check-in (Présence)</span>
-                        </a>
-
-                        <a href="/Notifications" className={styles["nav-item"]}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                            </svg>
-                            <span>Notifications</span>
-                            <span className={styles["nav-badge"]}>3</span>
-                        </a>
-                    </nav>
-                </div>
-                <div className={styles["sidebar-setting"]}>
-                    <a href="/SystemSettings" className={styles["nav-item"]}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="3" />
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                        </svg>
-                        <span className={styles["settingtext"]}>System Settings</span>
-                    </a>
-                    <button onClick={user?.logout || (() => {})} className={styles["nav-item"]} style={{ border: "none", background: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit" }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                            <polyline points="16 17 21 12 16 7" />
-                            <line x1="21" y1="12" x2="9" y2="12" />
-                        </svg>
-                        <span className={styles["settingtext"]}>Logout</span>
-                    </button>
-                </div>
-                <div className={styles["user-profile"]}>
-                    <div className={styles["user-avatar"]}>
-                        <img src={user?.profile_picture || "/Icons/studentPicture.png"} alt={user?.name || "Student"} />
-                    </div>
-                    <div className={styles["user-info"]}>
-                        <span className={styles["user-name"]}>{user?.name || "Student"}</span>
-                        <span className={styles["user-role"]}>Student</span>
-                    </div>
-                </div>
-            </aside>
+            <StudentSidebar />
 
             {/* Main Content */}
             <main className={styles["main-content"]}>
-                {/* Header */}
-                <header className={styles["header"]}>
+                <StudentHeader />
+
+                {/* Page Title row kept below header */}
+                <div className={styles["page-title-bar"]}>
                     <h1 className={styles["page-title"]}>Makeup Sessions</h1>
                     <div className={styles["header-actions"]}>
                         <div className={styles["view-toggle"]}>
@@ -178,22 +104,8 @@ export default function Rattrapages() {
                                 Calendar
                             </button>
                         </div>
-                        <button className={styles["notification-btn"]}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                            </svg>
-                            <span className={styles["notification-dot"]}></span>
-                        </button>
-                        <button className={styles["logout-btn"]} onClick={logout}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                <polyline points="16,17 21,12 16,7" />
-                                <line x1="21" y1="12" x2="9" y2="12" />
-                            </svg>
-                        </button>
                     </div>
-                </header>
+                </div>
 
                 {/* Content */}
                 <div className={styles["content"]}>

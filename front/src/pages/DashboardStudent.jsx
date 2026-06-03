@@ -3,6 +3,9 @@ import styles from "./DashboardStudent.module.css";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import StudentSidebar from "../components/StudentSidebar";
+import StudentHeader from "../components/StudentHeader";
+
 function DashboardIcon() {
     return (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -284,69 +287,11 @@ export default function Dashboard() {
 
     return (
         <div className={styles["app-container"]}>
-            {/* Sidebar */}
-            <aside className={styles["sidebar"]}>
-                <div className={styles["sidebar-header"]}>
-                    <div className={styles["logo"]}>
-                        <div className={styles["logo-icon"]}>
-                            <img src="/images/logo.png" alt="esi-logo" className={styles["logo-image"]} />
-                        </div>
-                        <div className={styles["logo-text"]}>
-                            <span className={styles["logo-title"]}>ESI SBA</span>
-                            <span className={styles["logo-subtitle"]}>ABSENCE PORTAL</span>
-                        </div>
-                    </div>
-                </div>
-
-                <nav className={styles["nav-menu"]}>
-                    {navItems.map((item, index) => (
-                        <a
-                            key={index}
-                            href={item.path}
-                            className={`${styles["nav-item"]} ${item.active ? styles["active"] : ""} ${item.indent ? styles["indent"] : ""}`}
-                        >
-                            <item.icon />
-                            <span>{item.label}</span>
-                            {item.badge && <span className={styles["badge"]}>{item.badge}</span>}
-                        </a>
-                    ))}
-                </nav>
-
-                <div className={styles["sidebar-settings"]}>
-                    <a href="#" className={styles["setting-item"]}>
-                        <SettingsIcon className={styles["nav-icon"]} />
-                        <span className={styles["settingtext"]}>System Settings</span>
-                    </a>
-                    <button onClick={logout} className={styles["setting-item"]} style={{ border: "none", background: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit" }}>
-                        <LogoutIcon className={styles["nav-icon"]} />
-                        <span className={styles["settingtext"]}>Logout</span>
-                    </button>
-                </div>
-
-                <div className={styles["sidebar-footer"]}>
-                    <div className={styles["user-profile"]}>
-                        <img src={user?.profile_picture || "/Icons/studentPicture.png"} alt={user?.name} className={styles["user-avatar"]} />
-                        <div className={styles["user-info"]}>
-                            <span className={styles["user-name"]}>{user?.name || "Student"}</span>
-                            <span className={styles["user-role"]}>Student</span>
-                        </div>
-                    </div>
-                </div>
-            </aside>
+            <StudentSidebar />
 
             {/* Main Content */}
             <main className={styles["main-content"]}>
-                {/* Header */}
-                <header className={styles["header"]}>
-                    <div className={styles["header-icons"]}>
-                        <button className={styles["icon-btn"]}>
-                            <BellIcon />
-                        </button>
-                        <button className={styles["icon-btn"]} onClick={logout}>
-                            <LogoutIcon />
-                        </button>
-                    </div>
-                </header>
+                <StudentHeader />
 
                 {/* Welcome Section */}
                 <div className={styles["welcome-section"]}>

@@ -1,4 +1,5 @@
 .sidebar {
+<<<<<<< HEAD
     width: 240px;
     background-color: var(--primary-dark);
     color: var(--white);
@@ -154,4 +155,165 @@
     font-size: 12px;
     color: var(--gray-400);
     margin: 0;
+=======
+  width: 240px;
+  background-color: #00194F;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  font-size: 14px;
+  z-index: 100;
+}
+
+.logoSection {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoCircle {
+  width: 35px;
+  height: 35px;
+  border-radius: 20%;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.logoImage {
+  border-radius: 10%;
+  object-fit: cover;
+}
+
+.logoTitle {
+  font-weight: 700;
+  font-size: 16px;
+  margin: 0;
+  color: #ffffff;
+}
+
+.logoSubtitle {
+  font-size: 10px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.sidebarNav {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.navItem:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.navItemActive {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-left: 4px solid #3b82f6;
+  padding-left: 12px; /* adjust padding for border-left */
+}
+
+.navIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.navLabel {
+  flex: 1;
+}
+
+.sidebarSettings {
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settingItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.settingItem:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.settingText {
+  line-height: 1;
+}
+
+.sidebarProfile {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.profileAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #4b5563;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileName {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.profileRole {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+>>>>>>> 3f3892957ce1f2e513ea28d179b4bd95bf361818
 }

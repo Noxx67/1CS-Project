@@ -4,6 +4,8 @@ import UserPasswordPlaceholderDialog from './UserPasswordPlaceholderDialog';
 import { buildUserEmail } from '../utils/userEmail';
 import { useAppPreferences } from '../context/AppPreferencesContext';
 
+const groupOptions = ['G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8'];
+
 function getRoleLabel(role, t) {
   return t(`roles.${String(role || '').toUpperCase()}`, t('common.user'));
 }
@@ -342,15 +344,18 @@ export default function UserEditPage({
 
               <label className={styles.field}>
                 <span className={styles.fieldLabel}>{t('userManagement.group', 'Group')}</span>
-                <input
-                  type="text"
+                <select
                   name="group"
-                  className={getInputClass('group')}
-                  placeholder="e.g. G1"
                   value={formValues.group || ''}
                   onChange={onFieldChange}
+                  className={formErrors.group ? `${styles.select} ${styles.inputInvalid}` : styles.select}
                   aria-invalid={Boolean(formErrors.group)}
-                />
+                >
+                  <option value="">{t('userManagement.selectGroup', 'Select a group')}</option>
+                  {groupOptions.map((g) => (
+                    <option key={g} value={g}>{g}</option>
+                  ))}
+                </select>
                 {renderFieldError('group')}
               </label>
             </div>

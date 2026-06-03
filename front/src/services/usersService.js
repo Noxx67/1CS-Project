@@ -19,6 +19,7 @@ export const usersService = {
                 payloadData.registration_number = userData.registration_number || '';
                 payloadData.year = userData.year || 1;
                 payloadData.speciality = userData.speciality || '';
+                payloadData.group = userData.group || '';
             }
 
             if (userData.role === 'TEACHER') {
@@ -97,6 +98,7 @@ export const usersService = {
                 payloadData.registration_number = userData.registration_number || '';
                 payloadData.year = userData.year || 1;
                 payloadData.speciality = userData.speciality || '';
+                payloadData.group = userData.group || '';
             }
 
             if (userData.role === 'TEACHER') {

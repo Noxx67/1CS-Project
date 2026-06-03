@@ -203,8 +203,18 @@
 /* Main Content */
 .main-content {
     flex: 1;
+    margin-left: 240px;
     display: flex;
     flex-direction: column;
+}
+
+.page-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 32px;
+    background-color: #fff;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .page-header {
